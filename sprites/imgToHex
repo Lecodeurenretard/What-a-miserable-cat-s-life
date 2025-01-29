@@ -1,0 +1,20 @@
+#!/bin/zsh
+
+# Loop through all .bmp files
+for file in img/**/*(.); do
+	if [[ $file != *".bmp" ]]; then
+		continue
+	fi
+
+	# Use `xxd` to get the hax dump of each image
+	local fileBasename=$file:t
+	local fileBasenameNoExtention=${fileBasename[0, ${#fileBasename}-4]}
+	local dumpLoc="hexDump/$fileBasenameNoExtention.h"
+	xxd -u -i $file > $dumpLoc
+	echo "#include \"$fileBasenameNoExtention.h\"" >> "hexDump/images.cpp"
+
+	# I don't know why but I love making verbose.
+	if [[ $1 = "-v" || $1 = "--verbose" ]]; then
+		echo -e "\e[3m\x1B[35mConverted $file to hex dump located at $dumpLoc.\033[0m"
+	fi
+done

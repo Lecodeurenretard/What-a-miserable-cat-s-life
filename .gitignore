@@ -1,0 +1,6 @@
+.vscode/*
+bin/*
+CMakeFiles/*
+sprites/hexDump/*
+*.code-workspace
+*.xcf
