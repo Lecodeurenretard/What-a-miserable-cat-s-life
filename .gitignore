@@ -4,3 +4,5 @@ CMakeFiles/*
 sprites/hexDump/*
 *.code-workspace
 *.xcf
+*.ignore.*
+*.zip

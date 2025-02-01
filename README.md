@@ -30,8 +30,7 @@ Well, I lied when I said there is only four files without classes, there is anot
 For this project I used cmake so you just have to run those commands:
 ```bash
 mkdir build; cd build
-cmake ..
-cmake --build . && ./main
+cmake .. && cmake --build . && ./main
 ```
 
 This project isn't even tested on Windows, only Linux Mint. I'll take care of compatibility issues at the release of this project.	

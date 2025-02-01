@@ -52,8 +52,10 @@
 //ostream << operator
 #include <iostream>
 
-#define STYLE_OS_VERBOSE PART_OPEN << PART_ITALIC << PART_CLOSE << COLOR_FG_MAGENTA
+//#define STYLE_VERBOSE STYLE_ITALIC << COLOR_FG_MAGENTA
+#define STYLE_VERBOSE "\e[3m\x1B[35m"
 
+/* Those were parts to create styles but since I can concatenate them with `.append()` I'm removing them. I'm commenting so it can serves as a table to quickly create more style
 //If the user wants more control over styles
 #define PART_ESCAPE		"\e"
 #define PART_OPEN		"\e["
@@ -109,3 +111,5 @@
 //the rest is not standar of not implemented
 
 //example: ``td::cout << PART_OPEN << PART_BLINK << PART_CLOSE << "Blinkin'" << COLOR_ALL_RESET << std::endl;``
+*/
+#define STYLE_ITALIC "\e[3m"
