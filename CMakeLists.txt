@@ -27,6 +27,7 @@ set(
 	"code/src/Dog.cpp"
 	"code/src/Warning.cpp"
 	"code/src/Verbose.cpp"
+	"code/src/Vector.cpp"
 )
 
 execute_process(COMMAND "sprites/imgToHex")   # Convert all the Images into HexDump

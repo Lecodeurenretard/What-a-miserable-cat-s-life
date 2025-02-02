@@ -1,11 +1,12 @@
 # What a miserable cat's life!
 ## General presentation
-This project is an AI project (it doesn't like it yet but it will). In the final version I'm planning to add:
-+ More cats
-+ Dogs
-+ A health system (for cats)
-+ A genetic algorithm
-+ Better graphisms ?
+This project is an AI project (it doesn't look like it yet but it will). In the final version I'm planning to add:
++ ❌ More cats
++ ❌ Dogs
++ ❌ A health system (for cats)
++ ❌ Movement
++ ❌ A genetic algorithm
++ ❌ Better graphisms ?
 
 This project is an encore to an [old scratch project](https://scratch.mit.edu/projects/713148064/) that I made (it' s really buggy and the cats don't move after the first gen) which is an implementation of one of [Laupok's example in one of his videos](https://youtu.be/F63GNXGHVwM?t=352) (french warning) where he makes a brain that plays Mario World, I'm aware that he made a [video](https://www.youtube.com/watch?v=u5xCl1bSe6o&t=0s&ab_channel=Laupok) explaining his [code](https://pastebin.com/Jcvdqhqm) in details but I didn't watch it nor seen his code since I want to do this project my way.
 

@@ -1,0 +1,20 @@
+This file simply list the progression of patches
+
+0.1.2.1:
+	added destination field in `Animal` & a few incomplete related methods
+	added Vector struct
+	added a lot of new methods for `Pos`:
+		`inBound` constructor
+		`shift()` && `shiftSelf()`
+		`lerp()` (static)
+		convertion to `Vector`
+		`ORIGIN` and `SCREEN_CENTER` constant static fields
+	moved `WIN_WIDTH` & `WIN_HEIGHT` to Utilities.hpp and added doc
+	removed inheritance of `std::exeption` for `Warning` because useless with the newly added method `print()`
+	added `STYLE_WARNING` in color constants
+	`vout` is now a global object in main.cpp
+	`saveImageToFile()` now return a `bool` and doesn't throw anything
+	added a second lighter version of `saveImageToFile()`
+	`quit()` takes now default arguments
+	changing error messages
+	cleaning

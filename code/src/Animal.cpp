@@ -5,7 +5,7 @@ struct stat sb;
  * This constructor is only for path we are sur they exist. Directly set `spritePath` to `path` without any test.
  */
 [[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, std::string path) 
-	: pos(_pos), size(_size), spritePath(path)
+	: pos(_pos), size(_size), spritePath(path), dest(_pos)
 {}
 
 
@@ -77,7 +77,7 @@ void Animal::setToRandomSprite(void) noexcept(false){
  * Build the Animal with a random sprite
  */
 [[ nodiscard ]] Animal::Animal(Pos _pos) noexcept(false)
-	: pos(_pos)
+	: pos(_pos), dest(_pos), size(0)
 {
 	Animal::setToRandomSprite();
 }
@@ -90,14 +90,14 @@ void Animal::setToRandomSprite(void) noexcept(false){
 {}
 
 [[ nodiscard ]] Animal::Animal(Pos p, uint _size) noexcept(false)
-	: pos(p), size(_size)
+	: pos(p), dest(p), size(_size)
 {
 	Animal::setToRandomSprite();
 }
 
 
 [[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, uint8_t spriteNum=0) noexcept(false)
-	: pos(_pos), size(_size)
+	: pos(_pos), dest(_pos), size(_size)
 {
 	if(spriteNum == 0){
 		setToRandomSprite();
@@ -116,6 +116,20 @@ void Animal::increaseSize(uint by){
 		size = UINT32_MAX;
 
 	size += by;
+}
+
+/**
+ * Set the destination to a random point on the screen
+ */
+void Animal::setRandDest(void) {
+	dest = Pos(
+		randInt(0, WIN_WIDTH),
+		randInt(0, WIN_HEIGHT)
+	);
+}
+
+void move(void) {
+	
 }
 
 /**

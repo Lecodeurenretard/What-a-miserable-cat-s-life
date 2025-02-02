@@ -7,6 +7,7 @@
 class Animal {
 protected:
 	Pos pos;
+	Pos dest;
 	uint size;
 	std::string spritePath;
 
@@ -22,10 +23,13 @@ public:
 	Animal(pos_t, pos_t);
 	Animal(Pos, uint);
 	Animal(Pos, uint, uint8_t);
+
 	Animal(const Animal&) = default;
 	virtual ~Animal(void) = default;
 
 	void increaseSize(uint);
+	void setRandDest(void);
+	void move(void);
 
 	uint getSize(void) const;
 

@@ -55,6 +55,9 @@
 //#define STYLE_VERBOSE STYLE_ITALIC << COLOR_FG_MAGENTA
 #define STYLE_VERBOSE "\e[3m\x1B[35m"
 
+//
+#define STYLE_WARNING COLOR_FG_BRED
+
 /* Those were parts to create styles but since I can concatenate them with `.append()` I'm removing them. I'm commenting so it can serves as a table to quickly create more style
 //If the user wants more control over styles
 #define PART_ESCAPE		"\e"

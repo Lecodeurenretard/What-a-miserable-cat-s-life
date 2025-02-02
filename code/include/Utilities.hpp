@@ -1,3 +1,10 @@
+/** me-defined constants that need to be included in all files */
+/** The width of the screen */
+constexpr uint WIN_WIDTH	= 1000;
+
+/** The height of the screen */
+constexpr uint WIN_HEIGHT	= 1000;
+
 /** me-defined functions that need to be included in all files */
 
 
