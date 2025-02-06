@@ -1,0 +1,25 @@
+#!/bin/zsh
+
+if [[ -d CMakeFiles ]]; then
+	rm -r CMakeFiles
+	echo "Removed CMakefiles"
+fi
+
+if [[ -f CMakeCache.txt ]]; then
+	rm CMakeCache.txt
+	echo "Removed CmakeCache.txt"
+fi
+
+{
+	rm *.cmake
+} >& /dev/null		# Redirect errors toward /dev/null (discard them), I don't know why just `rm *.cmake &> /dev/null` doesn't work
+if [[ $? = 0 ]]; then
+	
+	echo "Removed all files with the .cmake extention"
+fi
+
+
+if [[ -f Makefile ]]; then
+	rm Makefile
+	echo "Removed Makefile"
+fi

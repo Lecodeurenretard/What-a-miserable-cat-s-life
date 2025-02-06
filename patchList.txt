@@ -2,7 +2,7 @@ This file simply list the progression of patches
 
 0.1.2.1:
 	added destination field in `Animal` & a few incomplete related methods
-	added Vector struct
+	added `Vector` struct
 	added a lot of new methods for `Pos`:
 		`inBound` constructor
 		`shift()` && `shiftSelf()`
@@ -18,3 +18,7 @@ This file simply list the progression of patches
 	`quit()` takes now default arguments
 	changing error messages
 	cleaning
+
+0.1.2.1 bis:
+	added backtick in this file
+	added cmake-clean in this project
