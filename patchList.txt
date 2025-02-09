@@ -22,3 +22,20 @@ This file simply list the progression of patches
 0.1.2.1 bis:
 	added backtick in this file
 	added cmake-clean in this project
+
+0.1.2.2:
+	Renamed `Animal::display()` by `Animal::draw()`.
+	A lot of changes for the `Vector` struct:
+		`x` and `y` are now floats for more precision in calculations.
+		`lerp()` has been finished and a bunch new functions are added:
+			A constructor which takes `SDL_FPoints`
+			`opposite()` which returns the opposites vector.
+			`norm()` and `withNorm()` which respectively return the norm (length) of the vector and sets it to a value.
+			`unit()` returns the unit vector with the same direction as the current one.
+			`draw()` a debugging function that draws the vector in a renderer as an arrow.
+			`rotate()` rotates a vector.
+			`dotProduct()` returns a number indicating how much two vectors are similar.
+			`lerpNoRestrict()` by default `lerp()` restrict $t$ in $0 <= t <= 1$
+			`+`, `-`, `*` and `/` operators are added with their corresponding assignement operators.
+			The constants `UP` and `RIGHT` are defined.
+			`[[ nodiscard ]]` have been added on all operators and `lerp`

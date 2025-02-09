@@ -34,7 +34,7 @@ public:
 	uint getSize(void) const;
 
 	
-	virtual void display(SDL_Renderer*) const noexcept(false);
+	virtual void draw(SDL_Renderer*) const noexcept(false);
 	virtual std::string string(void) 	const;
 
 	static std::string getSpriteFolder(void);

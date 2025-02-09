@@ -54,7 +54,7 @@ int main(int argc, char **argv){
 		quit(EXIT_FAILURE, render, win);
 	}
 
-	vout << "Preparing to enter the main loop." << std::endl;
+	/*vout << "Preparing to enter the main loop." << std::endl;
 	SDL_SetRenderDrawColor(render, 15, 15, 15, SDL_ALPHA_OPAQUE);
 	
 	Cat myCat(Pos::SCREEN_CENTER, (uint)100);
@@ -69,7 +69,7 @@ int main(int argc, char **argv){
 				quit();
 
 		vout << "Displaying the cat to the window.\t(main loop)" << std::endl;
-		myCat.display(render);
+		myCat.draw(render);
 
 		vout << "Rendering then clearing the window.\t(main loop)" << std::endl;
 		SDL_RenderPresent(render);
@@ -77,6 +77,18 @@ int main(int argc, char **argv){
 		
 		vout << "Waiting until next frame.\t\t(main loop)" << std::endl;
 		waitNextFrame((SDL_GetPerformanceCounter()-frameStart) / (float)SDL_GetPerformanceFrequency());		//how long the frame lasted
+	}*/
+	SDL_SetRenderDrawColor(render, 255, 255, 255, SDL_ALPHA_OPAQUE);
+	Vector v(100, 0);
+	for(float i = 0; i <= 4*M_PI; i += 2*M_PI/100){
+		v.rotate(i).withNorm(v.norm()*i*.5).draw(render, Pos::SCREEN_CENTER);
+		SDL_RenderPresent(render);
+	
+		SDL_SetRenderDrawColor(render, 0, 0, 0, SDL_ALPHA_OPAQUE);
+		//SDL_RenderClear(render);	//Commented because pretty
+		
+		SDL_SetRenderDrawColor(render, 255, 255, 255, SDL_ALPHA_OPAQUE);
+		SDL_Delay(50);
 	}
 
 	quit(EXIT_SUCCESS, render, win);

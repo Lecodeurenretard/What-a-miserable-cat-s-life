@@ -5,7 +5,7 @@ struct stat sb;
  * This constructor is only for path we are sur they exist. Directly set `spritePath` to `path` without any test.
  */
 [[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, std::string path) 
-	: pos(_pos), size(_size), spritePath(path), dest(_pos)
+	: pos(_pos), dest(_pos), size(_size), spritePath(path)
 {}
 
 
@@ -143,7 +143,7 @@ void move(void) {
 /**
  * Display the Animal on screen
  */
-void Animal::display(SDL_Renderer* r) const noexcept(false){
+void Animal::draw(SDL_Renderer* r) const noexcept(false){
 	if(size <= 0)
 		return;
 
