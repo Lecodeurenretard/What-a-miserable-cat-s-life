@@ -6,18 +6,19 @@
 
 //String and string manipulation
 #include <iostream>
+typedef std::ostream& (*ostream_manipulator)(std::ostream&);
 
 //Error handling
 #include <stdexcept>
 #include <optional>
 
-//file manipulation
+//File manipulation
 #include <sys/stat.h>
 #include <fstream>
 #include <filesystem>
 namespace fs = std::filesystem;
 
-//misc
+//Misc
 #include <algorithm>	//count_if
 #include <cstdlib>		//random
 

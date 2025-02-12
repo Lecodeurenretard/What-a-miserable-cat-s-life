@@ -1,41 +1,27 @@
 #include "../include/Warning.hpp"
 
 /**
- * Initialize warning the instance.
+ * What to print before every warning message.
  */
-Warning::Warning(std::string errMsg)
-	: msg(errMsg)
-{}
+const std::string WarningStream::heading("Warning: ");
 
 /**
- * Get the msg.
+ * For now, it copies:
+ * - stream
  */
-const char* Warning::what(void) const noexcept{
-	return msg.c_str();
+const WarningStream& WarningStream::operator=(const WarningStream& toCopy){
+	if(this == &toCopy)
+		return *this;
+
+	this->stream = toCopy.stream;
+	return *this;
 }
 
-/**
- * Print the message.
- */
-void Warning::print(bool flush /*= true*/, std::ostream& out /*= std::cerr*/) const{
-	out << STYLE_WARNING << "Warning: " << msg << COLOR_ALL_RESET;
-	
-	if(flush)
-		out << std::endl;
-	else
-		out << '\n';
+WarningStream::WarningStream(const std::ostream& out/* = std::cout*/){
+	stream = new std::ostream(out.rdbuf());
 }
 
-/**
- * Converts to `std::string`
- */
-Warning::operator std::string(){
-	return what();
-}
-
-/**
- * Converts to C-String
- */
-Warning::operator const char*(){
-	return what();
+WarningStream& WarningStream::operator<<(ostream_manipulator foo) {
+	*stream << foo;
+	return *this;
 }

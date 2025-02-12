@@ -24,15 +24,15 @@ int main(int argc, char **argv){
 		for(size_t i = 0; i < allDumpSize-2; i++){
 			const std::string filename = "sprites/cat0"+ std::to_string(i+1) +".bmp";
 			if(!saveImageToFile(filename.c_str(), i))
-				Warning("Failed to save `" + filename + "`").print();
+				wout << "Failed to save `" << filename << '`' << std::endl;
 		}
 
 		
 		if(!saveImageToFile("sprites/cat10.bmp", 9))
-			Warning("Failed to save `sprites/cat10.bmp`").print();
+			wout << "Failed to save `sprites/cat10.bmp`" << std::endl;
 
 		if(!saveImageToFile("sprites/other1.bmp", 10))
-			Warning("Failed to save `sprites/other1.bmp`").print();
+			wout << "Failed to save `sprites/other1.bmp`" << std::endl;
 
 
 	}
@@ -153,9 +153,8 @@ double waitNextFrame(float lasted){
 		SDL_Delay(timeTaken);
 		vout << "Frame completed in " << timeTaken << "ms.\t\t(main loop/waitNextFrame())\n" << std::endl;
 	} else {
-		Warning("The frame ended " + std::to_string(timeTaken) + "ms late (it took " + std::to_string(lasted * 1000) + "ms to run).").print();
+		wout << "The frame ended " << timeTaken << "ms late (it took " << lasted * 1000 << "ms to run)." << std::endl;
 	}
-	//quit();
 	return delta;
 }
 
@@ -164,6 +163,7 @@ double waitNextFrame(float lasted){
  */
 void quit(int exitCode/*=EXIT_SUCCESS*/, SDL_Renderer* renderer/*=nullptr*/, SDL_Window* window/*=nullptr*/){
 	vout << VerboseStream::newLine << VerboseStream::newLine << "Destroying the renderer and the window, then quitting SDL." << std::endl;
+	
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();

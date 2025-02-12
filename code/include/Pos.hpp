@@ -5,13 +5,19 @@
 #include "Vector.hpp"
 
 /** The type for representing a position on 1 dimension */
-typedef float pos_t;	//TODO: Find a better type or do a struct
+struct pos_t {
+private:
+	float val;
+public:
+	inline pos_t(float x): val(x) {}
+	inline operator float(){ return val; }
+};
 
 /** The minimum value of `pos_t` */
-#define POS_MIN UINT32_MIN
+#define POS_MIN FLT_MIN
 
 /** The maximum value of `pos_t` */
-#define POS_MAX UINT32_MAX
+#define POS_MAX FLT_MAX
 
 /**
  * A position in a 2D space.

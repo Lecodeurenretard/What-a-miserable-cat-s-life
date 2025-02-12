@@ -2,17 +2,28 @@
 #include "Imports.hpp"
 
 /**
- * An error which has no other purpose than being displayed
+ * A stream handler that prints warnings.
  */
-class Warning {
+class WarningStream {
 private:
-	std::string msg;
+	std::ostream* stream;
 
+	const WarningStream& operator=(const WarningStream&);
 public:
-	Warning(std::string);
-	const char* what(void) const noexcept;
-	void print(bool = true, std::ostream& = std::cerr) const;
+	static const std::string heading;
 
-	operator std::string();
-	operator const char*();
+	explicit WarningStream(const std::ostream& = std::cerr);
+	WarningStream(const WarningStream&) = default;
+
+	template<typename T>
+	WarningStream& operator<<(const T& value) {
+		*stream << STYLE_WARNING << WarningStream::heading << value << COLOR_ALL_RESET;
+		return *this;
+	}
+
+	WarningStream& operator<<(ostream_manipulator);
+
 };
+
+/** The warning stream */
+inline WarningStream wout;

@@ -54,18 +54,18 @@ Pos Pos::SCREEN_CENTER = Pos(WIN_WIDTH/2, WIN_HEIGHT/2);
 
 [[ nodiscard ]] Pos Pos::shift(pos_t _x, pos_t _y) const {
 	if((uint64_t)x + _x > POS_MAX || y + _y > POS_MAX)
-		Warning("The sum of the parameter `_x` ("+ std::to_string(_x) +") and the field `x` "+ std::to_string(x) +" is greater than the maximum of `pos_t` (" + std::to_string(POS_MAX) + ").").print();
+		wout << "The sum of the parameter `_x` (" << _x << ") and the field `x` " << x <<" is greater than the maximum of `pos_t` (" << POS_MAX << ").";
 	if((uint64_t)y + _y > POS_MAX)
-		Warning("The sum of the parameter `_y` ("+ std::to_string(_y) +") and the field `y` "+ std::to_string(y) +" is greater than the maximum of `pos_t` (" + std::to_string(POS_MAX) + ").").print();
+		wout << "The sum of the parameter `_y` (" << _y << ") and the field `y` " << y <<" is greater than the maximum of `pos_t` (" << POS_MAX << ").";
 
 	return Pos(x + _x, y + _y);
 }
 
 void Pos::shiftSelf(pos_t _x, pos_t _y) {
 	if((uint64_t)x + _x > POS_MAX || y + _y > POS_MAX)
-		Warning("The sum of the parameter `_x` ("+ std::to_string(_x) +") and the field `x` "+ std::to_string(x) +" is greater than the maximum of `pos_t` (" + std::to_string(POS_MAX) + ").").print();
+		wout << "The sum of the parameter `_x` (" << _x << ") and the field `x` " << x <<" is greater than the maximum of `pos_t` (" << POS_MAX << ").";
 	if((uint64_t)y + _y > POS_MAX)
-		Warning("The sum of the parameter `_y` ("+ std::to_string(_y) +") and the field `y` "+ std::to_string(y) +" is greater than the maximum of `pos_t` (" + std::to_string(POS_MAX) + ").").print();
+		wout << "The sum of the parameter `_y` (" << _y << ") and the field `y` " << y <<" is greater than the maximum of `pos_t` (" << POS_MAX << ").";
 
 	x += _x;
 	y += _y;

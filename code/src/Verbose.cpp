@@ -10,7 +10,7 @@ bool VerboseStream::enabled(false);
  * - printHeading
  * - stream
  */
-VerboseStream& VerboseStream::operator=(const VerboseStream& toCopy){
+const VerboseStream& VerboseStream::operator=(const VerboseStream& toCopy){
 	if(this == &toCopy)
 		return *this;
 
@@ -35,10 +35,8 @@ void VerboseStream::setEnabled(int argc, char** argv){	//Who needs safety?
 	enabled = argc > 1 && (std::string(argv[1]) == "-v" || std::string(argv[1]) == "--verbose");
 }
 
-using os_manip=VerboseStream::ostream_manipulator;
-VerboseStream& VerboseStream::operator<<(os_manip foo) {
-
-	if (enabled && (foo == (os_manip)std::endl || foo == (os_manip)std::flush))
+VerboseStream& VerboseStream::operator<<(ostream_manipulator foo) {
+	if (enabled && (foo == (ostream_manipulator)std::endl || foo == (ostream_manipulator)std::flush))
 		printHeading = true;
 	if (enabled)
 		*stream << foo;
@@ -52,7 +50,7 @@ VerboseStream& VerboseStream::operator<<(v_manip foo) {
 }
 
 /**
- * What to print before verbose message.
+ * What to print before every verbose message.
  */
 const std::string VerboseStream::heading("Verbose: ");
 

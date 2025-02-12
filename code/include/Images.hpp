@@ -1,4 +1,4 @@
-//from the libImages.so lib
+//Those are from the libImages.so lib.
 extern unsigned char img_cat_cat01_bmp;
 extern unsigned int  img_cat_cat01_bmp_len;
 

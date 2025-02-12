@@ -1,9 +1,9 @@
-// Following the following question, I wrote a wrapper file
-// https://stackoverflow.com/questions/4053837/colorizing-text-in-the-console-with-c
+//Following the following question, I wrote a wrapper file
+//https://stackoverflow.com/questions/4053837/colorizing-text-in-the-console-with-c
 
 //TODO: use enums instead of macros
 
-//reset
+//Reset
 #define COLOR_ALL_RESET		"\033[0m"
 #define COLOR_FG_RESET		"\033[39m"
 #define COLOR_BG_RESET		"\033[49m"
@@ -49,13 +49,13 @@
 #define COLOR_BG_BCYAN		"\x1B[106m"
 #define COLOR_BG_BWHITE		"\x1B[107m"
 
-//ostream << operator
+//ostream's << operator
 #include <iostream>
 
 //#define STYLE_VERBOSE STYLE_ITALIC << COLOR_FG_MAGENTA
 #define STYLE_VERBOSE "\e[3m\x1B[35m"
 
-//
+//...
 #define STYLE_WARNING COLOR_FG_BRED
 
 /* Those were parts to create styles but since I can concatenate them with `.append()` I'm removing them. I'm commenting so it can serves as a table to quickly create more style
@@ -113,6 +113,6 @@
 
 //the rest is not standar of not implemented
 
-//example: ``td::cout << PART_OPEN << PART_BLINK << PART_CLOSE << "Blinkin'" << COLOR_ALL_RESET << std::endl;``
+//example: ``std::cout << PART_OPEN << PART_BLINK << PART_CLOSE << "Blinkin'" << COLOR_ALL_RESET << std::endl;``
 */
 #define STYLE_ITALIC "\e[3m"

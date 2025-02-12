@@ -7,10 +7,10 @@ private:
 	std::ostream* stream;
 	bool printHeading;
 
-	VerboseStream& operator=(const VerboseStream&);
+	const VerboseStream& operator=(const VerboseStream&);
 
 public:
-	VerboseStream(const std::ostream& = std::cout);
+	explicit VerboseStream(const std::ostream& = std::cout);
 	VerboseStream(const VerboseStream&) = default;
 
 	static void setEnabled(int, char**);
@@ -20,14 +20,13 @@ public:
 		if (enabled) {
 			if(printHeading){
 				printHeading = false;
-				operator<<(VerboseStream::heading);
+				*stream << VerboseStream::heading;
 			}
 			*stream << STYLE_VERBOSE << value << COLOR_ALL_RESET;
 		}
 		return *this;
 	}
 
-	typedef std::ostream& (*ostream_manipulator)(std::ostream&);
 	VerboseStream& operator<<(ostream_manipulator);
 
 	typedef VerboseStream& (*verbose_manipulator)(VerboseStream&);
@@ -38,5 +37,5 @@ public:
 	static VerboseStream& newLine(VerboseStream&);
 };
 
-/** The verbose stream. */
+/** The verbose stream */
 inline VerboseStream vout;

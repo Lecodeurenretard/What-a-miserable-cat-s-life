@@ -47,7 +47,7 @@ inline size_t howManyFiles(fs::path dir, bool (*fileMask)(const fs::path&)){
  * Returns the number of regular files the `dir` directory
  */
 inline size_t howManyFiles(fs::path dir){
-	using fp = bool (*)(const std::filesystem::path&);	//function pointer type
+	using fp = bool (*)(const std::filesystem::path&);	//A funtion type handled by the filesystem lib
 	return howManyFiles(dir, (fp)fs::is_regular_file);
 }
 

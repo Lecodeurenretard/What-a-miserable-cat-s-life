@@ -9,6 +9,7 @@ This file simply list the progression of patches
 		`lerp()` (static)
 		convertion to `Vector`
 		`ORIGIN` and `SCREEN_CENTER` constant static fields
+
 	moved `WIN_WIDTH` & `WIN_HEIGHT` to Utilities.hpp and added doc
 	removed inheritance of `std::exeption` for `Warning` because useless with the newly added method `print()`
 	added `STYLE_WARNING` in color constants
@@ -51,6 +52,7 @@ This file simply list the progression of patches
 		`setSprite()`, `Animal::Animal(Pos, uint)` now works.
 		`move()`, which was only declared is now defined
 	`Cat::setSprite()` is also corrected.
+
 	Several changes for the `Pos` struct:
 		`pos_t` now copies `float`.
 		Added 3 constructors for converting `Vector`, `SDL_Point` and `SDL_FPoint` to `Pos`.
@@ -62,21 +64,32 @@ This file simply list the progression of patches
 		Removed `vectorToPos()` because it got replaced by a constructor.
 		Added `round(Pos)` which returns a `Pos` with rounded `x` and `y` (since those are now floats).
 		`lerp()` and `operator Vector()` are now nodiscard.
+	
 	A few changes were done to `Vector`:
 		Added `==` and `!=` as default operators.
 		Added `LEFT` and `DOWN` const static fileds to `Vectors`.
 		Modified `UP` and `DOWN` because SDL coordonate system is flipped compared to a classic math plane.
 		Added check before drawing, if we try to draw the null vector, the program only draws a dot.
 	Some changes were made to the `VerboseStream` class:
+
 		Modifed the type of `stream` to now be a pointer.
 		Renamed `flushed` to `printHeading`.
 		Added the `=` operator as private.
 		Added the default copy constructor.
+		Added the `heading` static constant which is the text that the default operator `<<` handler prints.
 		Added 2 manipulators:
 			`noHeading()`: Forbid printing the heading.
 			`newLine()`: Prints a new line, bypass any restriction done by the `<<` operator handler.
-		Added the `heading` static constant which is the text that the default operator `<<` handler prints.
+	
 	Modified the doc:
 		Put the `Building from source` section in a newly created `Modding`.
 		Added a `Adding custom sprites` section in `Modding`.
 		Added a line to separate the footer from the last section.
+
+0.1.2.4:
+	The `Warning` class  is now a stream handler and got renamed as `WarningStream` because the way I'm using it can be simplified to a stream.
+	Added `WarningStream` and `VerboseStream` to the doc.
+	`ostream_manipulator` is now defined in Imports.hpp.
+	Minor changes to `Verbose`.
+	Edited some comments.
+	Spaced the lines of this file to make it easier to read and moved the 83 line (on `heading`) to be the 79th one.

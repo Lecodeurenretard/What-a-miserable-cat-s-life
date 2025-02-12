@@ -17,7 +17,8 @@ This project is an encore to an [old scratch project](https://scratch.mit.edu/pr
 + **[Dog](code/include/Dog.hpp)**: In the final version, each dog will have to walk randomly and will be nothing but an obstacle to the cats.
 + **[Pos](code/include/Pos.hpp)**: This is a simple struct to represent a position on the screen.
 + **[Vector](code/include/Vector.hpp)**: A vector.
-+ **[Warning](code/include/Warning.hpp)**: A warning class.
++ **[WarningStream](code/include/Warning.hpp)**: A stream to output a warning.
++ **[VerboseStream](code/include/Verbose.hpp)**: A stream to output verbose.
 
 ### Other files
 Some files don't contain any class, for now there is only four of them:
