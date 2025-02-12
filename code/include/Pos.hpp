@@ -6,12 +6,19 @@
 
 /** The type for representing a position on 1 dimension */
 struct pos_t {
-private:
 	float val;
-public:
-	inline pos_t(float x): val(x) {}
-	inline operator float(){ return val; }
+	inline pos_t(float x){val = std::abs(x);}
+	inline operator float() const{ return val; }
+
+	inline pos_t operator+=(const pos_t& p) { val += p.val; return *this;}
+	inline pos_t operator-=(const pos_t& p) { val -= p.val; return *this;}
+	inline pos_t operator*=(const pos_t& p) { val *= p.val; return *this;}
+	inline pos_t operator/=(const pos_t& p) { val /= p.val; return *this;}
+
 };
+
+
+
 
 /** The minimum value of `pos_t` */
 #define POS_MIN FLT_MIN
@@ -42,6 +49,8 @@ struct Pos {
 	std::string string(void) const;
 	Pos shift(pos_t, pos_t) const;
 	void shiftSelf(pos_t, pos_t);
+
+	void draw(SDL_Renderer*) const;
 	
 	static Pos lerp(const Pos&, const Pos&, float);
 

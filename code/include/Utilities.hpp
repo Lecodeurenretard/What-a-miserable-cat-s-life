@@ -5,8 +5,14 @@ constexpr uint WIN_WIDTH	= 1000;
 /** The height of the screen */
 constexpr uint WIN_HEIGHT	= 1000;
 
-/** me-defined functions that need to be included in all files */
+/** The smallest dimension */
+constexpr uint WIN_MIN = std::min(WIN_HEIGHT, WIN_WIDTH);
 
+/** The largest dimension */
+constexpr uint WIN_MAX = std::min(WIN_HEIGHT, WIN_WIDTH);
+
+/** The framerate */
+constexpr uint8_t DESIRED_FPS = 60;
 
 /**
  * Returns a double in the [`min`, `max`] range

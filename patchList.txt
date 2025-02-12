@@ -1,4 +1,4 @@
-This file simply list the progression of patches
+This file simply list the progression of patches in this minor version.
 
 0.1.2.1:
 	added destination field in `Animal` & a few incomplete related methods
@@ -93,3 +93,17 @@ This file simply list the progression of patches
 	Minor changes to `Verbose`.
 	Edited some comments.
 	Spaced the lines of this file to make it easier to read and moved the 83 line (on `heading`) to be the 79th one.
+
+0.1.2.push:
+	Added " in this minor version." at the end of line 1.
+	Fixed bugs introduced by `pos_t` becoming a struct:
+		A `pos_t` now cannot be negative.
+		Added operators assgnements operators (except `=`).
+	
+	Added constants `WIN_MIN` and `WIN_MAX` which represents the respectively the smallest and largest position on the screen.
+	Moved `DESIRED_FPS` to Utilities.hpp and added documentation so functions can rely on the framerate.
+	Renamed `Animal::draw()`'s `drawSpeedVec` argument to `drawInfos` since all it lets the function draw the speed vector and the destination.
+	Simplified calculations in `Pos::shift`, calculations stays on `pos_t` instead of 64-bits integers and useless calculations are also removed.
+	Added `Pos::draw()` which draws a cross at the position represented by the object.
+	Fixed bug in CMakeLists.txt that forced the user to build in Debug mode.
+	Added documentation where missing.

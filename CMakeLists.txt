@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.6)
 project("What a miserable cat's life!" VERSION 0.1.2)
 
 # Sets the build mode (default: release)
-if(NOT CMAKE_BUILD_TYPE STREQUAL Debug)
-	set(CMAKE_BUILD_TYPE Release)
+if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
+	set(CMAKE_BUILD_TYPE "Release")
 endif()
 message("Build type used: ${CMAKE_BUILD_TYPE}")
 

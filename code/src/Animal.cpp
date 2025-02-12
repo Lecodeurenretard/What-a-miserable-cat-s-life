@@ -59,6 +59,9 @@ void Animal::setToRandomSprite(void) noexcept(false){
 	throw std::logic_error("The limit = " + std::to_string(limit) +" is aboves the number of regular files =  in Animal::getRandomPathFromMask().");
 }
 
+/**
+ * Get the vector representing how much `this` animal will move this frame.
+ */
 [[ nodiscard ]] Vector Animal::getSpeedVector(void) const{
 	return Vector((SDL_FPoint)pos, (SDL_FPoint)dest).withNorm(speed);
 }
@@ -138,6 +141,9 @@ void Animal::increaseSpeed(uint by){
 	speed += by;
 }
 
+/**
+ * Check if the animal is at destination.
+ */
 bool Animal::isAtDest(void) const{
 	return round(pos) == round(dest);
 }
@@ -170,7 +176,7 @@ void Animal::move(void) {
 /**
  * Display the Animal on screen
  */
-void Animal::draw(SDL_Renderer* r, bool drawSpeedVec /*=false*/) const noexcept(false){
+void Animal::draw(SDL_Renderer* r, bool drawInfos /*=false*/) const noexcept(false){
 	if(size == 0)
 		return;
 
@@ -181,21 +187,24 @@ void Animal::draw(SDL_Renderer* r, bool drawSpeedVec /*=false*/) const noexcept(
 	SDL_Texture* spriteTexture = SDL_CreateTextureFromSurface(r, tmp);
 	SDL_FreeSurface(tmp);		tmp = nullptr;
 
-	if(SDL_RenderCopy(r, spriteTexture, nullptr, SDL_RectInit(pos.x, pos.y, size, size)) < 0)
+	const SDL_Rect* finalDimensions = SDL_RectInit(pos.x - ANIMAL_SPRITE_SIZE/2, pos.y - ANIMAL_SPRITE_SIZE/2, size, size);	//Shifting the position to get the center of the rectangle at `pos`
+	if(SDL_RenderCopy(r, spriteTexture, nullptr, finalDimensions) < 0)
 		throw std::runtime_error("Cannot copy sprite into the renderer. SDL returned this error: " + std::string(SDL_GetError()) + ".");
+	
 	SDL_DestroyTexture(spriteTexture);
 	
-	if(drawSpeedVec){
+	if(drawInfos){
 		Uint8* alpha	= new Uint8(0);
 		Uint8* red		= new Uint8(0);
 		Uint8* green	= new Uint8(0);
 		Uint8* blue		= new Uint8(0);
 
 		SDL_GetRenderDrawColor(r, red, green, blue, alpha);
-		SDL_SetRenderDrawColor(r, 255, 255, 255, 255);
+		SDL_SetRenderDrawColor(r, 0, 255, 255, 255);
 
-		(getSpeedVector() * 10).draw(r, (Vector)pos + Vector(50, 50));	//Draws an exaggerated representation of the vector at the center of the animal
-		
+		(getSpeedVector() * DESIRED_FPS/2).draw(r, (Vector)pos );	//This speed vector is for the next half-second
+		dest.draw(r);
+
 		SDL_SetRenderDrawColor(r, *red, *green, *blue, *alpha);
 		
 	}

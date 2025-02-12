@@ -2,8 +2,6 @@
 #include "../include/Dog.hpp"
 #include "../include/Verbose.hpp"
 
-constexpr uint8_t DESIRED_FPS = 60;
-
 bool saveImageToFile(const char*, const unsigned char*, const unsigned int);
 bool saveImageToFile(const char*, uint8_t);
 
@@ -12,6 +10,7 @@ void quit(int = EXIT_SUCCESS, SDL_Renderer* = nullptr, SDL_Window* = nullptr);
 
 int main(int argc, char **argv){
 	const bool stepByStep = argc >= 3 && (std::string(argv[2]) == std::string("-s") || std::string(argv[2]) == std::string("--step"));
+	const bool showDestination = argc >= 4 && (std::string(argv[3]) == std::string("-d") || std::string(argv[3]) == std::string("--destination") || std::string(argv[3]) == std::string("--show-destination"));
 	VerboseStream::setEnabled(argc, argv);
 
 	if(!fs::exists("sprites")){
@@ -58,45 +57,51 @@ int main(int argc, char **argv){
 	SDL_SetRenderDrawColor(render, 15, 15, 15, SDL_ALPHA_OPAQUE);
 	
 	Cat myCat(Pos::SCREEN_CENTER, 100, 1, 2);
-	myCat.setRandDest();
-	vout << "Entering the main loop.\n\n" << std::endl;
-	while(!myCat.isAtDest()){
-		const Uint64 frameStart = SDL_GetPerformanceCounter();
+	
+	while(true){
+		vout << "Choosing a random destination." << std::endl;
+		myCat.setRandDest();
 
-		vout << "Checking events.\t\t\t(main loop)" << std::endl;
-		SDL_Event ev;
-		while (SDL_PollEvent(&ev)){
-			switch (ev.type){
-				case SDL_QUIT:
-					quit(EXIT_SUCCESS, render, win);
+		vout << "Entering the main loop.\n\n" << std::endl;
+		while(!myCat.isAtDest()){
+			const Uint64 frameStart = SDL_GetPerformanceCounter();
 
-				default:
-					break;
+			vout << "Checking events.\t\t\t(main loop)" << std::endl;
+			SDL_Event ev;
+			while (SDL_PollEvent(&ev)){
+				switch (ev.type){
+					case SDL_QUIT:
+						quit(EXIT_SUCCESS, render, win);
+
+					default:
+						break;
+				}
 			}
-		}
-		
-		vout << "Displaying the cat to the window.\t(main loop)" << std::endl;
-		myCat.move();
-		myCat.draw(render);
+			
+			vout << "Displaying the cat to the window.\t(main loop)" << std::endl;
+			myCat.move();
+			myCat.draw(render, showDestination);
 
-		vout << "Rendering then clearing the window.\t(main loop)" << std::endl;
-		SDL_RenderPresent(render);
-		
-		if(stepByStep){
-			//Wait for the user to press the button
-			while(ev.type != SDL_KEYDOWN || ev.key.keysym.sym != SDLK_RIGHT){	
-				if(ev.type == SDL_QUIT)
-					quit(EXIT_SUCCESS, render, win);
-				SDL_PollEvent(&ev);
+			vout << "Rendering then clearing the window.\t(main loop)" << std::endl;
+			SDL_RenderPresent(render);
+			
+			if(stepByStep){
+				//Wait for the user to press the button
+				while(ev.type != SDL_KEYDOWN || ev.key.keysym.sym != SDLK_RIGHT){	
+					if(ev.type == SDL_QUIT)
+						quit(EXIT_SUCCESS, render, win);
+					SDL_PollEvent(&ev);
+				}
 			}
+			SDL_RenderClear(render);
+			
+			vout << "Waiting until next frame.\t\t(main loop)" << std::endl;
+			if(!stepByStep)
+				waitNextFrame((SDL_GetPerformanceCounter()-frameStart) / (float)SDL_GetPerformanceFrequency());		//For how long the frame lasted
+			else
+				VerboseStream::newLine(vout);
 		}
-		SDL_RenderClear(render);
-		
-		vout << "Waiting until next frame.\t\t(main loop)" << std::endl;
-		if(!stepByStep)
-			waitNextFrame((SDL_GetPerformanceCounter()-frameStart) / (float)SDL_GetPerformanceFrequency());		//how long the frame lasted
-		else
-			VerboseStream::newLine(vout);
+		vout << "Destination reached!" << std::endl;
 	}
 
 	quit(EXIT_SUCCESS, render, win);
@@ -133,7 +138,7 @@ bool saveImageToFile(const char* filename, const unsigned char* data, const unsi
  * @return If the function succeeded in saving the file.
  */
 bool saveImageToFile(const char* filename, uint8_t imageIndex) {
-	if(imageIndex >= allDumpSize || imageIndex >= allDumpLenSize)	//the index is OoB
+	if(imageIndex >= allDumpSize || imageIndex >= allDumpLenSize)	//The index is OoB
 		return false;
 
 	return saveImageToFile(filename, allDump[imageIndex], allDumpLen[imageIndex]);

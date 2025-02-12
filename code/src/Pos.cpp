@@ -48,27 +48,39 @@ Pos Pos::SCREEN_CENTER = Pos(WIN_WIDTH/2, WIN_HEIGHT/2);
 	return Pos(x, y);
 }
 
+/*
+ * Returns a human-readable string of `this` object.
+ */
 [[ nodiscard ]] std::string Pos::string(void) const{
 	return "("+ std::to_string(x) + ", " + std::to_string(y) + ")";
 }
 
+/**
+ * It shift this object of `x` pixels down and `y` pixels right. You can see it as `lerp(*this, Pos(x, y), 1)`.
+ */
 [[ nodiscard ]] Pos Pos::shift(pos_t _x, pos_t _y) const {
-	if((uint64_t)x + _x > POS_MAX || y + _y > POS_MAX)
+	if(x + _x < x)
 		wout << "The sum of the parameter `_x` (" << _x << ") and the field `x` " << x <<" is greater than the maximum of `pos_t` (" << POS_MAX << ").";
-	if((uint64_t)y + _y > POS_MAX)
+	if(y + _y < x)
 		wout << "The sum of the parameter `_y` (" << _y << ") and the field `y` " << y <<" is greater than the maximum of `pos_t` (" << POS_MAX << ").";
 
 	return Pos(x + _x, y + _y);
 }
 
+/**
+ * `Pos::shift()` but the results are applied to `this`.
+ */
 void Pos::shiftSelf(pos_t _x, pos_t _y) {
-	if((uint64_t)x + _x > POS_MAX || y + _y > POS_MAX)
-		wout << "The sum of the parameter `_x` (" << _x << ") and the field `x` " << x <<" is greater than the maximum of `pos_t` (" << POS_MAX << ").";
-	if((uint64_t)y + _y > POS_MAX)
-		wout << "The sum of the parameter `_y` (" << _y << ") and the field `y` " << y <<" is greater than the maximum of `pos_t` (" << POS_MAX << ").";
+	*this = shift(x, y);
+}
 
-	x += _x;
-	y += _y;
+/**
+ * Draws a cross at `this` position in `r`.
+ */
+void Pos::draw(SDL_Renderer* r) const{
+	constexpr uint lineLen = std::max(WIN_MIN/100, (uint)1);
+	SDL_RenderDrawLine(r, x, y - lineLen/2, x, y + lineLen/2);	//vertical
+	SDL_RenderDrawLine(r, x - lineLen/2, y, x + lineLen/2, y);	//horizontal
 }
 
 /**

@@ -1,5 +1,8 @@
 #include "Imports.hpp"
 
+/**
+ * A class for outputting verbose.
+ */
 class VerboseStream {
 private:
 	static bool enabled;

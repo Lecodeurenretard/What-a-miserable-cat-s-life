@@ -4,7 +4,7 @@ This project is an AI project (it doesn't look like it yet but it will). In the 
 + ❌ More cats
 + ❌ Dogs
 + ❌ A health system (for cats)
-+ ❌ Movement
++ ✅ Movement
 + ❌ A genetic algorithm
 + ❌ Better graphisms ?
 
@@ -23,11 +23,10 @@ This project is an encore to an [old scratch project](https://scratch.mit.edu/pr
 ### Other files
 Some files don't contain any class, for now there is only four of them:
 + **[Images.hpp](code/include/Images.hpp)**: Import the hex dumps of the images into the project because cmake can't do it.
-+ **[Imports.hpp](code/include/Imports.hpp)**: It's just a file that group all imports so we can see all imports at once.
++ **[Imports.hpp](code/include/Imports.hpp)**: It's just a file that group all imports so we can see them all at once.
 + **[Utilities.hpp](code/include/Utilities.hpp)**: Some functions that I wrote and have nowhere to put them.
 + **[main.cpp](code/src/main.cpp)**: The main program and a few functions that are only useful in the `main()` function.
-
-Well, I lied when I said there is only four files without classes, there is another one: **[imgToHex](sprites/imgToHex)**. This is a zsh script that convert images in hex dump with `xxd`.
++ **[imgToHex](sprites/imgToHex)**: a zsh script that convert images in hex dump with `xxd`.
 
 ## Modding
 This is not a tutorial in order to mod this project but a group of information that can be useful.

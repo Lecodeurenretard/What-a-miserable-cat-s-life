@@ -34,10 +34,10 @@ public:
 	Cat& operator=(const Cat&)	= default;
 	~Cat(void)					= default;
 
-	ID getID(void) 		const;
-	uint getSpeed(void) const;
+	ID getID(void)		const;
+	uint getSpeed(void)	const;
 
-	std::string string(void) 	const;
+	std::string string(void)	const;
 
 	static std::string getSpriteBase(void);
 };

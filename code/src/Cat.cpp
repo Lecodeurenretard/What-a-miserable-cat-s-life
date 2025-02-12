@@ -67,7 +67,7 @@ void Cat::pushCat(Cat* cat){
  * Delete `cat` from `catList`
  */
 void Cat::eraseCat(Cat* cat){
-	if(cat){		// avoiding a double-free error
+	if(cat) {		//Avoiding a double-free error
 		catList[cat->getID()] = nullptr;
 		delete cat;
 	}
