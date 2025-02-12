@@ -28,11 +28,26 @@ Some files don't contain any class, for now there is only four of them:
 
 Well, I lied when I said there is only four files without classes, there is another one: **[imgToHex](sprites/imgToHex)**. This is a zsh script that convert images in hex dump with `xxd`.
 
-## Building from source
+## Modding
+This is not a tutorial in order to mod this project but a group of information that can be useful.
+
+### Building from source
 For this project I used cmake so you just have to run those commands:
 ```bash
 mkdir build; cd build
 cmake .. && cmake --build . && ./main
 ```
 
-This project isn't even tested on Windows, only Linux Mint. I'll take care of compatibility issues at the release of this project.	
+### Adding custom sprites
+In order to add new sprites for a class in particular, you have to put the image file in the corresponding subdirectory of [img](sprites/img/) ([other](sprites/img/other) is for the default sprites of the `Animal` class or its children classes), name it following the name pattern. Make sure the image is in the `.bmp` format and it exactly has `100x100` dimensions (even if you have to fill with transparent pixels).
+
+Once you did this, you can go to [Image.hpp](code/include/Images.hpp) and declare the variable containing the hex dump of you sprite (located in [hexDump](sprites/hexDump)), follow this syntax:
+```C++
+extern unsigned char hex_name;		//Where `hex_name` is the name of your hex dump
+extern unsigned int hex_name_len;
+```
+
+Don't forget to add those variables at the end of the `allDump[]` and `allDumpLen[]` arrays and to modify their sizes.
+
+_________________________________
+This project isn't even tested on Windows, only Linux Mint. I'll take care of compatibility issues at the 1.0 version of this project of this project.

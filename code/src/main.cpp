@@ -6,14 +6,14 @@ constexpr uint8_t DESIRED_FPS = 60;
 
 bool saveImageToFile(const char*, const unsigned char*, const unsigned int);
 bool saveImageToFile(const char*, uint8_t);
+
 double waitNextFrame(float);
 void quit(int = EXIT_SUCCESS, SDL_Renderer* = nullptr, SDL_Window* = nullptr);
 
-/** The verbose stream. */
-VerboseStream vout;
-
 int main(int argc, char **argv){
+	const bool stepByStep = argc >= 3 && (std::string(argv[2]) == std::string("-s") || std::string(argv[2]) == std::string("--step"));
 	VerboseStream::setEnabled(argc, argv);
+
 	if(!fs::exists("sprites")){
 		vout << "Creating image files." << std::endl;
 		if(!fs::create_directory("sprites")){
@@ -54,41 +54,48 @@ int main(int argc, char **argv){
 		quit(EXIT_FAILURE, render, win);
 	}
 
-	/*vout << "Preparing to enter the main loop." << std::endl;
+	vout << "Preparing to enter the main loop." << std::endl;
 	SDL_SetRenderDrawColor(render, 15, 15, 15, SDL_ALPHA_OPAQUE);
 	
-	Cat myCat(Pos::SCREEN_CENTER, (uint)100);
+	Cat myCat(Pos::SCREEN_CENTER, 100, 1, 2);
+	myCat.setRandDest();
 	vout << "Entering the main loop.\n\n" << std::endl;
-	while(true){
+	while(!myCat.isAtDest()){
 		const Uint64 frameStart = SDL_GetPerformanceCounter();
 
 		vout << "Checking events.\t\t\t(main loop)" << std::endl;
 		SDL_Event ev;
-		while (SDL_PollEvent(&ev))
-			if(ev.type == SDL_QUIT)
-				quit();
+		while (SDL_PollEvent(&ev)){
+			switch (ev.type){
+				case SDL_QUIT:
+					quit(EXIT_SUCCESS, render, win);
+
+				default:
+					break;
+			}
+		}
+		if(stepByStep)
+			//Wait for the user to press the button
+			while(ev.type != SDL_KEYDOWN || ev.key.keysym.sym != SDLK_RIGHT){	
+				if(ev.type == SDL_QUIT)
+					quit(EXIT_SUCCESS, render, win);
+				SDL_PollEvent(&ev);
+			}
+
 
 		vout << "Displaying the cat to the window.\t(main loop)" << std::endl;
-		myCat.draw(render);
+		myCat.move();
+		myCat.draw(render, true);
 
 		vout << "Rendering then clearing the window.\t(main loop)" << std::endl;
 		SDL_RenderPresent(render);
 		SDL_RenderClear(render);
 		
 		vout << "Waiting until next frame.\t\t(main loop)" << std::endl;
-		waitNextFrame((SDL_GetPerformanceCounter()-frameStart) / (float)SDL_GetPerformanceFrequency());		//how long the frame lasted
-	}*/
-	SDL_SetRenderDrawColor(render, 255, 255, 255, SDL_ALPHA_OPAQUE);
-	Vector v(100, 0);
-	for(float i = 0; i <= 4*M_PI; i += 2*M_PI/100){
-		v.rotate(i).withNorm(v.norm()*i*.5).draw(render, Pos::SCREEN_CENTER);
-		SDL_RenderPresent(render);
-	
-		SDL_SetRenderDrawColor(render, 0, 0, 0, SDL_ALPHA_OPAQUE);
-		//SDL_RenderClear(render);	//Commented because pretty
-		
-		SDL_SetRenderDrawColor(render, 255, 255, 255, SDL_ALPHA_OPAQUE);
-		SDL_Delay(50);
+		if(!stepByStep)
+			waitNextFrame((SDL_GetPerformanceCounter()-frameStart) / (float)SDL_GetPerformanceFrequency());		//how long the frame lasted
+		else
+			VerboseStream::newLine(vout);
 	}
 
 	quit(EXIT_SUCCESS, render, win);
@@ -155,7 +162,7 @@ double waitNextFrame(float lasted){
  * Free variables, quit SDL and exits with code `exitCode`
  */
 void quit(int exitCode/*=EXIT_SUCCESS*/, SDL_Renderer* renderer/*=nullptr*/, SDL_Window* window/*=nullptr*/){
-	vout << "\n\nDestroying the renderer and the window, then quitting SDL." << std::endl;
+	vout << VerboseStream::newLine << VerboseStream::newLine << "Destroying the renderer and the window, then quitting SDL." << std::endl;
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();

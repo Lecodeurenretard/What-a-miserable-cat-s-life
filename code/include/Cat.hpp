@@ -8,7 +8,6 @@ typedef uint8_t ID;
 class Cat final : public Animal {
 private:
 	bool alive;
-	uint speed;
 	ID id;
 
 	bool setSprite(uint8_t);
@@ -29,13 +28,11 @@ public:
 	Cat(pos_t, pos_t);
 	Cat(Pos, uint);
 	Cat(Pos, uint, uint8_t);
-	Cat(Pos, uint8_t, uint, uint);
+	Cat(Pos, uint, uint, uint8_t);
 	
 	Cat(const Cat&);
 	Cat& operator=(const Cat&)	= default;
 	~Cat(void)					= default;
-
-	void increaseSpeed(uint);
 
 	ID getID(void) 		const;
 	uint getSpeed(void) const;

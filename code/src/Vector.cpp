@@ -4,10 +4,16 @@
 const Vector Vector::ZERO = Vector(0, 0);
 
 /** The unit vector pointing right, in a (O, i, j) plane it would be $i$ */
-const Vector Vector::RIGHT = Vector(1, 0);
+const Vector Vector::RIGHT = Vector(-1, 0);		//Based on SDL's coordonates system
+
+/** The unit vector pointing right, in a (O, i, j) plane it would be $-i$ */
+const Vector Vector::LEFT = Vector(1, 0);		//Based on SDL's coordonates system
 
 /** The unit vector pointing up, in a (O, i, j) plane it would be $j$ */
-const Vector Vector::UP = Vector(0, 1);
+const Vector Vector::UP = Vector(0, -1);
+
+/** The unit vector pointing up, in a (O, i, j) plane it would be $-j$ */
+const Vector Vector::DOWN = Vector(0, 1);
 
 
 [[ nodiscard ]] Vector::Vector(float _x, float _y)
@@ -55,6 +61,11 @@ Vector Vector::unit(void) const{
  * Draw the vector in the renderer, the tail of the vector is loacted at `start`.
  */
 void Vector::draw(SDL_Renderer* const r, const Vector& start /*= Vector::ZERO*/) const{
+	if(*this == Vector::ZERO){
+		SDL_RenderDrawPointF(r, start.x, start.y);
+		return;
+	}
+
 	const Vector end = operator+(start);
 	SDL_RenderDrawLineF(r, start.x, start.y, end.x, end.y);
 

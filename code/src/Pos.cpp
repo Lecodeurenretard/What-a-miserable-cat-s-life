@@ -2,25 +2,48 @@
 
 /**
  * `Pos(0, 0)`  
- *  If you want the actual center of the screen, use `Pos::SCREEN_CENTER` (defined at tthe start of `main.cpp`).
+ * In SDL it represent the top left corner, if you want the actual center of the screen, use `Pos::SCREEN_CENTER`.
  */
 const Pos Pos::ORIGIN = Pos(0, 0);
 
 /** The center of the screen. */
 Pos Pos::SCREEN_CENTER = Pos(WIN_WIDTH/2, WIN_HEIGHT/2);
 
-/**
- * Base constructor, just set `x` at `_x` and `y` at `_y`.
- */
 [[ nodiscard ]] Pos::Pos(pos_t _x, pos_t _y)
 	: x(_x), y(_y)
 {}
 
+[[ nodiscard ]] Pos::Pos(const Vector& v)
+	: Pos(v.x, v.y)
+{}
+
+[[ nodiscard ]] Pos::Pos(const SDL_Point& p)
+	: Pos(p.x, p.y)
+{}
+
+[[ nodiscard ]] Pos::Pos(const SDL_FPoint& p)
+	: Pos(p.x, p.y)
+{}
+
+/**
+ * If this object is in bounds (in the window).
+ */
+[[ nodiscard ]] bool Pos::isInBounds(void){
+	return Pos::isInBounds(x, y);
+}
+
+/**
+ * If those coordonates are in bounds (in the window).
+ */
+[[ nodiscard ]] bool Pos::isInBounds(pos_t x, pos_t y){
+	return x <= WIN_WIDTH && y <= WIN_HEIGHT;		//Since `pos_t` is a `uint`, it can't be too high or too to the left since it can't get below 0.
+}
+
 /**
  * Returns `{}` if `_x` or `_y` is not in the screen else returns a new `Pos` object.
  */
-[[ nodiscard ]] std::optional<Pos> Pos::inBounds(pos_t x , pos_t y){
-	if(x > WIN_WIDTH || y > WIN_HEIGHT)
+[[ nodiscard ]] std::optional<Pos> Pos::createInBounds(pos_t x , pos_t y){
+	if(!isInBounds(x, y))
 		return {};
 	return Pos(x, y);
 }
@@ -54,17 +77,32 @@ void Pos::shiftSelf(pos_t _x, pos_t _y) {
  * @param to The point to end.
  * @param t How far between two points we have to go, if strictly above 1, it gets treated as 1.
  */
-Pos Pos::lerp(const Pos& from, const Pos& to, float t){	//I made it an `uint8_t` because floats use 4 times more memory
-	return vectorToPos(Vector::lerp(from, to, t));
+[[ nodiscard ]] Pos Pos::lerp(const Pos& from, const Pos& to, float t){	//I made it an `uint8_t` because floats use 4 times more memory
+	return Pos(Vector::lerp(from, to, t));
 }
 
 
-Pos::operator Vector() const{
+[[ nodiscard ]] Pos::operator Vector() const{
 	return Vector(x, y);
 }
 
+[[ nodiscard ]] Pos::operator SDL_Point() const{
+	SDL_Point res;
+	res.x = x;
+	res.y = y;
+	return res;
+}
 
+[[ nodiscard ]] Pos::operator SDL_FPoint() const{
+	SDL_FPoint res;
+	res.x = x;
+	res.y = y;
+	return res;
+}
 
-Pos vectorToPos(const Vector& v){
-	return Pos(v.x, v.y);
+/**
+ * A shorthand to `Pos(std::round(toRound.x), std::round(toRound.y))`.
+ */
+[[ nodiscard ]] Pos round(const Pos& toRound){
+	return Pos(std::round(toRound.x), std::round(toRound.y));
 }

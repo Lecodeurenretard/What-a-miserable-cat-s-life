@@ -39,3 +39,44 @@ This file simply list the progression of patches
 			`+`, `-`, `*` and `/` operators are added with their corresponding assignement operators.
 			The constants `UP` and `RIGHT` are defined.
 			`[[ nodiscard ]]` have been added on all operators and `lerp`
+
+0.1.2.3:
+	A lot of changes for the `Animal` class:
+		Declared a new macro: `ANIMAL_SPRITE_SIZE` that contain the size of sprites.
+		Moved the `speed` field from `Cat` to `Animal`.
+		The 3 constructors of `Animal` takes the speed as a parameter.
+		`increaseSpeed()` too.
+		Added `isAtDest()` which returns if the Animal is at destination.
+		`draw()` takes now a boolean to draw the speed vector (for debugging).
+		`setSprite()`, `Animal::Animal(Pos, uint)` now works.
+		`move()`, which was only declared is now defined
+	`Cat::setSprite()` is also corrected.
+	Several changes for the `Pos` struct:
+		`pos_t` now copies `float`.
+		Added 3 constructors for converting `Vector`, `SDL_Point` and `SDL_FPoint` to `Pos`.
+		The `inBounds()` method is splitted in two different one: 
+			`isInBounds()` which does the check and
+			`createInBounds()` which creates the object.
+		Added `==` and `!=` as default operators.
+		Added convertion to `SDL_Point` and `SDL_FPoint`.
+		Removed `vectorToPos()` because it got replaced by a constructor.
+		Added `round(Pos)` which returns a `Pos` with rounded `x` and `y` (since those are now floats).
+		`lerp()` and `operator Vector()` are now nodiscard.
+	A few changes were done to `Vector`:
+		Added `==` and `!=` as default operators.
+		Added `LEFT` and `DOWN` const static fileds to `Vectors`.
+		Modified `UP` and `DOWN` because SDL coordonate system is flipped compared to a classic math plane.
+		Added check before drawing, if we try to draw the null vector, the program only draws a dot.
+	Some changes were made to the `VerboseStream` class:
+		Modifed the type of `stream` to now be a pointer.
+		Renamed `flushed` to `printHeading`.
+		Added the `=` operator as private.
+		Added the default copy constructor.
+		Added 2 manipulators:
+			`noHeading()`: Forbid printing the heading.
+			`newLine()`: Prints a new line, bypass any restriction done by the `<<` operator handler.
+		Added the `heading` static constant which is the text that the default operator `<<` handler prints.
+	Modified the doc:
+		Put the `Building from source` section in a newly created `Modding`.
+		Added a `Adding custom sprites` section in `Modding`.
+		Added a line to separate the footer from the last section.

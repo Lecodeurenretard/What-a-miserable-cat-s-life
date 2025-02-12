@@ -32,6 +32,9 @@ struct Vector{
 
 	SDL_FPoint translate(SDL_FPoint) const;
 
+	bool operator==(const Vector&) const = default;
+	bool operator!=(const Vector&) const = default;
+
 	Vector operator+(const Vector&) const;
 	Vector operator-(const Vector&) const;
 	Vector operator*(float) const;
@@ -44,7 +47,9 @@ struct Vector{
 
 	static const Vector ZERO;
 	static const Vector UP;
+	static const Vector DOWN;
 	static const Vector RIGHT;
+	static const Vector LEFT;
 };
 Vector operator*(float, const Vector&);
 Vector operator/(float, const Vector&);

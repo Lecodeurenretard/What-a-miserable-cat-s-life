@@ -6,7 +6,7 @@ Cat* Cat::catList[CATLIST_SIZE];
  * Set the `sprite` field, return `false on failure`.
  */
 [[ nodiscard ]] bool Cat::setSprite(uint8_t spriteNum){
-	const std::string sprite(Cat::getSpriteBase() + std::to_string(spriteNum) + ".png");
+	const std::string sprite(Cat::getSpriteBase() + ((spriteNum < 10)? "0" : "") + std::to_string(spriteNum) + ".bmp");
 	struct stat sb;
 
 	if (stat(sprite.c_str(), &sb) == 0){
@@ -121,7 +121,7 @@ void Cat::eraseCat(Cat* cat){
  * Construct a new Cat obj with a random sprite and registers it in catList
  */
 [[ nodiscard ]] Cat::Cat(Pos _pos) noexcept(false) 
-	: Animal(_pos), alive(true), speed(0)
+	: Animal(_pos), alive(true)
 {
 	trySetLowestID();
 	setToRandomSprite();
@@ -131,7 +131,7 @@ void Cat::eraseCat(Cat* cat){
  * Construct a new Cat obj with a random sprite and registers it in catList
  */
 [[ nodiscard ]] Cat::Cat(Pos _pos, uint _size) noexcept(false) 
-	: Animal(_pos, _size), alive(true), speed(0)
+	: Animal(_pos, _size), alive(true)
 {
 	trySetLowestID();
 	setToRandomSprite();
@@ -148,7 +148,7 @@ void Cat::eraseCat(Cat* cat){
  * Construct a new Cat obj and registers it in catList
  */
 [[ nodiscard ]] Cat::Cat(Pos _pos, uint _size, uint8_t spriteNum) noexcept(false) 
-	: Animal(_pos, _size, spriteNum), alive(true), speed(0)
+	: Animal(_pos, _size, spriteNum), alive(true)
 {
 	trySetLowestID();
 	if(!setSprite(spriteNum))
@@ -158,8 +158,8 @@ void Cat::eraseCat(Cat* cat){
 /**
  * Construct a new Cat obj and registers it in catList
  */
-[[ nodiscard ]] Cat::Cat(Pos _pos, uint8_t spriteNum, uint velocity, uint _size) noexcept(false) 
-	: Animal(_pos, _size, spriteNum), alive(true), speed(velocity)
+[[ nodiscard ]] Cat::Cat(Pos _pos, uint _size, uint velocity, uint8_t spriteNum) noexcept(false) 
+	: Animal(_pos, _size, velocity), alive(true)
 {
 	trySetLowestID();
 	if(!setSprite(spriteNum))
@@ -170,19 +170,9 @@ void Cat::eraseCat(Cat* cat){
  * Copy constructor, the copy will have a new id
  */
 [[ nodiscard ]] Cat::Cat(const Cat& cat) noexcept(false)
-	: Animal(cat.pos, cat.speed, cat.spritePath), alive(cat.alive)
+	: Animal(cat.pos, cat.size, cat.speed, cat.spritePath), alive(cat.alive)
 {
 	trySetLowestID();
-}
-
-/**
- * Setter for `speed`
- */
-void Cat::increaseSpeed(uint by){
-	if(speed + by > UINT32_MAX)
-		speed = UINT32_MAX;
-
-	speed += by;
 }
 
 /**
@@ -210,5 +200,5 @@ std::string Cat::string(void) const{
  * Returns the base to make spritePath
  */
 std::string Cat::getSpriteBase(void){
-	return getSpriteFolder() +  "cat";
+	return getSpriteFolder() + "cat";
 }

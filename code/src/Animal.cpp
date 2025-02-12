@@ -4,8 +4,8 @@ struct stat sb;
 /**
  * This constructor is only for path we are sur they exist. Directly set `spritePath` to `path` without any test.
  */
-[[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, std::string path) 
-	: pos(_pos), dest(_pos), size(_size), spritePath(path)
+[[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, uint _speed, std::string path) 
+	: pos(_pos), dest(_pos), size(_size), speed(_speed), spritePath(path)
 {}
 
 
@@ -36,7 +36,7 @@ void Animal::setToRandomSprite(void) noexcept(false){
 		std::min(
 			(size_t)UINT8_MAX,	//In case there's more than 256 files
 			howManyFiles(
-				Animal::getSpriteFolder(),
+				getSpriteFolder(),
 				mask
 			)
 		)
@@ -59,11 +59,15 @@ void Animal::setToRandomSprite(void) noexcept(false){
 	throw std::logic_error("The limit = " + std::to_string(limit) +" is aboves the number of regular files =  in Animal::getRandomPathFromMask().");
 }
 
+[[ nodiscard ]] Vector Animal::getSpeedVector(void) const{
+	return Vector((SDL_FPoint)pos, (SDL_FPoint)dest).withNorm(speed);
+}
+
 /**
  * Set the `sprite` field, return `false` on failure.
  */
 [[ nodiscard ]] bool Animal::setSprite(uint8_t spriteNum){
-	const std::string sprite(Animal::getSpriteBase() + std::to_string(spriteNum) + ".bmp");
+	const std::string sprite(Animal::getSpriteBase() + ((spriteNum < 10)? "0" : "") + std::to_string(spriteNum) + ".bmp");
 
 	if (stat(sprite.c_str(), &sb) == 0){
 		spritePath = sprite;
@@ -77,7 +81,7 @@ void Animal::setToRandomSprite(void) noexcept(false){
  * Build the Animal with a random sprite
  */
 [[ nodiscard ]] Animal::Animal(Pos _pos) noexcept(false)
-	: pos(_pos), dest(_pos), size(0)
+	: pos(_pos), dest(_pos), size(0), speed(0)
 {
 	Animal::setToRandomSprite();
 }
@@ -90,14 +94,20 @@ void Animal::setToRandomSprite(void) noexcept(false){
 {}
 
 [[ nodiscard ]] Animal::Animal(Pos p, uint _size) noexcept(false)
-	: pos(p), dest(p), size(_size)
+	: pos(p), dest(p), size(_size), speed(0)
+{
+	Animal::setToRandomSprite();
+}
+
+[[ nodiscard ]] Animal::Animal(Pos p, uint _size, uint velocity) noexcept(false)
+	: pos(p), dest(p), size(_size), speed(velocity)
 {
 	Animal::setToRandomSprite();
 }
 
 
-[[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, uint8_t spriteNum=0) noexcept(false)
-	: pos(_pos), dest(_pos), size(_size)
+[[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, uint velocity, uint8_t spriteNum=0) noexcept(false)
+	: pos(_pos), dest(_pos), size(_size), speed(velocity)
 {
 	if(spriteNum == 0){
 		setToRandomSprite();
@@ -109,13 +119,27 @@ void Animal::setToRandomSprite(void) noexcept(false){
 }
 
 /**
- * Setter for `size`
+ * Increase the size of by `by` pixels.
  */
 void Animal::increaseSize(uint by){
 	if(size + by < size || size + by < by)		//interger overflow
 		size = UINT32_MAX;
 
 	size += by;
+}
+
+/**
+ * Increase the speed of by `by` pixels per frame.
+ */
+void Animal::increaseSpeed(uint by){
+	if(speed + by < speed || speed + by < by)		//interger overflow
+		speed = UINT32_MAX;
+
+	speed += by;
+}
+
+bool Animal::isAtDest(void) const{
+	return round(pos) == round(dest);
 }
 
 /**
@@ -128,8 +152,11 @@ void Animal::setRandDest(void) {
 	);
 }
 
-void move(void) {
-	
+/**
+ * Moves the animal toward its destination.
+ */
+void Animal::move(void) {
+	pos = getSpeedVector().translate(pos);
 }
 
 /**
@@ -143,8 +170,8 @@ void move(void) {
 /**
  * Display the Animal on screen
  */
-void Animal::draw(SDL_Renderer* r) const noexcept(false){
-	if(size <= 0)
+void Animal::draw(SDL_Renderer* r, bool drawSpeedVec /*=false*/) const noexcept(false){
+	if(size == 0)
 		return;
 
 	SDL_Surface* tmp = SDL_LoadBMP(&spritePath[0]);
@@ -155,8 +182,23 @@ void Animal::draw(SDL_Renderer* r) const noexcept(false){
 	SDL_FreeSurface(tmp);		tmp = nullptr;
 
 	if(SDL_RenderCopy(r, spriteTexture, nullptr, SDL_RectInit(pos.x, pos.y, size, size)) < 0)
-		throw std::runtime_error("Cannot copy sprite into the renderer. SDL returned this error: " + std::string(SDL_GetError()));
+		throw std::runtime_error("Cannot copy sprite into the renderer. SDL returned this error: " + std::string(SDL_GetError()) + ".");
 	SDL_DestroyTexture(spriteTexture);
+	
+	if(drawSpeedVec){
+		Uint8* alpha	= new Uint8(0);
+		Uint8* red		= new Uint8(0);
+		Uint8* green	= new Uint8(0);
+		Uint8* blue		= new Uint8(0);
+
+		SDL_GetRenderDrawColor(r, red, green, blue, alpha);
+		SDL_SetRenderDrawColor(r, 255, 255, 255, 255);
+
+		(getSpeedVector() * 10).draw(r, (Vector)pos + Vector(50, 50));	//Draws an exaggerated representation of the vector at the center of the animal
+		
+		SDL_SetRenderDrawColor(r, *red, *green, *blue, *alpha);
+		
+	}
 }
 
 /**

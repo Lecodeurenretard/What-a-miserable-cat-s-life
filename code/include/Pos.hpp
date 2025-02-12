@@ -5,7 +5,7 @@
 #include "Vector.hpp"
 
 /** The type for representing a position on 1 dimension */
-typedef uint pos_t;
+typedef float pos_t;	//TODO: Find a better type or do a struct
 
 /** The minimum value of `pos_t` */
 #define POS_MIN UINT32_MIN
@@ -20,9 +20,14 @@ struct Pos {
 	pos_t x;
 	pos_t y;
 
-	Pos(void);
 	Pos(pos_t, pos_t);
-	static std::optional<Pos> inBounds(pos_t, pos_t);
+	Pos(const Vector&);
+	Pos(const SDL_Point&);
+	Pos(const SDL_FPoint&);
+
+	bool isInBounds(void);
+	static bool isInBounds(pos_t, pos_t);
+	static std::optional<Pos> createInBounds(pos_t, pos_t);
 
 	Pos(const Pos&)	= default;
 	~Pos(void)		= default;
@@ -34,10 +39,13 @@ struct Pos {
 	
 	static Pos lerp(const Pos&, const Pos&, float);
 
+	bool operator==(const Pos&) const = default;
+	bool operator!=(const Pos&) const = default;
 	operator Vector() const;
+	operator SDL_Point() const;
+	operator SDL_FPoint() const;
 
 	static const Pos ORIGIN;
 	static Pos SCREEN_CENTER;
 };
-
-Pos vectorToPos(const Vector& v);
+Pos round(const Pos&);
