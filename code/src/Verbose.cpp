@@ -33,7 +33,6 @@ VerboseStream::VerboseStream(const std::ostream& out/* = std::cout*/)
  */
 void VerboseStream::setEnabled(int argc, char** argv){	//Who needs safety?
 	enabled = argc > 1 && (std::string(argv[1]) == "-v" || std::string(argv[1]) == "--verbose");
-	return enabled;
 }
 
 using os_manip=VerboseStream::ostream_manipulator;
@@ -55,7 +54,7 @@ VerboseStream& VerboseStream::operator<<(v_manip foo) {
 /**
  * What to print before verbose message.
  */
-constexpr std::string VerboseStream::heading("Verbose: ");
+const std::string VerboseStream::heading("Verbose: ");
 
 /**
  * Forbid the display of the annoying `Verbose: `.

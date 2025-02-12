@@ -18,12 +18,11 @@ public:
 	template<typename T>
 	VerboseStream& operator<<(const T& value) {
 		if (enabled) {
-			*stream << STYLE_VERBOSE;
 			if(printHeading){
 				printHeading = false;
 				operator<<(VerboseStream::heading);
 			}
-			*stream << value << COLOR_ALL_RESET;
+			*stream << STYLE_VERBOSE << value << COLOR_ALL_RESET;
 		}
 		return *this;
 	}
@@ -34,10 +33,10 @@ public:
 	typedef VerboseStream& (*verbose_manipulator)(VerboseStream&);
 	VerboseStream& operator<<(verbose_manipulator);
 
-	constexpr static std::string heading;
+	static const std::string heading;
 	static VerboseStream& noHeading(VerboseStream&);
 	static VerboseStream& newLine(VerboseStream&);
 };
 
 /** The verbose stream. */
-VerboseStream vout;
+inline VerboseStream vout;

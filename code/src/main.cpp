@@ -74,21 +74,22 @@ int main(int argc, char **argv){
 					break;
 			}
 		}
-		if(stepByStep)
+		
+		vout << "Displaying the cat to the window.\t(main loop)" << std::endl;
+		myCat.move();
+		myCat.draw(render);
+
+		vout << "Rendering then clearing the window.\t(main loop)" << std::endl;
+		SDL_RenderPresent(render);
+		
+		if(stepByStep){
 			//Wait for the user to press the button
 			while(ev.type != SDL_KEYDOWN || ev.key.keysym.sym != SDLK_RIGHT){	
 				if(ev.type == SDL_QUIT)
 					quit(EXIT_SUCCESS, render, win);
 				SDL_PollEvent(&ev);
 			}
-
-
-		vout << "Displaying the cat to the window.\t(main loop)" << std::endl;
-		myCat.move();
-		myCat.draw(render, true);
-
-		vout << "Rendering then clearing the window.\t(main loop)" << std::endl;
-		SDL_RenderPresent(render);
+		}
 		SDL_RenderClear(render);
 		
 		vout << "Waiting until next frame.\t\t(main loop)" << std::endl;
