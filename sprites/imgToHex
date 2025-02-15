@@ -1,10 +1,13 @@
 #!/bin/zsh
 
+mkdir hexDump > /dev/null
+
 # Loop through all .bmp files
 for file in img/**/*(.); do
 	if [[ $file != *".bmp" ]]; then
 		continue
 	fi
+	echo "converting $file."
 
 	# Use `xxd` to get the hax dump of each image
 	local fileBasename=$file:t
@@ -18,3 +21,4 @@ for file in img/**/*(.); do
 		echo -e "\e[3m\x1B[35mConverted $file to hex dump located at $dumpLoc.\033[0m"
 	fi
 done
+echo "done!"
