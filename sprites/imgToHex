@@ -1,18 +1,20 @@
 #!/bin/zsh
 
-mkdir hexDump > /dev/null
+mkdir hexDump &> /dev/null
+echo '' > "hexDump/images.cpp"	# Cleaning the file
 
 # Loop through all .bmp files
 for file in img/**/*(.); do
 	if [[ $file != *".bmp" ]]; then
 		continue
 	fi
-	echo "converting $file."
+	echo "Converting $file."
 
-	# Use `xxd` to get the hax dump of each image
+	# Use `xxd` to get the hex dump of each image
 	local fileBasename=$file:t
 	local fileBasenameNoExtention=${fileBasename[0, ${#fileBasename}-4]}
 	local dumpLoc="hexDump/$fileBasenameNoExtention.h"
+
 	xxd -u -i $file > $dumpLoc
 	echo "#include \"$fileBasenameNoExtention.h\"" >> "hexDump/images.cpp"
 
