@@ -40,13 +40,14 @@ public:
 	bool isAtDest(void) const;
 	void setRandDest(void);
 	void move(void);
+	void moveToDest(void);
 
 	uint getSize(void) const;
 
 	
 	virtual void draw(SDL_Renderer*, bool=false) const noexcept(false);
-	virtual std::string string(void) 	const;
+	virtual std::string string(void) const;
 
-	static std::string getSpriteFolder(void);
-	static std::string getSpriteBase(void);
+	static const std::string spriteFolder;
+	static const std::string spriteBase;
 };

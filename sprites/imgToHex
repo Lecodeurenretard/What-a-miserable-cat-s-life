@@ -1,5 +1,6 @@
 #!/bin/zsh
 
+echo -n '' > "hexDump/images.cpp"
 # Loop through all .bmp files
 for file in img/**/*(.); do
 	if [[ $file != *".bmp" ]]; then
@@ -10,6 +11,7 @@ for file in img/**/*(.); do
 	local fileBasename=$file:t
 	local fileBasenameNoExtention=${fileBasename[0, ${#fileBasename}-4]}
 	local dumpLoc="hexDump/$fileBasenameNoExtention.h"
+
 	xxd -u -i $file > $dumpLoc
 	echo "#include \"$fileBasenameNoExtention.h\"" >> "hexDump/images.cpp"
 

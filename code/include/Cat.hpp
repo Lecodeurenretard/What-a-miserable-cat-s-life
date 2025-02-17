@@ -39,5 +39,5 @@ public:
 
 	std::string string(void)	const;
 
-	static std::string getSpriteBase(void);
+	static const std::string spriteBase;
 };

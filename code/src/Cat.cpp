@@ -2,11 +2,14 @@
 
 Cat* Cat::catList[CATLIST_SIZE];
 
+/** The base to make spritePath. */
+const std::string Cat::spriteBase = spriteFolder + "cat";
+
 /**
  * Set the `sprite` field, return `false on failure`.
  */
 [[ nodiscard ]] bool Cat::setSprite(uint8_t spriteNum){
-	const std::string sprite(Cat::getSpriteBase() + ((spriteNum < 10)? "0" : "") + std::to_string(spriteNum) + ".bmp");
+	const std::string sprite(Cat::spriteBase + std::string((spriteNum < 10)? "0" : "") + std::to_string(spriteNum) + std::string(".bmp"));
 	struct stat sb;
 
 	if (stat(sprite.c_str(), &sb) == 0){
@@ -28,7 +31,7 @@ void Cat::setToRandomSprite(void) noexcept(false){
 				pathStr
 					.substr(pathStr.length() - 10, pathStr.length() - 6)
 					.find("cat")
-			!= pathStr.npos;
+				!= pathStr.npos;
 	};
 	
 	spritePath = getRandomPathFromMask(mask).string();
@@ -94,16 +97,16 @@ void Cat::eraseCat(Cat* cat){
 		std::min(
 			(size_t)UINT8_MAX,	//In case there's more than 256 files
 			howManyFiles(
-				getSpriteFolder(),
+				spriteFolder,
 				mask
 			)
 		)
 	);
 	if(limit == 0)
-		throw std::runtime_error("There are no files in `" + Cat::getSpriteFolder() + "`!");
+		throw std::runtime_error("There are no files in `" + Cat::spriteFolder + "`!");
 	limit--;
 
-	const auto folderIt = fs::directory_iterator(getSpriteFolder());
+	const auto folderIt = fs::directory_iterator(spriteFolder);
 	
 	uint8_t found(0);			//The number of correct matches found
 	for(const auto& file : folderIt)
@@ -159,7 +162,7 @@ void Cat::eraseCat(Cat* cat){
  * Construct a new Cat obj and registers it in catList
  */
 [[ nodiscard ]] Cat::Cat(Pos _pos, uint _size, uint velocity, uint8_t spriteNum) noexcept(false) 
-	: Animal(_pos, _size, velocity), alive(true)
+	: Animal(_pos, _size, spriteNum), alive(true)
 {
 	trySetLowestID();
 	if(!setSprite(spriteNum))
@@ -194,11 +197,4 @@ void Cat::eraseCat(Cat* cat){
  */
 std::string Cat::string(void) const{
 	return "Cat{ .pos=" + pos.string() + "; .spritePath=\"" + spritePath + "\"; .id=" + std::to_string((int)id) + "; .alive=" + std::to_string(alive) + "; .speed=" + std::to_string((int)speed) + "; .size=" + std::to_string((int)size) +"}";
-}
-
-/**
- * Returns the base to make spritePath
- */
-std::string Cat::getSpriteBase(void){
-	return getSpriteFolder() + "cat";
 }

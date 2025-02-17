@@ -1,6 +1,13 @@
 #include "../include/Animal.hpp"
 struct stat sb;
 
+/** The folder where the sprites are located. */
+const std::string Animal::spriteFolder = "sprites/";
+
+/** The base in order to make the full sprite path. */
+const std::string Animal::spriteBase = Animal::spriteFolder + "other";
+
+
 /**
  * This constructor is only for path we are sur they exist. Directly set `spritePath` to `path` without any test.
  */
@@ -20,7 +27,7 @@ void Animal::setToRandomSprite(void) noexcept(false){
 				pathStr
 					.substr(pathStr.length() - 10, pathStr.length() - 6)
 					.find("other")
-			!= pathStr.npos;
+				!= pathStr.npos;
 	};
 	
 	spritePath = Animal::getRandomPathFromMask(mask).string();
@@ -36,27 +43,28 @@ void Animal::setToRandomSprite(void) noexcept(false){
 		std::min(
 			(size_t)UINT8_MAX,	//In case there's more than 256 files
 			howManyFiles(
-				getSpriteFolder(),
+				spriteFolder,
 				mask
 			)
 		)
 	);
 	if(limit == 0)
-		throw std::runtime_error("There are no files in `" + Animal::getSpriteFolder() + "`!");
+		throw std::runtime_error("There are no files matching the mask in `" + Animal::spriteFolder + "`!");
 	limit--;
 
-	const auto folderIt = fs::directory_iterator(Animal::getSpriteFolder());
+	const auto folderIt = fs::directory_iterator(Animal::spriteFolder);
 	
 	uint8_t found(0);			//The number of correct matches found
 	for(const auto& file : folderIt)
-		if(mask(file.path()) && found >= limit){
-			return file.path();
-		}else if(mask(file.path())){
+		if(mask(file.path())){
+			if(found >= limit)
+				return file.path();
+		
 			found++;
 		}
 	
 	//if `limit` > nb correct files
-	throw std::logic_error("The limit = " + std::to_string(limit) +" is aboves the number of regular files =  in Animal::getRandomPathFromMask().");
+	throw std::logic_error("The limit = " + std::to_string(limit) +" is aboves the number of regular files in Animal::getRandomPathFromMask().");
 }
 
 /**
@@ -70,7 +78,7 @@ void Animal::setToRandomSprite(void) noexcept(false){
  * Set the `sprite` field, return `false` on failure.
  */
 [[ nodiscard ]] bool Animal::setSprite(uint8_t spriteNum){
-	const std::string sprite(Animal::getSpriteBase() + ((spriteNum < 10)? "0" : "") + std::to_string(spriteNum) + ".bmp");
+	const std::string sprite(Animal::spriteBase + ((spriteNum < 10)? "0" : "") + std::to_string(spriteNum) + ".bmp");
 
 	if (stat(sprite.c_str(), &sb) == 0){
 		spritePath = sprite;
@@ -117,7 +125,7 @@ void Animal::setToRandomSprite(void) noexcept(false){
 		return;
 	}
 	if(!setSprite(spriteNum))
-		throw std::invalid_argument("Couldn't set the sprite.\nMaybe `"+ Animal::getSpriteFolder() + std::to_string(spriteNum) + ".bmp` is not a correct path?");
+		throw std::invalid_argument("Couldn't set the sprite.\nMaybe `"+ Animal::spriteFolder + std::to_string(spriteNum) + ".bmp` is not a correct path?");
 	
 }
 
@@ -145,7 +153,10 @@ void Animal::increaseSpeed(uint by){
  * Check if the animal is at destination.
  */
 bool Animal::isAtDest(void) const{
-	return round(pos) == round(dest);
+	const float threshold = speed + 0.01;	//make sure the animal can't jump behing the destination's hitbox.
+	return 
+		dest.x - threshold < pos.x && pos.x < dest.x + threshold &&
+		dest.y - threshold < pos.y && pos.y < dest.y + threshold;
 }
 
 /**
@@ -159,9 +170,18 @@ void Animal::setRandDest(void) {
 }
 
 /**
- * Moves the animal toward its destination.
+ * Moves the animal toward its destination and defines a new one if the animal is at destination.
  */
 void Animal::move(void) {
+	if(isAtDest())
+		setRandDest();
+	pos = getSpeedVector().translate(pos);
+}
+
+/**
+ * Moves the animal toward its destination.
+ */
+void Animal::moveToDest(void) {
 	pos = getSpeedVector().translate(pos);
 }
 
@@ -215,18 +235,4 @@ void Animal::draw(SDL_Renderer* r, bool drawInfos /*=false*/) const noexcept(fal
  */
 [[ nodiscard ]] std::string Animal::string(void) const{
 	return "Animal{ .pos=" + pos.string() + "; .spritePath=\"" + spritePath + "\"}";
-}
-
-/**
- * Returns the folder where the sprites are located
- */
-[[ nodiscard ]] std::string Animal::getSpriteFolder(void){
-	return "sprites/";
-}
-
-/**
- * Returns the base in order to make the sprite path.
- */
-[[ nodiscard ]] std::string Animal::getSpriteBase(void){
-	return Animal::getSpriteFolder() + "other";
 }

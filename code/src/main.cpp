@@ -20,20 +20,20 @@ int main(int argc, char **argv){
 			quit(EXIT_FAILURE);
 		}
 
-		for(size_t i = 0; i < allDumpSize-2; i++){
-			const std::string filename = "sprites/cat0"+ std::to_string(i+1) +".bmp";
+		for(size_t i = 0; i < catCount; i++){
+			const std::string filename = "sprites/cat"+ std::string((i < 10)? "0" : "\0") + std::to_string(i+1) +".bmp";	//If the sprite number is less than 10, add a trailing `0` (ie: "cat9" -> "cat09")
 			if(!saveImageToFile(filename.c_str(), i))
 				wout << "Failed to save `" << filename << '`' << std::endl;
 		}
 
-		
-		if(!saveImageToFile("sprites/cat10.bmp", 9))
-			wout << "Failed to save `sprites/cat10.bmp`" << std::endl;
-
-		if(!saveImageToFile("sprites/other1.bmp", 10))
+		if(!saveImageToFile("sprites/other1.bmp", catCount))
 			wout << "Failed to save `sprites/other1.bmp`" << std::endl;
 
-
+		for(size_t i = 0; i < dogCount; i++){
+			const std::string filename = "sprites/dog"+ std::to_string(i+1) +".bmp";
+			if(!saveImageToFile(filename.c_str(), catCount + otherCount + i))		//The dogs are after the cats and animals
+				wout << "Failed to save `" << filename << '`' << std::endl;
+		}
 	}
 	
 	vout << "Initializing random seed and SDL." << std::endl;
@@ -57,51 +57,46 @@ int main(int argc, char **argv){
 	SDL_SetRenderDrawColor(render, 15, 15, 15, SDL_ALPHA_OPAQUE);
 	
 	Cat myCat(Pos::SCREEN_CENTER, 100, 1, 2);
-	
+	Dog myDog(Pos(100, 100));
 	while(true){
-		vout << "Choosing a random destination." << std::endl;
-		myCat.setRandDest();
+		const Uint64 frameStart = SDL_GetPerformanceCounter();
+	
+		vout << "Checking events.\t\t\t(main loop)" << std::endl;
+		SDL_Event ev;
+		while (SDL_PollEvent(&ev)){
+			switch (ev.type){
+				case SDL_QUIT:
+					quit(EXIT_SUCCESS, render, win);
 
-		vout << "Entering the main loop.\n\n" << std::endl;
-		while(!myCat.isAtDest()){
-			const Uint64 frameStart = SDL_GetPerformanceCounter();
-
-			vout << "Checking events.\t\t\t(main loop)" << std::endl;
-			SDL_Event ev;
-			while (SDL_PollEvent(&ev)){
-				switch (ev.type){
-					case SDL_QUIT:
-						quit(EXIT_SUCCESS, render, win);
-
-					default:
-						break;
-				}
+				default:
+					break;
 			}
-			
-			vout << "Displaying the cat to the window.\t(main loop)" << std::endl;
-			myCat.move();
-			myCat.draw(render, showDestination);
-
-			vout << "Rendering then clearing the window.\t(main loop)" << std::endl;
-			SDL_RenderPresent(render);
-			
-			if(stepByStep){
-				//Wait for the user to press the button
-				while(ev.type != SDL_KEYDOWN || ev.key.keysym.sym != SDLK_RIGHT){	
-					if(ev.type == SDL_QUIT)
-						quit(EXIT_SUCCESS, render, win);
-					SDL_PollEvent(&ev);
-				}
-			}
-			SDL_RenderClear(render);
-			
-			vout << "Waiting until next frame.\t\t(main loop)" << std::endl;
-			if(!stepByStep)
-				waitNextFrame((SDL_GetPerformanceCounter()-frameStart) / (float)SDL_GetPerformanceFrequency());		//For how long the frame lasted
-			else
-				VerboseStream::newLine(vout);
 		}
-		vout << "Destination reached!" << std::endl;
+		
+		vout << "Displaying the cat to the window.\t(main loop)" << std::endl;
+		myCat.move();
+		myDog.move();
+		myCat.draw(render, showDestination);
+		myDog.draw(render, showDestination);
+
+		vout << "Rendering then clearing the window.\t(main loop)" << std::endl;
+		SDL_RenderPresent(render);
+		
+		if(stepByStep){
+			//Wait for the user to press the button
+			while(ev.type != SDL_KEYDOWN || ev.key.keysym.sym != SDLK_RIGHT){
+				if(ev.type == SDL_QUIT)
+					quit(EXIT_SUCCESS, render, win);
+				SDL_PollEvent(&ev);
+			}
+		}
+		SDL_RenderClear(render);
+		
+		vout << "Waiting until next frame.\t\t(main loop)" << std::endl;
+		if(!stepByStep)
+			waitNextFrame((SDL_GetPerformanceCounter()-frameStart) / (float)SDL_GetPerformanceFrequency());		//For how long the frame lasted
+		else
+			VerboseStream::newLine(vout);
 	}
 
 	quit(EXIT_SUCCESS, render, win);
