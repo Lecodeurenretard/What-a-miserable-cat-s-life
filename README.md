@@ -2,7 +2,7 @@
 ## General presentation
 This project is an AI project (it doesn't look like it yet but it will). In the final version I'm planning to add:
 + ❌ More cats
-+ ❌ Dogs
++ ✅ Dogs
 + ❌ A health system (for cats)
 + ✅ Movement
 + ❌ A genetic algorithm
@@ -48,7 +48,7 @@ cmake .. && cmake --build . && ./main
 ```
 
 ### Adding custom sprites
-In order to add new sprites for a class in particular, you have to put the image file in the corresponding subdirectory of [img](sprites/img/) ([other](sprites/img/other) is for the default sprites of the `Animal` class or its children classes), name it following the name pattern. Make sure the image is in the `.bmp` format and it exactly has `100x100` dimensions (even if you have to fill with transparent pixels).
+In order to add new sprites for a class in particular, you have to put the image file in the corresponding subdirectory of [img](sprites/img/) ([other](sprites/img/other) is for the default sprites of the `Animal` class or its children classes), name it following the name pattern. Make sure the image is in the `.bmp` format and has square dimensions (even if you have to fill with transparent pixels).
 
 Once you did this, you can go to [Image.hpp](code/include/Images.hpp) and declare the variable containing the hex dump of you sprite (located in [hexDump](sprites/hexDump)), follow this syntax:
 ```C++
