@@ -15,19 +15,13 @@ const std::string Animal::spriteBase = Animal::spriteFolder + "other";
 	: pos(_pos), dest(_pos), size(_size), speed(_speed), spritePath(path)
 {}
 
-
 /**
- * Set the current sprite at a random sprite
+ * Set the current sprite at a random sprite.
  */
 void Animal::setToRandomSprite(void) noexcept(false){
 	const auto mask = [](const fs::path& path){
-		const std::string pathStr = path.string();
-
-		return fs::is_regular_file(path) &&
-				pathStr
-					.substr(pathStr.length() - 10, pathStr.length() - 6)
-					.find("other")
-				!= pathStr.npos;
+		const std::string pathStr = path.string().replace(0, 8, "");	// Removing the leading "sprites/"
+		return fs::is_regular_file(path) && pathStr.starts_with("other") && pathStr.ends_with(".bmp");
 	};
 	
 	spritePath = Animal::getRandomPathFromMask(mask).string();
@@ -37,7 +31,7 @@ void Animal::setToRandomSprite(void) noexcept(false){
  * Return a path to random sprite corresponding to the mask passed.
  * @param mask A function pointer pointing to a function taking a path in argument and returning `true` if this argument is a path to include in the search.
  */
-[[ nodiscard ]] fs::path Animal::getRandomPathFromMask(bool (*mask)(const fs::path&)) noexcept(false){
+[[ nodiscard ]] fs::path Animal::getRandomPathFromMask(mask_t mask) noexcept(false){
 	uint8_t limit = randInt(
 		1,
 		std::min(
@@ -62,7 +56,7 @@ void Animal::setToRandomSprite(void) noexcept(false){
 		
 			found++;
 		}
-	
+
 	//if `limit` > nb correct files
 	throw std::logic_error("The limit = " + std::to_string(limit) +" is aboves the number of regular files in Animal::getRandomPathFromMask().");
 }

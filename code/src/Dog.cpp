@@ -4,14 +4,9 @@ const std::string Dog::spriteBase = Animal::spriteFolder + "dog";
 
 void Dog::setToRandomSprite(void) noexcept(false){
 	const auto mask = [](const fs::path& path){
-		const std::string pathStr = path.string();
-
-		std::cout << pathStr.substr(pathStr.length() - 10, pathStr.length() - 6);
-		return fs::is_regular_file(path) &&
-				pathStr
-					.substr(pathStr.length() - 10, pathStr.length() - 6)
-					.find("dog")
-				!= pathStr.npos;
+		const std::string pathStr = path.string().replace(0, 8, "");
+		
+		return fs::is_regular_file(path) && pathStr.starts_with("dog") && pathStr.ends_with(".bmp");
 	};
 	
 	spritePath = getRandomPathFromMask(mask).string();

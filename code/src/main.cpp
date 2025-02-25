@@ -4,8 +4,12 @@
 
 bool saveImageToFile(const char*, const unsigned char*, const unsigned int);
 bool saveImageToFile(const char*, uint8_t);
+void saveImgs(const char*, size_t, size_t);
 
 double waitNextFrame(float);
+void waitEvent(SDL_EventType, SDL_Renderer* = nullptr, SDL_Window* = nullptr);
+void waitKeyPress(SDL_KeyCode, SDL_Renderer* = nullptr, SDL_Window* = nullptr);
+
 void quit(int = EXIT_SUCCESS, SDL_Renderer* = nullptr, SDL_Window* = nullptr);
 
 int main(int argc, char **argv){
@@ -20,20 +24,9 @@ int main(int argc, char **argv){
 			quit(EXIT_FAILURE);
 		}
 
-		for(size_t i = 0; i < catCount; i++){
-			const std::string filename = "sprites/cat"+ std::string((i < 10)? "0" : "\0") + std::to_string(i+1) +".bmp";	//If the sprite number is less than 10, add a trailing `0` (ie: "cat9" -> "cat09")
-			if(!saveImageToFile(filename.c_str(), i))
-				wout << "Failed to save `" << filename << '`' << std::endl;
-		}
-
-		if(!saveImageToFile("sprites/other1.bmp", catCount))
-			wout << "Failed to save `sprites/other1.bmp`" << std::endl;
-
-		for(size_t i = 0; i < dogCount; i++){
-			const std::string filename = "sprites/dog"+ std::to_string(i+1) +".bmp";
-			if(!saveImageToFile(filename.c_str(), catCount + otherCount + i))		//The dogs are after the cats and animals
-				wout << "Failed to save `" << filename << '`' << std::endl;
-		}
+		saveImgs("dog"	, 0						, dogCount	);
+		saveImgs("cat"	, dogCount				, catCount	);
+		saveImgs("other", dogCount + catCount	, otherCount);
 	}
 	
 	vout << "Initializing random seed and SDL." << std::endl;
@@ -61,7 +54,7 @@ int main(int argc, char **argv){
 	while(true){
 		const Uint64 frameStart = SDL_GetPerformanceCounter();
 	
-		vout << "Checking events.\t\t\t(main loop)" << std::endl;
+		vout << "Checking events.\t\t\t\t(main loop)" << std::endl;
 		SDL_Event ev;
 		while (SDL_PollEvent(&ev)){
 			switch (ev.type){
@@ -73,26 +66,20 @@ int main(int argc, char **argv){
 			}
 		}
 		
-		vout << "Displaying the cat to the window.\t(main loop)" << std::endl;
+		vout << "Moving and displaying animals to the window.\t(main loop)" << std::endl;
 		myCat.move();
 		myDog.move();
 		myCat.draw(render, showDestination);
 		myDog.draw(render, showDestination);
 
-		vout << "Rendering then clearing the window.\t(main loop)" << std::endl;
+		vout << "Rendering then clearing the window.\t\t(main loop)" << std::endl;
 		SDL_RenderPresent(render);
 		
-		if(stepByStep){
-			//Wait for the user to press the button
-			while(ev.type != SDL_KEYDOWN || ev.key.keysym.sym != SDLK_RIGHT){
-				if(ev.type == SDL_QUIT)
-					quit(EXIT_SUCCESS, render, win);
-				SDL_PollEvent(&ev);
-			}
-		}
+		if(stepByStep)
+			waitKeyPress(SDLK_RIGHT, render, win);
 		SDL_RenderClear(render);
 		
-		vout << "Waiting until next frame.\t\t(main loop)" << std::endl;
+		vout << "Waiting until next frame.\t\t\t(main loop)" << std::endl;
 		if(!stepByStep)
 			waitNextFrame((SDL_GetPerformanceCounter()-frameStart) / (float)SDL_GetPerformanceFrequency());		//For how long the frame lasted
 		else
@@ -135,8 +122,28 @@ bool saveImageToFile(const char* filename, const unsigned char* data, const unsi
 bool saveImageToFile(const char* filename, uint8_t imageIndex) {
 	if(imageIndex >= allDumpSize || imageIndex >= allDumpLenSize)	//The index is OoB
 		return false;
-
 	return saveImageToFile(filename, allDump[imageIndex], allDumpLen[imageIndex]);
+}
+
+/**
+ * Saves `count` images with names name1, name2, ... and begins at index `offset` in `allDump`.  
+ * Assumes the `sprites` directory exists.
+ */
+void saveImgs(const char* name, size_t offset, size_t count){
+	for(uint8_t i = 0; i < count; i++){
+		std::string filename = 
+			"sprites/"
+			+ std::string(name)
+			+ std::string(
+				(i < 9)?			//If the sprite number is less than 10, add a trailing `0` (ie: "cat9" -> "cat09")
+					"0" + std::to_string(i+1)
+					: std::to_string(i+1)
+			) 
+			+".bmp";
+		
+		if(!saveImageToFile(filename.c_str(), (uint8_t)(i + offset)))
+			wout << "Failed to save `" << filename << '`' << std::endl;
+	}
 }
 
 
@@ -156,6 +163,40 @@ double waitNextFrame(float lasted){
 		wout << "The frame ended " << timeTaken << "ms late (it took " << lasted * 1000 << "ms to run)." << std::endl;
 	}
 	return delta;
+}
+
+/**
+ * Wait until the specified event or quit if the corresponding event is fired.
+ * @param eventType The event type to wait.
+ * @param r The renderer to free if the user quits.
+ * @param win The window to free if the user quits
+ */
+void waitEvent(SDL_EventType eventType, SDL_Renderer* r /*= nullptr*/, SDL_Window* win /*= nullptr*/){
+	SDL_Event ev;
+	SDL_PollEvent(&ev);
+
+	while(ev.type != eventType){
+		if(ev.type == SDL_QUIT)
+			quit(EXIT_SUCCESS, r, win);
+		SDL_PollEvent(&ev);
+	}
+}
+
+/**
+ * Wait until the specified key is entered or quit if the corresponding event is fired.
+ * @param key The key code (one of `SDLK_*` macros) of the key to wait.
+ * @param r The renderer to free if the user quits.
+ * @param win The window to free if the user quits
+ */
+void waitKeyPress(SDL_KeyCode key, SDL_Renderer* r /*= nullptr*/, SDL_Window* win /*= nullptr*/){
+	SDL_Event ev;
+	SDL_PollEvent(&ev);
+
+	while(ev.type != SDL_KEYDOWN && ev.key.keysym.sym != key){
+		if(ev.type == SDL_QUIT)
+			quit(EXIT_SUCCESS, r, win);
+		SDL_PollEvent(&ev);
+	}
 }
 
 /**

@@ -42,21 +42,18 @@ This is not a tutorial in order to mod this project but a group of information t
 
 ### Building from source
 For this project I used cmake so you just have to run those commands:
-```bash
-mkdir build; cd build
-cmake .. && cmake --build . && ./main
+```zsh
+cd sprites
+./imgToHex		# Transform .bmp files into C hexdumps, make sure to have zsh installed
+
+mkdir ../build; cd ../build
+cmake .. && cmake --build . && ../cmake-clean && ./main 
 ```
 
 ### Adding custom sprites
-In order to add new sprites for a class in particular, you have to put the image file in the corresponding subdirectory of [img](sprites/img/) ([other](sprites/img/other) is for the default sprites of the `Animal` class or its children classes), name it following the name pattern. Make sure the image is in the `.bmp` format and has square dimensions (even if you have to fill with transparent pixels).
+In order to add new sprites for a class, you have to put the image file in the corresponding subdirectory of [img](sprites/img/) ([other](sprites/img/other) is for the  sprites of the `Animal` class and the default ones for its children classes), name it following the name pattern. Make sure the image is in the `.bmp` format and has square dimensions (even if you have to fill with transparent pixels), in the first case it will not be ignored and in the second, it will be deformed to fit inside a 100x100 rectangle.  
+Then it's just creating your own class.
 
-Once you did this, you can go to [Image.hpp](code/include/Images.hpp) and declare the variable containing the hex dump of you sprite (located in [hexDump](sprites/hexDump)), follow this syntax:
-```C++
-extern unsigned char hex_name;		//Where `hex_name` is the name of your hex dump
-extern unsigned int hex_name_len;
-```
-
-Don't forget to add those variables at the end of the `allDump[]` and `allDumpLen[]` arrays and to modify their sizes.
 
 _________________________________
 This project isn't even tested on Windows, only Linux Mint. I'll take care of compatibility issues at the 1.0 version of this project of this project.

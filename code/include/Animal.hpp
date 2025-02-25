@@ -19,7 +19,7 @@ protected:
 	virtual bool setSprite(uint8_t);
 	virtual void setToRandomSprite(void) noexcept(false);
 
-	static fs::path getRandomPathFromMask(bool (*mask)(const fs::path&));
+	static fs::path getRandomPathFromMask(mask_t);
 
 	Vector getSpeedVector(void) const;
 

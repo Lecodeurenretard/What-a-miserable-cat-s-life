@@ -14,15 +14,16 @@ constexpr uint WIN_MAX = std::min(WIN_HEIGHT, WIN_WIDTH);
 /** The framerate */
 constexpr uint8_t DESIRED_FPS = 60;
 
+/** The type of a path mask */
+typedef bool (*mask_t)(const fs::path&);
+
 /**
  * Returns a double in the [`min`, `max`] range
  */
 inline double randDouble(int min=0, int max=RAND_MAX){
-	return std::round(
-		(double)std::rand()/RAND_MAX
+	return (double)std::rand()/RAND_MAX
 		* (max - min)
-		+ min
-	);
+		+ min;
 	/*
 	 * `std::rand()` returns an int between `0` and `RAND_MAX` so 
 	 * - we divide by `RAND_MAX` to get a value between `0` and `1`
@@ -39,11 +40,11 @@ inline int randInt(int min=0, int max=RAND_MAX){
 }
 
 /**
- * Returns the number of files the `dir` directory according to to mask
+ * Returns the number of files the `dir` directory according to `fileMask`
  */
-inline size_t howManyFiles(fs::path dir, bool (*fileMask)(const fs::path&)){
+inline size_t howManyFiles(fs::path dir, mask_t fileMask){
 	return std::count_if(
-		fs::directory_iterator((fs::path)dir),
+		fs::directory_iterator(dir),
 		fs::directory_iterator{},
 		fileMask
 	);
@@ -52,13 +53,12 @@ inline size_t howManyFiles(fs::path dir, bool (*fileMask)(const fs::path&)){
 /**
  * Returns the number of regular files the `dir` directory
  */
-inline size_t howManyFiles(fs::path dir){
-	using fp = bool (*)(const std::filesystem::path&);	//A funtion type handled by the filesystem lib
-	return howManyFiles(dir, (fp)fs::is_regular_file);
+inline size_t howManyRegularFiles(fs::path dir){
+	return howManyFiles(dir, (mask_t)fs::is_regular_file);
 }
 
 /**
- * Initialize an SDL_Rect
+ * Initialize an SDL_Rect allocated with `malloc()`.
  * @param x The x position of the rectangle
  * @param y The y position of the rectangle
  * @param w The width of the rectangle

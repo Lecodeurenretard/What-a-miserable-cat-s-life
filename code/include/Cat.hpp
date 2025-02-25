@@ -21,7 +21,7 @@ private:
 	static void pushCat(Cat*);
 	static void eraseCat(Cat*);
 	static std::optional<ID> getLowestID(void);
-	static fs::path getRandomPathFromMask(bool (*mask)(const fs::path&)) noexcept(false);
+	static fs::path getRandomPathFromMask(mask_t) noexcept(false);
 
 public:
 	explicit Cat(Pos);

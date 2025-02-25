@@ -25,13 +25,9 @@ const std::string Cat::spriteBase = spriteFolder + "cat";
  */
 void Cat::setToRandomSprite(void) noexcept(false){
 	const auto mask = [](const fs::path& path){
-		const std::string pathStr = path.string();
+		const std::string pathStr = path.string().replace(0, 8, "");
 
-		return fs::is_regular_file(path) &&
-				pathStr
-					.substr(pathStr.length() - 10, pathStr.length() - 6)
-					.find("cat")
-				!= pathStr.npos;
+		return fs::is_regular_file(path) && pathStr.starts_with("cat") && pathStr.ends_with(".bmp");
 	};
 	
 	spritePath = getRandomPathFromMask(mask).string();
@@ -91,7 +87,7 @@ void Cat::eraseCat(Cat* cat){
  * Return a path to random sprite corresponding to the mask passed.
  * @param mask A function pointer pointing to a function taking a path in argument and returning `true` if this argument is a path to include in the search.
  */
-[[ nodiscard ]] fs::path Cat::getRandomPathFromMask(bool (*mask)(const fs::path&)) noexcept(false){
+[[ nodiscard ]] fs::path Cat::getRandomPathFromMask(mask_t mask) noexcept(false){
 	uint8_t limit = randInt(
 		1,
 		std::min(
