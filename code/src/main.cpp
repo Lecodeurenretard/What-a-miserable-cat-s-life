@@ -12,10 +12,22 @@ void waitKeyPress(SDL_KeyCode, SDL_Renderer* = nullptr, SDL_Window* = nullptr);
 
 void quit(int = EXIT_SUCCESS, SDL_Renderer* = nullptr, SDL_Window* = nullptr);
 
-int main(int argc, char **argv){
-	const bool stepByStep = argc >= 3 && (std::string(argv[2]) == std::string("-s") || std::string(argv[2]) == std::string("--step"));
-	const bool showDestination = argc >= 4 && (std::string(argv[3]) == std::string("-d") || std::string(argv[3]) == std::string("--destination") || std::string(argv[3]) == std::string("--show-destination"));
-	VerboseStream::setEnabled(argc, argv);
+int main(int argc, const char** argv) {
+	cmd::Parser parser({
+		{"-s",				cmd::Type::boolean},
+		{"--step",			cmd::Type::boolean},
+
+		{"-d",				cmd::Type::boolean},
+		{"--destination",	cmd::Type::boolean},
+
+		{"-v",				cmd::Type::boolean},
+		{"--verbose",		cmd::Type::boolean},
+	});
+	cmd::Parser::parseReturn_t arguments = parser.parse(argc, argv);
+
+	VerboseStream::setEnabled(arguments);
+	const bool stepByStep		= std::get<bool>(arguments["-s"]) || std::get<bool>(arguments["--step"]);
+	const bool showDestination	= std::get<bool>(arguments["-d"]) || std::get<bool>(arguments["--destination"]);
 
 	if(!fs::exists("sprites")){
 		vout << "Creating image files." << std::endl;
@@ -75,15 +87,18 @@ int main(int argc, char **argv){
 		vout << "Rendering then clearing the window.\t\t(main loop)" << std::endl;
 		SDL_RenderPresent(render);
 		
-		if(stepByStep)
+		if(stepByStep) {
 			waitKeyPress(SDLK_RIGHT, render, win);
+			vout << "Waiting until next frame.\t\t\t(main loop)" << std::endl;
+		}
 		SDL_RenderClear(render);
 		
-		vout << "Waiting until next frame.\t\t\t(main loop)" << std::endl;
-		if(!stepByStep)
+		if(!stepByStep) {
 			waitNextFrame((SDL_GetPerformanceCounter()-frameStart) / (float)SDL_GetPerformanceFrequency());		//For how long the frame lasted
-		else
+			vout << "Waiting until next frame.\t\t\t(main loop)" << std::endl;
+		} else {
 			VerboseStream::newLine(vout);
+		}
 	}
 
 	quit(EXIT_SUCCESS, render, win);

@@ -10,14 +10,11 @@ This project is an AI project (it doesn't look like it yet but it will). In the 
 
 This project is an encore to an [old scratch project](https://scratch.mit.edu/projects/713148064/) that I made (it' s really buggy and the cats don't move after the first gen) which is an implementation of one of [Laupok's example in one of his videos](https://youtu.be/F63GNXGHVwM?t=352) (french warning) where he makes a brain that plays Mario World, I'm aware that he made a [video](https://www.youtube.com/watch?v=u5xCl1bSe6o&t=0s&ab_channel=Laupok) explaining his [code](https://pastebin.com/Jcvdqhqm) in details but I didn't watch it nor seen his code since I want to do this project my way.
 
-## How to use
+## Usage
 The program can take 3 arguments:
-+ The first one is **`--verbose`** in order to enable verbose.
-+ The second one is **`--step`** for running the program frame by frame (next frame is right arrow).
-+ The third one is **`--destination`** for showing destination and the speed vector of the cat.
-
-All incorrect use of arguments will be ignored.
-You can only use them in order, for example `./main --step` will be interpreted as `./main`, `--step` needs to be behind another argument ie `./main --incorrect --step`. 
++ The first one is **`--verbose`** (`-v` for short) in order to enable verbose.
++ The second one is **`--step`** (`-s` for short) for running the program frame by frame (next frame is right arrow).
++ The third one is **`--destination`** (`-d` for short) for showing destination and the speed vector of the animals.
 
 ## Description
 ### Short description of each class

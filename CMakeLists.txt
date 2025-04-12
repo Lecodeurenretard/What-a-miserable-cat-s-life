@@ -8,7 +8,8 @@ endif()
 message("Build type used: ${CMAKE_BUILD_TYPE}")
 
 # Sets compiler arguments
-add_compile_options(-Wall -std=gnu++23)
+add_compile_options(-Wall)
+set(CMAKE_CXX_STANDARD 23)
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
 	add_compile_options(-ggdb)
 endif()
@@ -17,6 +18,8 @@ endif()
 # Gets SDL
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
+
+include_directories(BEFORE SYSTEM "/usr/include/nlibs")
 
 # The path to all source files
 set(
@@ -28,6 +31,12 @@ set(
 	"code/src/Warning.cpp"
 	"code/src/Verbose.cpp"
 	"code/src/Vector.cpp"
+)
+
+set(
+	OTHER_DEPS
+	"/usr/lib/libUtil.so"
+	"/usr/lib/libArgumentParser.so"
 )
 
 # I took far too much time trying to make this work, I give up.
@@ -68,7 +77,8 @@ target_include_directories(ProjectSrc
 # Compile and link the executable
 add_executable(main "code/src/main.cpp")
 target_link_libraries(main PRIVATE 
-	ProjectSrc
-	Images
 	${SDL2_LIBRARIES}
+	${OTHER_DEPS}
+	Images
+	ProjectSrc
 )

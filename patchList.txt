@@ -17,10 +17,15 @@ This file simply list the progression of patches in this minor version.
 		Creating the hexDump folder if not already present so this project is finally buildable from source.
 		Using nested loops to count files.
 	
-	Fixed a really dumb bug has been in PRNG.
+	Fixed a really dumb bug in PRNG.
 	Renamed `howManyFiles(fs::path)` to `howManyRegularFiles()`.
 	Simplified the mask of `Animal.setToRandomSprite()` and children classes.
 	Refactored sprite copying in main.cpp (created `saveImgs()`).
 	Created `waitEvent()` and `waitKeyPress()` to simplify step by step mode
 	Renamed many sprites to fit the name pattern.
 	Made a few changes to the doc.
+
+0.2.2:
+	Imported colors as submodule.
+	Implemented Argument-Parser.
+	Added a wrapper script for installing submodules.

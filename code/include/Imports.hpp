@@ -25,4 +25,10 @@ namespace fs = std::filesystem;
 
 #include "Images.hpp"
 #include "Utilities.hpp"
-#include "utility libs/Color Constants.hpp"
+
+#if !__has_include(<nlibs/Parser>)
+	#error "Run the install script `installSubModules` before compliling."
+#endif
+
+#include <nlibs/colors.h>
+#include <nlibs/Parser>

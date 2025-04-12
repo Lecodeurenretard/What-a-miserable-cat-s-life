@@ -17,7 +17,7 @@ public:
 
 	template<typename T>
 	WarningStream& operator<<(const T& value) {
-		*stream << STYLE_WARNING << WarningStream::heading << value << COLOR_ALL_RESET;
+		*stream << STYLE_WARNING << WarningStream::heading << value << STYLE_RESET;
 		return *this;
 	}
 
