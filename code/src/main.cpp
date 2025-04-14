@@ -41,8 +41,10 @@ int main(int argc, const char** argv) {
 		saveImgs("other", dogCount + catCount	, otherCount);
 	}
 	
-	vout << "Initializing random seed and SDL." << std::endl;
-	std::srand(std::time(nullptr));
+	vout << "Initializing" /*"random seed and"*/ " SDL." << std::endl;
+	
+	//std::srand(std::time(nullptr));		//useless for now, will be handy when mutating cats but not before
+
 	if(SDL_Init(SDL_INIT_EVERYTHING) < 0){
 		std::cerr << "Failed to initialize SDL.\n(SDL last error: " << SDL_GetError() << ')' << std::endl;
 		

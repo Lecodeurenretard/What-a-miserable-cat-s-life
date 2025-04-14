@@ -89,13 +89,16 @@ void Pos::draw(SDL_Renderer* r) const{
  * @param to The point to end.
  * @param t How far between two points we have to go, if strictly above 1, it gets treated as 1.
  */
-[[ nodiscard ]] Pos Pos::lerp(const Pos& from, const Pos& to, float t){	//I made it an `uint8_t` because floats use 4 times more memory
+[[ nodiscard ]] Pos Pos::lerp(const Pos& from, const Pos& to, float t){
 	return Pos(Vector::lerp(from, to, t));
 }
 
 
 [[ nodiscard ]] Pos::operator Vector() const{
-	return Vector(x, y);
+	return Vector{
+		.x = x,
+		.y = y
+	};
 }
 
 [[ nodiscard ]] Pos::operator SDL_Point() const{

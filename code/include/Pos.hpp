@@ -4,27 +4,25 @@
 #include "Warning.hpp"
 #include "Vector.hpp"
 
+/** The minimum value of `pos_t` */
+#define POS_MIN FLT_MIN
+
+/** The maximum value of `pos_t` */
+#define POS_MAX FLT_MAX
+
 /** The type for representing a position on 1 dimension */
 struct pos_t {
 	float val;
 	inline pos_t(float x){val = std::abs(x);}
+
 	inline operator float() const{ return val; }
 
 	inline pos_t operator+=(const pos_t& p) { val += p.val; return *this;}
 	inline pos_t operator-=(const pos_t& p) { val -= p.val; return *this;}
 	inline pos_t operator*=(const pos_t& p) { val *= p.val; return *this;}
 	inline pos_t operator/=(const pos_t& p) { val /= p.val; return *this;}
-
 };
 
-
-
-
-/** The minimum value of `pos_t` */
-#define POS_MIN FLT_MIN
-
-/** The maximum value of `pos_t` */
-#define POS_MAX FLT_MAX
 
 /**
  * A position in a 2D space.
