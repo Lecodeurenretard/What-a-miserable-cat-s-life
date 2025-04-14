@@ -1,14 +1,14 @@
 /** me-defined constants that need to be included in all files */
-/** The width of the screen */
+/** The width of the window */
 constexpr uint WIN_WIDTH	= 1000;
 
-/** The height of the screen */
+/** The height of the window */
 constexpr uint WIN_HEIGHT	= 1000;
 
-/** The smallest dimension */
+/** The smallest dimension of the window */
 constexpr uint WIN_MIN = std::min(WIN_HEIGHT, WIN_WIDTH);
 
-/** The largest dimension */
+/** The largest dimension of the window */
 constexpr uint WIN_MAX = std::min(WIN_HEIGHT, WIN_WIDTH);
 
 /** The framerate */
@@ -55,21 +55,4 @@ inline size_t howManyFiles(fs::path dir, mask_t fileMask){
  */
 inline size_t howManyRegularFiles(fs::path dir){
 	return howManyFiles(dir, (mask_t)fs::is_regular_file);
-}
-
-/**
- * Initialize an SDL_Rect allocated with `malloc()`.
- * @param x The x position of the rectangle
- * @param y The y position of the rectangle
- * @param w The width of the rectangle
- * @param h The height of the rectangle
- */
-inline SDL_Rect* SDL_RectInit(int x, int y, int w, int h){
-	SDL_Rect* res = (SDL_Rect*)malloc(sizeof(SDL_Rect));
-	res->x = x;
-	res->y = y;
-	res->w = w;
-	res->h = h;
-
-	return res;
 }

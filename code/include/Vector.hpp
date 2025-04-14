@@ -1,5 +1,6 @@
 #pragma once
 #include "Imports.hpp"
+#include "Warning.hpp"
 
 /**
  * A 2D vector

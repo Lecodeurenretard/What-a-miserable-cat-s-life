@@ -8,6 +8,8 @@ public:
 	explicit Dog(const Pos&);
 	Dog(const Dog&) = default;
 
+	std::string string(void) const;
+
 	//Those constructors give too much liberty
 	Dog(pos_t, pos_t)				= delete;
 	Dog(Pos, uint)					= delete;
@@ -18,7 +20,7 @@ public:
 	void increaseSize(uint)		= delete;
 	void increaseSpeed(uint)	= delete;
 
-	uint getSize(void) const = delete;
+	uint getSize(void) const	= delete;
 
 	/** The size of all dogs in pixels*/
 	static constexpr uint8_t size = 100;

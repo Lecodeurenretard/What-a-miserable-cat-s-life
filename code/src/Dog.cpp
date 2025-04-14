@@ -13,8 +13,12 @@ void Dog::setToRandomSprite(void) noexcept(false){
 }
 
 
-Dog::Dog(const Pos& p)
+[[ nodiscard ]] Dog::Dog(const Pos& p)
 	: Animal(p, Dog::size, Dog::speed)
 {
 	setToRandomSprite();
+}
+
+[[ nodiscard ]] std::string Dog::string(void) const {
+	return "Dog{ "+ Animal::string() +" }";
 }

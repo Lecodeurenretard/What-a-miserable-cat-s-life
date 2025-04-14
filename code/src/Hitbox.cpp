@@ -1,5 +1,12 @@
 #include "../include/Hitbox.hpp"
 
+[[ nodiscard ]] Hitbox::Hitbox(void) {
+	zone.x = 0;
+	zone.y = 0;
+	zone.w = 0;
+	zone.h = 0;
+}
+
 [[ nodiscard ]] Hitbox::Hitbox(SDL_Rect hit) {
 	zone.x = hit.x;
 	zone.y = hit.y;
@@ -44,10 +51,22 @@
 }
 
 /**
- * Calculate the position of the hitbox (the center of `zone`).
+ * Calculate the position of the center of the hitbox.
  */
-[[ nodiscard ]] Pos Hitbox::calcPos(void) const {
+[[ nodiscard ]] Pos Hitbox::calcCenter(void) const {
 	return Pos(zone.x + zone.w/2, zone.y + zone.h/2);
+}
+
+/**
+ * Return the current hitbox translated by `vec`.
+ */
+[[ nodiscard ]] Hitbox Hitbox::translate(Vector vec) const {
+	return Hitbox(SDL_FRect{
+		.x = zone.x + vec.x,
+		.y = zone.y + vec.y,
+		.w = zone.w,
+		.h = zone.h,
+	});
 }
 
 /**
@@ -76,8 +95,8 @@ void Hitbox::draw(SDL_Renderer* r, SDL_Color col/*= HITBOX_COLOR_INACTIVE*/, Vec
 	const SDL_FRect toDraw = {
 		.x = zone.x + offset.x,
 		.y = zone.y + offset.y,
-		.w = zone.w + offset.x,
-		.h = zone.h + offset.y
+		.w = zone.w,
+		.h = zone.h
 	};
 	SDL_RenderFillRectF(r, &toDraw);
 
@@ -95,8 +114,8 @@ void Hitbox::draw(SDL_Renderer* r, SDL_Color col/*= HITBOX_COLOR_INACTIVE*/, Vec
 		.x = (int)std::round(position.x),
 		.y = (int)std::round(position.y),
 
-		.w = (int)std::round(position.x + diag.x),
-		.h = (int)std::round(position.y + diag.y)
+		.w = (int)std::round(diag.x),
+		.h = (int)std::round(diag.y)
 	};
 }
 
@@ -110,8 +129,8 @@ void Hitbox::draw(SDL_Renderer* r, SDL_Color col/*= HITBOX_COLOR_INACTIVE*/, Vec
 		.x = position.x,
 		.y = position.y,
 
-		.w = position.x + diag.x,
-		.h = position.y + diag.y
+		.w = diag.x,
+		.h = diag.y
 	};
 }
 
@@ -132,5 +151,29 @@ void Hitbox::draw(SDL_Renderer* r, SDL_Color col/*= HITBOX_COLOR_INACTIVE*/, Vec
 	return Vector{
 		.x = rect.w,
 		.y = rect.h
+	};
+}
+
+/**
+ * Return a square with its upper left corner at `pos` and of side length of `size`.
+ */
+[[ nodiscard ]] SDL_Rect getSquare(int size, Pos pos/*=Pos::ORIGIN*/) {
+	return SDL_Rect{
+		.x = (int)std::round(pos.x),
+		.y = (int)std::round(pos.y),
+		.w = (int)std::round(size),
+		.h = (int)std::round(size),
+	};
+}
+
+/**
+ * Return a square with its upper left corner at `pos` and of side length of `size`.
+ */
+[[ nodiscard ]] SDL_FRect getSquare(float size, Pos pos/*=Pos::ORIGIN*/) {
+	return SDL_FRect{
+		.x = pos.x,
+		.y = pos.y,
+		.w = size,
+		.h = size,
 	};
 }

@@ -22,17 +22,22 @@ int main(int argc, const char** argv) {
 
 		{"-v",				cmd::Type::boolean},
 		{"--verbose",		cmd::Type::boolean},
+
+		{"-m",				cmd::Type::boolean},
+		{"--follow-mouse",	cmd::Type::boolean},
 	});
 	cmd::Parser::parseReturn_t arguments = parser.parse(argc, argv);
 
 	VerboseStream::setEnabled(arguments);
 	const bool stepByStep		= std::get<bool>(arguments["-s"]) || std::get<bool>(arguments["--step"]);
 	const bool showDestination	= std::get<bool>(arguments["-d"]) || std::get<bool>(arguments["--destination"]);
+	const bool followMouse		= std::get<bool>(arguments["-m"]) || std::get<bool>(arguments["--follow-mouse"]);
 
-	if(!fs::exists("sprites")){
+
+	if(!fs::exists("sprites")) {
 		vout << "Creating image files." << std::endl;
-		if(!fs::create_directory("sprites")){
-			std::cerr << "Couldn't create the `sprites` directory.";
+		if(!fs::create_directory("sprites")) {
+			std::cerr << "Couldn't create the `sprites` directory." << std::endl;
 			quit(EXIT_FAILURE);
 		}
 
@@ -41,11 +46,10 @@ int main(int argc, const char** argv) {
 		saveImgs("other", dogCount + catCount	, otherCount);
 	}
 	
-	vout << "Initializing" /*"random seed and"*/ " SDL." << std::endl;
-	
+	vout << "Initializing" /*" random seed and"*/ " SDL." << std::endl;
 	//std::srand(std::time(nullptr));		//useless for now, will be handy when mutating cats but not before
 
-	if(SDL_Init(SDL_INIT_EVERYTHING) < 0){
+	if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
 		std::cerr << "Failed to initialize SDL.\n(SDL last error: " << SDL_GetError() << ')' << std::endl;
 		
 		quit(EXIT_FAILURE);
@@ -62,10 +66,12 @@ int main(int argc, const char** argv) {
 
 	vout << "Preparing to enter the main loop." << std::endl;
 	SDL_SetRenderDrawColor(render, 15, 15, 15, SDL_ALPHA_OPAQUE);
+	SDL_SetRenderDrawBlendMode(render, SDL_BLENDMODE_BLEND);		//enable transparency
 	
 	Cat myCat(Pos::SCREEN_CENTER, 100, 1, 2);
 	Dog myDog(Pos(100, 100));
-	while(true){
+
+	while(true) {
 		const Uint64 frameStart = SDL_GetPerformanceCounter();
 	
 		vout << "Checking events.\t\t\t\t(main loop)" << std::endl;
@@ -81,10 +87,12 @@ int main(int argc, const char** argv) {
 		}
 		
 		vout << "Moving and displaying animals to the window.\t(main loop)" << std::endl;
-		myCat.move();
-		myDog.move();
-		myCat.draw(render, showDestination);
-		myDog.draw(render, showDestination);
+		myCat.move(followMouse);
+		myDog.move(followMouse);
+
+		const bool isThereCollision(myDog.getHitbox().isOverlapping(myCat.getHitbox()));
+		myCat.draw(render, isThereCollision, showDestination);
+		myDog.draw(render, isThereCollision, showDestination);
 
 		vout << "Rendering then clearing the window.\t\t(main loop)" << std::endl;
 		SDL_RenderPresent(render);

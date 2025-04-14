@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Imports.hpp"
-#include "Warning.hpp"
 #include "Vector.hpp"
 
 /** The minimum value of `pos_t` */
@@ -44,19 +43,19 @@ struct Pos {
 	~Pos(void)		= default;
 
 	
-	std::string string(void) const;
-	Pos shift(pos_t, pos_t) const;
+	std::string string(void)	const;
+	Pos shift(pos_t, pos_t)		const;
 	void shiftSelf(pos_t, pos_t);
 
-	void draw(SDL_Renderer*) const;
+	void draw(SDL_Renderer*)	const;
 	
 	static Pos lerp(const Pos&, const Pos&, float);
 
 	bool operator==(const Pos&) const = default;
 	bool operator!=(const Pos&) const = default;
-	operator Vector() const;
-	operator SDL_Point() const;
-	operator SDL_FPoint() const;
+	operator Vector()		const;
+	operator SDL_Point()	const;
+	operator SDL_FPoint()	const;
 
 	static const Pos ORIGIN;
 	static Pos SCREEN_CENTER;

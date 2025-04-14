@@ -8,6 +8,7 @@
 struct Hitbox {
 	SDL_FRect zone;
 
+	Hitbox(void);
 	Hitbox(SDL_Rect);
 	Hitbox(SDL_FRect);
 	Hitbox(const Hitbox&) = default;
@@ -18,7 +19,8 @@ struct Hitbox {
 	bool isInside(SDL_FPoint, bool=false)	const;
 	bool isOverlapping(Hitbox)				const;
 
-	Pos calcPos(void) const;
+	Pos calcCenter(void)		const;
+	Hitbox translate(Vector)	const;
 
 	Hitbox expand(uint) const;
 
@@ -31,3 +33,9 @@ SDL_FRect frectFromVector(Vector, Pos);
 Vector rectToVector(SDL_Rect);
 Vector rectToVector(SDL_FRect);
 #define frectToVector(rect) rectToVector(rect)
+
+#define vectorToRect(vec, pos) rectFromVector(vec, pos)
+#define vectorToFRect(vec, pos) frectFromVector(vec, pos)
+
+SDL_Rect getSquare(int, Pos=Pos::ORIGIN);
+SDL_FRect getSquare(float, Pos=Pos::ORIGIN);

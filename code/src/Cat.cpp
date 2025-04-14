@@ -1,6 +1,6 @@
 #include "../include/Cat.hpp"
 
-Cat* Cat::catList[CATLIST_SIZE];
+Cat* Cat::catList[CATLIST_SIZE];	//by default, all elements are initalized to 0
 
 /** The base to make spritePath. */
 const std::string Cat::spriteBase = spriteFolder + "cat";
@@ -8,11 +8,11 @@ const std::string Cat::spriteBase = spriteFolder + "cat";
 /**
  * Set the `sprite` field, return `false on failure`.
  */
-[[ nodiscard ]] bool Cat::setSprite(uint8_t spriteNum){
+[[ nodiscard ]] bool Cat::setSprite(uint8_t spriteNum) {
 	const std::string sprite(Cat::spriteBase + std::string((spriteNum < 10)? "0" : "") + std::to_string(spriteNum) + std::string(".bmp"));
 	struct stat sb;
 
-	if (stat(sprite.c_str(), &sb) == 0){
+	if (stat(sprite.c_str(), &sb) == 0) {
 		spritePath = sprite;
 		return true;
 	}
@@ -23,8 +23,8 @@ const std::string Cat::spriteBase = spriteFolder + "cat";
 /**
  * Set the current sprite at a random sprite
  */
-void Cat::setToRandomSprite(void) noexcept(false){
-	const auto mask = [](const fs::path& path){
+void Cat::setToRandomSprite(void) noexcept(false) {
+	const auto mask = [](const fs::path& path) {
 		const std::string pathStr = path.string().replace(0, 8, "");
 
 		return fs::is_regular_file(path) && pathStr.starts_with("cat") && pathStr.ends_with(".bmp");
@@ -37,35 +37,22 @@ void Cat::setToRandomSprite(void) noexcept(false){
 /**
  * Just a wrapper for constructors
  */
-void Cat::trySetLowestID(void){
-	if(std::optional<ID> supposedID = getLowestID()){
-		pushThis();
+void Cat::trySetLowestID(void) {
+	if(std::optional<ID> supposedID = getLowestID()) {
+		catList[id] = this;
 		id = supposedID.value();
 		
 		return;
 	}
 
-	throw std::overflow_error("Too many cats are already present");
-}
-
-/**
- * Push a reference to `this` instance in `catList`.
- */
-void Cat::pushThis(void){
-	catList[id] = this;
-}
-
-/**
- * Push a reference to a `Cat` instance in `catList`.
- */
-void Cat::pushCat(Cat* cat){
-	catList[cat->getID()] = cat;
+	wout << "Too many cats are already present." << std::endl;
+	delete this;
 }
 
 /**
  * Delete `cat` from `catList`
  */
-void Cat::eraseCat(Cat* cat){
+void Cat::eraseCat(Cat* cat) {
 	if(cat) {		//Avoiding a double-free error
 		catList[cat->getID()] = nullptr;
 		delete cat;
@@ -75,7 +62,7 @@ void Cat::eraseCat(Cat* cat){
 /**
  * Returns the lowest ID available. If there is more than 255 cats, returns null
  */
-[[ nodiscard ]] std::optional<ID> Cat::getLowestID(void){
+[[ nodiscard ]] std::optional<ID> Cat::getLowestID(void) {
 	for(ID i = 0; i < CATLIST_SIZE; i++)
 		if(catList[i] == nullptr)
 			return i;
@@ -87,7 +74,7 @@ void Cat::eraseCat(Cat* cat){
  * Return a path to random sprite corresponding to the mask passed.
  * @param mask A function pointer pointing to a function taking a path in argument and returning `true` if this argument is a path to include in the search.
  */
-[[ nodiscard ]] fs::path Cat::getRandomPathFromMask(mask_t mask) noexcept(false){
+[[ nodiscard ]] fs::path Cat::getRandomPathFromMask(mask_t mask) noexcept(false) {
 	uint8_t limit = randInt(
 		1,
 		std::min(
@@ -106,9 +93,9 @@ void Cat::eraseCat(Cat* cat){
 	
 	uint8_t found(0);			//The number of correct matches found
 	for(const auto& file : folderIt)
-		if(mask(file.path()) && found >= limit){
+		if(mask(file.path()) && found >= limit) {
 			return file.path();
-		}else if(mask(file.path())){
+		}else if(mask(file.path())) {
 			found++;
 		}
 	
@@ -119,17 +106,14 @@ void Cat::eraseCat(Cat* cat){
 /**
  * Construct a new Cat obj with a random sprite and registers it in catList
  */
-[[ nodiscard ]] Cat::Cat(Pos _pos) noexcept(false) 
-	: Animal(_pos), alive(true)
-{
-	trySetLowestID();
-	setToRandomSprite();
-}
+[[ nodiscard ]] Cat::Cat(Pos _pos) noexcept(false)
+	: Cat(_pos, 0)
+{}
 
 /**
  * Construct a new Cat obj with a random sprite and registers it in catList
  */
-[[ nodiscard ]] Cat::Cat(Pos _pos, uint _size) noexcept(false) 
+[[ nodiscard ]] Cat::Cat(Pos _pos, uint _size) noexcept(false)
 	: Animal(_pos, _size), alive(true)
 {
 	trySetLowestID();
@@ -139,25 +123,25 @@ void Cat::eraseCat(Cat* cat){
 /**
  * Shorthand for `Cat(Pos(x, y))`
  */
-[[ nodiscard ]] Cat::Cat(pos_t x, pos_t y) noexcept(false) 
+[[ nodiscard ]] Cat::Cat(pos_t x, pos_t y) noexcept(false)
 	: Cat(Pos(x, y)) 
 {}
 
 /**
- * Construct a new Cat obj and registers it in catList
+ * Construct a new Cat obj and registers it in `catList`
  */
-[[ nodiscard ]] Cat::Cat(Pos _pos, uint _size, uint8_t spriteNum) noexcept(false) 
+[[ nodiscard ]] Cat::Cat(Pos _pos, uint _size, uint8_t spriteNum) noexcept(false)
 	: Animal(_pos, _size, spriteNum), alive(true)
 {
 	trySetLowestID();
 	if(!setSprite(spriteNum))
-		throw std::runtime_error("Couldn't set the sprite");
+		throw std::runtime_error("Couldn't set the sprite of a Cat instance.");
 }
 
 /**
- * Construct a new Cat obj and registers it in catList
+ * Construct a new Cat obj and register it in `catList`.
  */
-[[ nodiscard ]] Cat::Cat(Pos _pos, uint _size, uint velocity, uint8_t spriteNum) noexcept(false) 
+[[ nodiscard ]] Cat::Cat(Pos _pos, uint _size, uint velocity, uint8_t spriteNum) noexcept(false)
 	: Animal(_pos, _size, spriteNum), alive(true)
 {
 	trySetLowestID();
@@ -174,23 +158,27 @@ void Cat::eraseCat(Cat* cat){
 	trySetLowestID();
 }
 
+Cat::~Cat(void) {
+	catList[id] = nullptr;
+}
+
 /**
  * Getter for `id`
  */
-[[ nodiscard ]] ID Cat::getID(void) const{
+[[ nodiscard ]] ID Cat::getID(void) const {
 	return id;
 }
 
 /**
  * Getter for `speed`
  */
-[[ nodiscard ]] uint Cat::getSpeed(void) const{
+[[ nodiscard ]] uint Cat::getSpeed(void) const {
 	return speed;
 }
 
 /**
  * Returns a human-readable string representing `this` Cat
  */
-std::string Cat::string(void) const{
-	return "Cat{ .pos=" + pos.string() + "; .spritePath=\"" + spritePath + "\"; .id=" + std::to_string((int)id) + "; .alive=" + std::to_string(alive) + "; .speed=" + std::to_string((int)speed) + "; .size=" + std::to_string((int)size) +"}";
+std::string Cat::string(void) const {
+	return "Cat{ .id="+ std::to_string(id) +"; .alive=" + std::to_string(alive) + "; "+ Animal::string() +" }";
 }

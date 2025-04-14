@@ -11,28 +11,29 @@ This project is an AI project (it doesn't look like it yet but it will). In the 
 This project is an encore to an [old scratch project](https://scratch.mit.edu/projects/713148064/) that I made (it' s really buggy and the cats don't move after the first gen) which is an implementation of one of [Laupok's example in one of his videos](https://youtu.be/F63GNXGHVwM?t=352) (french warning) where he makes a brain that plays Mario World, I'm aware that he made a [video](https://www.youtube.com/watch?v=u5xCl1bSe6o&t=0s&ab_channel=Laupok) explaining his [code](https://pastebin.com/Jcvdqhqm) in details but I didn't watch it nor seen his code since I want to do this project my way.
 
 ## Usage
-The program can take 3 arguments:
-+ The first one is **`--verbose`** (`-v` for short) in order to enable verbose.
+The program can take up to 4 arguments:
++ The first  one is **`--verbose`** (`-v` for short) in order to enable verbose.
 + The second one is **`--step`** (`-s` for short) for running the program frame by frame (next frame is right arrow).
-+ The third one is **`--destination`** (`-d` for short) for showing destination and the speed vector of the animals.
++ The third  one is **`--destination`** (`-d` for short) for showing destination and the speed vector of the animals.
++ The fourth one is **`--follow-mouse`** (`-m` for short), if on the animals will follow the mouse if it's in the window.
 
 ## Description
 ### Short description of each class
 + **[Animal](code/include/Animal.hpp)**: The `Animal` class is the parent class of `Cat` and `Dog`.
 + **[Cat](code/include/Cat.hpp)**: In the final version, each cat will have to run away of the dogs.
-+ **[Dog](code/include/Dog.hpp)**: In the final version, each dog will have to walk randomly and will be nothing but an obstacle to the cats.
++ **[Dog](code/include/Dog.hpp)**: In the final version, each dog will have to walk randomly and will be an obstacle to the cats.
 + **[Pos](code/include/Pos.hpp)**: This is a simple struct to represent a position on the screen.
-+ **[Vector](code/include/Vector.hpp)**: A vector.
-+ **[WarningStream](code/include/Warning.hpp)**: A stream to output a warning.
++ **[Vector](code/include/Vector.hpp)**: A vector <!--duh-->.
++ **[WarningStream](code/include/Warning.hpp)**: A stream to output warnings.
 + **[VerboseStream](code/include/Verbose.hpp)**: A stream to output verbose.
 
 ### Other files
-Some files don't contain any class, for now there is only four of them:
+Some files don't contain any class, for now there is only five of them:
 + **[Images.hpp](code/include/Images.hpp)**: Import the hex dumps of the images into the project because cmake can't do it.
 + **[Imports.hpp](code/include/Imports.hpp)**: It's just a file that group all imports so we can see them all at once.
 + **[Utilities.hpp](code/include/Utilities.hpp)**: Some functions that I wrote and have nowhere to put them.
 + **[main.cpp](code/src/main.cpp)**: The main program and a few functions that are only useful in the `main()` function.
-+ **[imgToHex](sprites/imgToHex)**: a zsh script that convert images in hex dump with `xxd`.
++ **[imgToHex](sprites/imgToHex)**: A zsh script that convert images in hex dump with `xxd`.
 
 ## Modding
 This is not a tutorial in order to mod this project but a group of information that can be useful.
@@ -53,4 +54,4 @@ Then it's just creating your own class.
 
 
 _________________________________
-This project isn't even tested on Windows, only Linux Mint. I'll take care of compatibility issues at the 1.0 version of this project of this project.
+This project isn't even tested on Windows, only Linux Mint. I'll tackle down of compatibility issues at the 1.0 version of this project.

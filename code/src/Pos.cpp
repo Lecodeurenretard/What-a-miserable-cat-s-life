@@ -60,9 +60,9 @@ Pos Pos::SCREEN_CENTER = Pos(WIN_WIDTH/2, WIN_HEIGHT/2);
  */
 [[ nodiscard ]] Pos Pos::shift(pos_t _x, pos_t _y) const {
 	if(x + _x < x)
-		wout << "The sum of the parameter `_x` (" << _x << ") and the field `x` " << x <<" is greater than the maximum of `pos_t` (" << POS_MAX << ").";
+		wout << "The sum of the parameter `_x` (" << _x << ") and the field `x` " << x <<" is greater than the maximum of `pos_t` (" << POS_MAX << ")." << std::endl;
 	if(y + _y < x)
-		wout << "The sum of the parameter `_y` (" << _y << ") and the field `y` " << y <<" is greater than the maximum of `pos_t` (" << POS_MAX << ").";
+		wout << "The sum of the parameter `_y` (" << _y << ") and the field `y` " << y <<" is greater than the maximum of `pos_t` (" << POS_MAX << ")." << std::endl;
 
 	return Pos(x + _x, y + _y);
 }

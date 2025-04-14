@@ -40,3 +40,62 @@ This file simply list the progression of patches in this minor version.
 + Added the `Hitbox` struct and a few tests.
 + Image.hpp is now only included by Animal.hpp
 + Renamed `Vector::fromPoint()` to `Vector::fromPoints()`
+
+## 0.2.4
++ **big changes**:
+	1. Added a hitbox to animals.
+	2. New parameter `--follow-mouse`.
+	3. Improved debug compilation
+	4. Fixed a lot of bugs relative to the `.w` and `.h` members of `SDL_Rect`s.
+
+
++ changes for the `Animal` class:
+	- Added a hitbox to animals.
+	- Renamed `setRandDest()` to `setDestRand()` and made it protected.
+	- Added `setMouseDest()`.
+	- In the header, contructors's declarations have now the `noexcept(false)` attribute to match their definition.
+	- `move()` takes now one falcutative boolean parameter which tells if the destination should be generated randomly or if it should be the position of the mouse.
+	- Added new getter `getHitbox()`.
+	- Added an argument to `draw()` which tells the method if the animal collides with another.
+	- All constructors now redirect to the one with 3 parameters.
+	- Fixed interger overflow in `increaseSize()` and `increaseSpeed()`.
+	- Randomly generated destinations have a new minimum of `size/2` to prevent hitbox mismatching the sprite.
+	- The arrow representing the speed vector is now half less long so it feels more like $\frac{1}{2}$ of a second.
+	- Fixed a memory leak in `draw()`.
+	- Better `string()` method.
+
++ Changes to `Cat`:
+	- Removed `pushThis()` and `pushCat()` because they were useless.
+	- Fixed an error where the destructor were defaulted and didn't remove the deleted cat from `catList` leaving a dangling pointer which couldn't be reallocated.
+	- When `catList` is full, throws a warning rather than an error.
+	- Improved `string()` method.
+
++ Changes to `Dog`:
+	- Added a `string()` method.
+	- Added a `nodiscard` attribute to the constructor.
+
++ Changes to `Hitbox`:
+	- Added an empty constructor `Hitbox(void)`.
+	- Renamed `calcPos()` to `calcCenter()`.
+	- Added a `translate()` method which translates the hitbox with a vector.
+	- Added new aliases `vectorToRect()` and `vectorToFRect()` to `rectFromVector()` and `frectFromVector()`.
+	- Added a new function `getSquare(int|float, Pos)` which create a square (with type `SDL_Rect` or `SDLFRect`) of given side length at a given position.
+
++ Changes to `Pos`:
+	- Included `Warning.hpp`.
+
++ Changes to `Utilities.hpp`:
+	- Removed `SDL_RectInit()` since the brace initializer has the same purpose and doesn't use `malloc()` with no reason.
+
++ Changes to `Vector`:
+	- Included `Warning.hpp`
+	- Added check for zero in `unit()`.
+	- Changed the formatting in `string()` to differenciate vectors from points.
+
++ Changes to `Warning`:
+	- Fixed the printing of the heading the same way `Verbose` did.
+
++ Other changes:
+	- Aligned and formatted text
+	- Improved some error messages.
+	- Enabled transparency in `main()`.

@@ -50,7 +50,7 @@ float Vector::norm(void) const {
 }
 
 /**
- * Scales the current vector to have a length of `newNorm`.
+ * Scales the current vector to have a length of `newNorm` (`newNorm` will always be treated as positive).
  */
 Vector Vector::withNorm(float newNorm) const {
 	return unit() * abs(newNorm);
@@ -60,7 +60,10 @@ Vector Vector::withNorm(float newNorm) const {
  * Get corresponding unit vector.
  */
 Vector Vector::unit(void) const {
-	return operator/(norm());
+	const float length(norm());
+	if(length == 0)
+		wout << "Division by zero in " + string() << ".unit()" << std::endl;
+	return operator/(length);
 }
 
 /**
@@ -86,7 +89,7 @@ void Vector::draw(SDL_Renderer* const r, const Vector& start /*= Vector::ZERO*/)
  * Output a human-readable representation of the vector.
  */
 [[ nodiscard ]] std::string Vector::string(void) const {
-	return "("+ std::to_string(x) + ", " + std::to_string(y) + ")";
+	return "Vector{"+ std::to_string(x) + ", " + std::to_string(y) + "}";
 }
 
 /**

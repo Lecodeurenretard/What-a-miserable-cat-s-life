@@ -85,36 +85,30 @@ void Animal::setToRandomSprite(void) noexcept(false) {
 	return false;
 }
 
-/**
- * Build the Animal with a random sprite
- */
-[[ nodiscard ]] Animal::Animal(Pos _pos) noexcept(false)
-	: pos(_pos), dest(_pos), size(0), speed(0)
-{
-	Animal::setToRandomSprite();
-}
 
-/**
- * Shorthand for `Animal(Pos(x, y))`
- */
-[[ nodiscard ]] Animal::Animal(pos_t x, pos_t y)
+[[ nodiscard ]] Animal::Animal(Pos _pos) noexcept(false)
+	: Animal(_pos, 0, 0)
+{}
+
+[[ nodiscard ]] Animal::Animal(pos_t x, pos_t y) noexcept(false)
 	: Animal(Pos(x, y))
 {}
 
-[[ nodiscard ]] Animal::Animal(Pos p, uint _size) noexcept(false)
-	: pos(p), dest(p), size(_size), speed(0)
+[[ nodiscard ]] Animal::Animal(Pos _pos, uint _size) noexcept(false)
+	: Animal(_pos, _size, 0)
+{}
+
+[[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, uint velocity) noexcept(false)
+	: pos(_pos), dest(_pos), size(_size), speed(velocity)
 {
 	Animal::setToRandomSprite();
-}
 
-[[ nodiscard ]] Animal::Animal(Pos p, uint _size, uint velocity) noexcept(false)
-	: pos(p), dest(p), size(_size), speed(velocity)
-{
-	Animal::setToRandomSprite();
+	const Pos hitboxPos = (Vector)_pos - Vector{.x = (float)_size, .y = (float)_size}/2;
+	hitbox = getSquare((float)size, hitboxPos);
 }
 
 
-[[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, uint velocity, uint8_t spriteNum=0) noexcept(false)
+[[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, uint velocity, uint8_t spriteNum) noexcept(false)
 	: pos(_pos), dest(_pos), size(_size), speed(velocity)
 {
 	if(spriteNum == 0) {
@@ -124,14 +118,18 @@ void Animal::setToRandomSprite(void) noexcept(false) {
 	if(!setSprite(spriteNum))
 		throw std::invalid_argument("Couldn't set the sprite.\nMaybe `"+ Animal::spriteFolder + std::to_string(spriteNum) + ".bmp` is not a correct path?");
 	
+	const Pos hitboxPos = (Vector)_pos - Vector{.x = (float)_size, .y = (float)_size	}/2;
+	hitbox = getSquare((float)size, hitboxPos);
 }
 
 /**
  * Increase the size of by `by` pixels.
  */
 void Animal::increaseSize(uint by) {
-	if(size + by < size || size + by < by)		//interger overflow
+	if(size + by < size || size + by < by) {		//interger overflow
 		size = UINT32_MAX;
+		return;
+	}
 
 	size += by;
 }
@@ -140,8 +138,10 @@ void Animal::increaseSize(uint by) {
  * Increase the speed of by `by` pixels per frame.
  */
 void Animal::increaseSpeed(uint by) {
-	if(speed + by < speed || speed + by < by)		//interger overflow
+	if(speed + by < speed || speed + by < by){
 		speed = UINT32_MAX;
+		return;
+	}
 
 	speed += by;
 }
@@ -150,36 +150,52 @@ void Animal::increaseSpeed(uint by) {
  * Check if the animal is at destination.
  */
 bool Animal::isAtDest(void) const {
-	const float threshold = speed + 0.01;	//make sure the animal can't jump behing the destination's hitbox.
+	const float threshold = speed + 0.01;	//making sure the animal can't jump behind the destination's bounding box.
 	return 
-		dest.x - threshold < pos.x && pos.x < dest.x + threshold &&
-		dest.y - threshold < pos.y && pos.y < dest.y + threshold;
+		dest.x - threshold < pos.x && pos.x < dest.x + threshold &&		//dest.x - threshold < pos.x < dest.x + threshold
+		dest.y - threshold < pos.y && pos.y < dest.y + threshold;		//dest.y - threshold < pos.y < dest.y + threshold
 }
 
 /**
  * Set the destination to a random point on the screen
  */
-void Animal::setRandDest(void) {
+void Animal::setDestRand(void) {
 	dest = Pos(
-		randInt(0, WIN_WIDTH),
-		randInt(0, WIN_HEIGHT)
+		randInt(size/2, WIN_WIDTH),
+		randInt(size/2, WIN_HEIGHT)
 	);
 }
 
 /**
- * Moves the animal toward its destination and defines a new one if the animal is at destination.
+ * Set the destnation to the mouse's
  */
-void Animal::move(void) {
-	if(isAtDest())
-		setRandDest();
-	pos = getSpeedVector().translate(pos);
+void Animal::setDestMouse(void) {
+	int m_x, m_y;
+	SDL_GetMouseState(&m_x, &m_y);
+	
+	dest.x = m_x;
+	dest.y = m_y;
 }
 
 /**
- * Moves the animal toward its destination.
+ * Move the animal toward its destination, define a new one if the animal is already there.
+ */
+void Animal::move(bool followMouse/*=false*/) {
+	if(followMouse)
+		setDestMouse();
+	else if(isAtDest())
+		setDestRand();
+	moveToDest();
+}
+
+/**
+ * Move the animal toward its destination.
  */
 void Animal::moveToDest(void) {
 	pos = getSpeedVector().translate(pos);
+	
+	hitbox.zone.x = pos.x - size/2;
+	hitbox.zone.y = pos.y - size/2;
 }
 
 /**
@@ -189,24 +205,39 @@ void Animal::moveToDest(void) {
 	return size;
 }
 
+/**
+ * Getter for `hitbox`
+ */
+[[ nodiscard ]] Hitbox Animal::getHitbox(void) const {
+	return hitbox;
+}
 
 /**
- * Display the Animal on screen
+ * Display the Animal on screen.
+ * @param r the renderer to draw onto.
+ * @param isColliding If the hitbox of this Animal is colling with another animal's
+ * @param drawInfos If the method should also draw the speed vector, the destination and the hitbox.
  */
-void Animal::draw(SDL_Renderer* r, bool drawInfos /*=false*/) const noexcept(false) {
+void Animal::draw(SDL_Renderer* r, bool isColliding, bool drawInfos /*=false*/) const noexcept(false) {
 	if(size == 0)
 		return;
 
-	SDL_Surface* tmp = SDL_LoadBMP(&spritePath[0]);
+	SDL_Surface* tmp = SDL_LoadBMP(spritePath.c_str());
 	if(!tmp)
 		throw std::runtime_error("Cannot load `" + std::string(spritePath) + "`, got this SDL error: " + std::string(SDL_GetError()) + ".");
 	
 	SDL_Texture* spriteTexture = SDL_CreateTextureFromSurface(r, tmp);
 	SDL_FreeSurface(tmp);		tmp = nullptr;
 
-	const SDL_Rect* finalDimensions = SDL_RectInit(pos.x - ANIMAL_SPRITE_SIZE/2, pos.y - ANIMAL_SPRITE_SIZE/2, size, size);	//Shifting the position to get the center of the rectangle at `pos`
-	if(SDL_RenderCopy(r, spriteTexture, nullptr, finalDimensions) < 0)
-		throw std::runtime_error("Cannot copy sprite into the renderer. SDL returned this error: " + std::string(SDL_GetError()) + ".");
+	const SDL_Rect finalDimensions = getSquare(
+		(int)size,
+		Pos(
+			pos.x - size/2,		//Shifting the position of the square to get its center at `pos`
+			pos.y - size/2
+		)
+	);
+	if(SDL_RenderCopy(r, spriteTexture, nullptr, &finalDimensions) < 0)
+		throw std::runtime_error("Cannot copy sprite at `"+ spritePath +"` into the renderer. SDL returned this error: " + std::string(SDL_GetError()) + ".");
 	
 	SDL_DestroyTexture(spriteTexture);
 	
@@ -219,11 +250,16 @@ void Animal::draw(SDL_Renderer* r, bool drawInfos /*=false*/) const noexcept(fal
 		SDL_GetRenderDrawColor(r, red, green, blue, alpha);
 		SDL_SetRenderDrawColor(r, 0, 255, 255, 255);
 
-		(getSpeedVector() * DESIRED_FPS/2).draw(r, (Vector)pos );	//This speed vector is for the next half-second
+		(getSpeedVector() * DESIRED_FPS/4).draw(r, pos);	//This speed vector is for the next half-second
 		dest.draw(r);
+		hitbox.draw(r, isColliding? HITBOX_COLOR_ACTIVE : HITBOX_COLOR_INACTIVE);
 
 		SDL_SetRenderDrawColor(r, *red, *green, *blue, *alpha);
-		
+
+		delete alpha;
+		delete red;
+		delete green;
+		delete blue;
 	}
 }
 
@@ -231,5 +267,5 @@ void Animal::draw(SDL_Renderer* r, bool drawInfos /*=false*/) const noexcept(fal
  * Returns a human-readable string of the instance
  */
 [[ nodiscard ]] std::string Animal::string(void) const {
-	return "Animal{ .pos=" + pos.string() + "; .spritePath=\"" + spritePath + "\"}";
+	return "Animal{ .pos=" + pos.string() + "; dest="+ dest.string() +"; size="+ std::to_string(size) +"; speed="+ std::to_string(speed) +"; .spritePath=\"" + spritePath + "\"}";
 }

@@ -12,27 +12,25 @@ private:
 
 	bool setSprite(uint8_t);
 	
-	void pushThis(void);
-	void setToRandomSprite(void) noexcept(false);
-	void trySetLowestID(void) noexcept(false);
+	void setToRandomSprite(void)	noexcept(false);
+	void trySetLowestID(void)		noexcept(false);
 
 	static Cat* catList[CATLIST_SIZE];
 
-	static void pushCat(Cat*);
 	static void eraseCat(Cat*);
 	static std::optional<ID> getLowestID(void);
 	static fs::path getRandomPathFromMask(mask_t) noexcept(false);
 
 public:
 	explicit Cat(Pos);
-	Cat(pos_t, pos_t);
-	Cat(Pos, uint);
-	Cat(Pos, uint, uint8_t);
-	Cat(Pos, uint, uint, uint8_t);
+	Cat(pos_t, pos_t)				noexcept(false);
+	Cat(Pos, uint)					noexcept(false);
+	Cat(Pos, uint, uint8_t)			noexcept(false);
+	Cat(Pos, uint, uint, uint8_t)	noexcept(false);
+	Cat(const Cat&)					noexcept(false);
 	
-	Cat(const Cat&);
 	Cat& operator=(const Cat&)	= default;
-	~Cat(void)					= default;
+	~Cat(void);
 
 	ID getID(void)		const;
 	uint getSpeed(void)	const;
