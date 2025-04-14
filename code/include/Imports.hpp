@@ -2,7 +2,7 @@
 #pragma once
 
 //SDL and extentions
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 //String and string manipulation
 #include <iostream>
@@ -23,7 +23,7 @@ namespace fs = std::filesystem;
 #include <cstdlib>		//random
 
 
-#include "Images.hpp"
+//code I wrote
 #include "Utilities.hpp"
 
 #if !__has_include(<nlibs/Parser>)

@@ -1,6 +1,7 @@
 .vscode/*
 bin/*
-CMakeFiles/*
+**/build/*
+**/CMakeFiles/*
 sprites/hexDump/*
 *.code-workspace
 *.ignore.*

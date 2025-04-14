@@ -4,17 +4,16 @@ project("What a miserable cat's life!" VERSION 0.2)
 # Sets the build mode (default: release)
 if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
 	set(CMAKE_BUILD_TYPE "Release")
+else()
+	add_compile_options(-ggdb)
 endif()
 message("Build type used: ${CMAKE_BUILD_TYPE}")
 
 # Sets compiler arguments
 add_compile_options(-Wall)
 set(CMAKE_CXX_STANDARD 23)
-if(CMAKE_BUILD_TYPE STREQUAL Debug)
-	add_compile_options(-ggdb)
-endif()
 
-# I'm not a pro for using cmake so thanks Alexander Shaduri: https://blog.shaduri.dev/easily-create-shared-libraries-with-cmake-part-1
+# I'm not a pro for using cmake so thank you Alexander Shaduri: https://blog.shaduri.dev/easily-create-shared-libraries-with-cmake-part-1
 # Gets SDL
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
@@ -28,6 +27,7 @@ set(
 	"code/src/Animal.cpp"
 	"code/src/Cat.cpp"
 	"code/src/Dog.cpp"
+	"code/src/Hitbox.cpp"
 	"code/src/Warning.cpp"
 	"code/src/Verbose.cpp"
 	"code/src/Vector.cpp"

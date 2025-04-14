@@ -8,8 +8,8 @@ struct Vector {
 	float x;
 	float y;
 
-	static Vector fromPoint(const SDL_Point&, const SDL_Point&);
-	static Vector fromPoint(const SDL_FPoint&, const SDL_FPoint&);
+	static Vector fromPoints(const SDL_Point&, const SDL_Point&);
+	static Vector fromPoints(const SDL_FPoint&, const SDL_FPoint&);
 	
 	~Vector(void)			= default;
 

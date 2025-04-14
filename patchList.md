@@ -35,3 +35,8 @@ This file simply list the progression of patches in this minor version.
 + Vector is now an aggregate type
 + Disabled RNG initialization.
 + This file has been renamed and is now a markdown file.
+
+## 0.2.3
++ Added the `Hitbox` struct and a few tests.
++ Image.hpp is now only included by Animal.hpp
++ Renamed `Vector::fromPoint()` to `Vector::fromPoints()`

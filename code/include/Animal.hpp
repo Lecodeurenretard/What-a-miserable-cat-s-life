@@ -1,5 +1,6 @@
 #pragma once
 #include "Pos.hpp"
+#include "Images.hpp"
 
 /** The size of the sprite of **all** `Animal` sprites and child classes. */
 #define ANIMAL_SPRITE_SIZE 100

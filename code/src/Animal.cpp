@@ -18,7 +18,7 @@ const std::string Animal::spriteBase = Animal::spriteFolder + "other";
 /**
  * Set the current sprite at a random sprite.
  */
-void Animal::setToRandomSprite(void) noexcept(false){
+void Animal::setToRandomSprite(void) noexcept(false) {
 	const auto mask = [](const fs::path& path){
 		const std::string pathStr = path.string().replace(0, 8, "");	// Removing the leading "sprites/"
 		return fs::is_regular_file(path) && pathStr.starts_with("other") && pathStr.ends_with(".bmp");
@@ -31,7 +31,7 @@ void Animal::setToRandomSprite(void) noexcept(false){
  * Return a path to random sprite corresponding to the mask passed.
  * @param mask A function pointer pointing to a function taking a path in argument and returning `true` if this argument is a path to include in the search.
  */
-[[ nodiscard ]] fs::path Animal::getRandomPathFromMask(mask_t mask) noexcept(false){
+[[ nodiscard ]] fs::path Animal::getRandomPathFromMask(mask_t mask) noexcept(false) {
 	uint8_t limit = randInt(
 		1,
 		std::min(
@@ -50,7 +50,7 @@ void Animal::setToRandomSprite(void) noexcept(false){
 	
 	uint8_t found(0);			//The number of correct matches found
 	for(const auto& file : folderIt)
-		if(mask(file.path())){
+		if(mask(file.path())) {
 			if(found >= limit)
 				return file.path();
 		
@@ -64,17 +64,20 @@ void Animal::setToRandomSprite(void) noexcept(false){
 /**
  * Get the vector representing how much `this` animal will move this frame.
  */
-[[ nodiscard ]] Vector Animal::getSpeedVector(void) const{
-	return Vector((SDL_FPoint)pos, (SDL_FPoint)dest).withNorm(speed);
+[[ nodiscard ]] Vector Animal::getSpeedVector(void) const {
+	return Vector::fromPoints(
+		(SDL_FPoint)pos,
+		(SDL_FPoint)dest
+	).withNorm(speed);
 }
 
 /**
  * Set the `sprite` field, return `false` on failure.
  */
-[[ nodiscard ]] bool Animal::setSprite(uint8_t spriteNum){
+[[ nodiscard ]] bool Animal::setSprite(uint8_t spriteNum) {
 	const std::string sprite(Animal::spriteBase + ((spriteNum < 10)? "0" : "") + std::to_string(spriteNum) + ".bmp");
 
-	if (stat(sprite.c_str(), &sb) == 0){
+	if (stat(sprite.c_str(), &sb) == 0) {
 		spritePath = sprite;
 		return true;
 	}
@@ -114,7 +117,7 @@ void Animal::setToRandomSprite(void) noexcept(false){
 [[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, uint velocity, uint8_t spriteNum=0) noexcept(false)
 	: pos(_pos), dest(_pos), size(_size), speed(velocity)
 {
-	if(spriteNum == 0){
+	if(spriteNum == 0) {
 		setToRandomSprite();
 		return;
 	}
@@ -126,7 +129,7 @@ void Animal::setToRandomSprite(void) noexcept(false){
 /**
  * Increase the size of by `by` pixels.
  */
-void Animal::increaseSize(uint by){
+void Animal::increaseSize(uint by) {
 	if(size + by < size || size + by < by)		//interger overflow
 		size = UINT32_MAX;
 
@@ -136,7 +139,7 @@ void Animal::increaseSize(uint by){
 /**
  * Increase the speed of by `by` pixels per frame.
  */
-void Animal::increaseSpeed(uint by){
+void Animal::increaseSpeed(uint by) {
 	if(speed + by < speed || speed + by < by)		//interger overflow
 		speed = UINT32_MAX;
 
@@ -146,7 +149,7 @@ void Animal::increaseSpeed(uint by){
 /**
  * Check if the animal is at destination.
  */
-bool Animal::isAtDest(void) const{
+bool Animal::isAtDest(void) const {
 	const float threshold = speed + 0.01;	//make sure the animal can't jump behing the destination's hitbox.
 	return 
 		dest.x - threshold < pos.x && pos.x < dest.x + threshold &&
@@ -182,7 +185,7 @@ void Animal::moveToDest(void) {
 /**
  * Getter for `size`
  */
-[[ nodiscard ]] uint Animal::getSize(void) const{
+[[ nodiscard ]] uint Animal::getSize(void) const {
 	return size;
 }
 
@@ -190,7 +193,7 @@ void Animal::moveToDest(void) {
 /**
  * Display the Animal on screen
  */
-void Animal::draw(SDL_Renderer* r, bool drawInfos /*=false*/) const noexcept(false){
+void Animal::draw(SDL_Renderer* r, bool drawInfos /*=false*/) const noexcept(false) {
 	if(size == 0)
 		return;
 
@@ -207,7 +210,7 @@ void Animal::draw(SDL_Renderer* r, bool drawInfos /*=false*/) const noexcept(fal
 	
 	SDL_DestroyTexture(spriteTexture);
 	
-	if(drawInfos){
+	if(drawInfos) {
 		Uint8* alpha	= new Uint8(0);
 		Uint8* red		= new Uint8(0);
 		Uint8* green	= new Uint8(0);
@@ -227,6 +230,6 @@ void Animal::draw(SDL_Renderer* r, bool drawInfos /*=false*/) const noexcept(fal
 /**
  * Returns a human-readable string of the instance
  */
-[[ nodiscard ]] std::string Animal::string(void) const{
+[[ nodiscard ]] std::string Animal::string(void) const {
 	return "Animal{ .pos=" + pos.string() + "; .spritePath=\"" + spritePath + "\"}";
 }

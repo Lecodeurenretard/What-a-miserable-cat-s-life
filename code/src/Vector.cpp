@@ -18,7 +18,7 @@ const Vector Vector::DOWN	= {.x = 0, .y = 1};
 /**
  * Return the vector from point `from` to the point `to`.
  */
-[[ nodiscard ]] Vector Vector::fromPoint(const SDL_Point& from, const SDL_Point& to) {
+[[ nodiscard ]] Vector Vector::fromPoints(const SDL_Point& from, const SDL_Point& to) {
 	return Vector{
 		.x = static_cast<float>(to.x - from.x),		//implicit int to float throws a warning
 		.y = static_cast<float>(to.y - from.y)
@@ -28,7 +28,7 @@ const Vector Vector::DOWN	= {.x = 0, .y = 1};
 /**
  * Return the vector from point `from` to the point `to`.
  */
-[[ nodiscard ]] Vector Vector::fromPoint(const SDL_FPoint& from, const SDL_FPoint& to) {
+[[ nodiscard ]] Vector Vector::fromPoints(const SDL_FPoint& from, const SDL_FPoint& to) {
 	return Vector{
 		.x = to.x - from.x,
 		.y = to.y - from.y
