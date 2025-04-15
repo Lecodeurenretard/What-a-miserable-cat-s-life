@@ -1,18 +1,13 @@
 #include "../include/Cat.hpp"
 
-Cat* Cat::catList[CATLIST_SIZE];	//by default, all elements are initalized to 0
-
-/** The base to make spritePath. */
-const std::string Cat::spriteBase = spriteFolder + "cat";
-
 /**
- * Set the `sprite` field, return `false on failure`.
+ * Set the `sprite` field, return `false` on failure.
  */
 [[ nodiscard ]] bool Cat::setSprite(uint8_t spriteNum) {
 	const std::string sprite(Cat::spriteBase + std::string((spriteNum < 10)? "0" : "") + std::to_string(spriteNum) + std::string(".bmp"));
 	struct stat sb;
 
-	if (stat(sprite.c_str(), &sb) == 0) {
+	if (!stat(sprite.c_str(), &sb)) {
 		spritePath = sprite;
 		return true;
 	}
@@ -35,39 +30,27 @@ void Cat::setToRandomSprite(void) noexcept(false) {
 
 
 /**
- * Just a wrapper for constructors
+ * Set `id` to the smallest available, return if it was a success.
  */
-void Cat::trySetLowestID(void) {
-	if(std::optional<ID> supposedID = getLowestID()) {
-		catList[id] = this;
-		id = supposedID.value();
-		
-		return;
-	}
-
-	wout << "Too many cats are already present." << std::endl;
-	delete this;
+[[ nodiscard ]] bool Cat::trySetLowestID(void) {
+	id = getLowestID();
+	
+	if(id >= CATLIST_SIZE)
+		return false;
+	
+	catList[id] = this;
+	return true;
 }
 
 /**
- * Delete `cat` from `catList`
+ * Returns the lowest ID available. If there is more than `CATLIST_SIZE` cats, returns `CATLIST_SIZE`.
  */
-void Cat::eraseCat(Cat* cat) {
-	if(cat) {		//Avoiding a double-free error
-		catList[cat->getID()] = nullptr;
-		delete cat;
-	}
-}
-
-/**
- * Returns the lowest ID available. If there is more than 255 cats, returns null
- */
-[[ nodiscard ]] std::optional<ID> Cat::getLowestID(void) {
+[[ nodiscard ]] ID Cat::getLowestID(void) {
 	for(ID i = 0; i < CATLIST_SIZE; i++)
 		if(catList[i] == nullptr)
 			return i;
 	
-	return {};	
+	return CATLIST_SIZE;
 }
 
 /**
@@ -78,7 +61,7 @@ void Cat::eraseCat(Cat* cat) {
 	uint8_t limit = randInt(
 		1,
 		std::min(
-			(size_t)UINT8_MAX,	//In case there's more than 256 files
+			(size_t)UINT8_MAX,	//In case there's more than 255 files
 			howManyFiles(
 				spriteFolder,
 				mask
@@ -104,6 +87,13 @@ void Cat::eraseCat(Cat* cat) {
 }
 
 /**
+ * Create an UNLISTED instance with all values to default.
+ */
+[[ nodiscard ]] Cat::Cat(void) noexcept(false)
+	: Animal(Pos::ORIGIN), health(0)
+{}
+
+/**
  * Construct a new Cat obj with a random sprite and registers it in catList
  */
 [[ nodiscard ]] Cat::Cat(Pos _pos) noexcept(false)
@@ -114,53 +104,70 @@ void Cat::eraseCat(Cat* cat) {
  * Construct a new Cat obj with a random sprite and registers it in catList
  */
 [[ nodiscard ]] Cat::Cat(Pos _pos, uint _size) noexcept(false)
-	: Animal(_pos, _size), alive(true)
+	: Animal(_pos, _size), health(1)
 {
-	trySetLowestID();
 	setToRandomSprite();
+	if(!trySetLowestID())
+		wout << "Too many cats are already present.";
 }
 
 /**
  * Shorthand for `Cat(Pos(x, y))`
  */
 [[ nodiscard ]] Cat::Cat(pos_t x, pos_t y) noexcept(false)
-	: Cat(Pos(x, y)) 
+	: Cat(Pos(x, y), 0) 
 {}
 
 /**
  * Construct a new Cat obj and registers it in `catList`
  */
 [[ nodiscard ]] Cat::Cat(Pos _pos, uint _size, uint8_t spriteNum) noexcept(false)
-	: Animal(_pos, _size, spriteNum), alive(true)
-{
-	trySetLowestID();
-	if(!setSprite(spriteNum))
-		throw std::runtime_error("Couldn't set the sprite of a Cat instance.");
-}
+	: Cat(_pos, _size, 0, spriteNum)
+{}
 
 /**
  * Construct a new Cat obj and register it in `catList`.
  */
 [[ nodiscard ]] Cat::Cat(Pos _pos, uint _size, uint velocity, uint8_t spriteNum) noexcept(false)
-	: Animal(_pos, _size, spriteNum), alive(true)
+	: Animal(_pos, _size, spriteNum)
 {
-	trySetLowestID();
+	if(!trySetLowestID())
+		wout << "Too many cats are already present." << std::endl;
 	if(!setSprite(spriteNum))
-		throw std::runtime_error("Couldn't set the sprite");
-}
-
-/**
- * Copy constructor, the copy will have a new id
- */
-[[ nodiscard ]] Cat::Cat(const Cat& cat) noexcept(false)
-	: Animal(cat.pos, cat.size, cat.speed, cat.spritePath), alive(cat.alive)
-{
-	trySetLowestID();
+		throw std::runtime_error("Couldn't set the sprite in constructor of Cat.");
 }
 
 Cat::~Cat(void) {
-	catList[id] = nullptr;
+	if(id < CATLIST_SIZE)
+		catList[id] = nullptr;
 }
+
+/**
+ * Create a cat that is not listed in catList.
+ */
+[[ nodiscard ]] Cat Cat::createUnlisted(Pos _pos/*=Pos::ORIGIN*/, uint _size/*=0*/, uint velocity/*=0*/, uint8_t spriteNum/*=0*/) {
+	Cat res;
+	res.pos = _pos;
+	res.size = _size;
+	res.speed = velocity;
+	
+	if(!res.setSprite(spriteNum))
+		throw std::runtime_error("Couldn't set the sprite of a new cat instance.");
+
+	return res;
+}
+
+/**
+ * Copies this instance and register the copy into the catList. The pointer is created with `new`.
+ */
+[[ nodiscard ]] Cat* Cat::copy(void) const {
+	Cat* copy = new Cat(*this);
+	
+	if(!copy->trySetLowestID())
+		wout << "There is no more space to create another listed Cat.";
+	return copy;
+}
+
 
 /**
  * Getter for `id`
@@ -177,8 +184,22 @@ Cat::~Cat(void) {
 }
 
 /**
+ * Getter for `health`
+ */
+[[ nodiscard ]] uint8_t Cat::getHealth(void) const {
+	return health;
+}
+
+/**
+ * Increment the health.
+ */
+void Cat::incrementHealth(void) {
+	health++;
+}
+
+/**
  * Returns a human-readable string representing `this` Cat
  */
 std::string Cat::string(void) const {
-	return "Cat{ .id="+ std::to_string(id) +"; .alive=" + std::to_string(alive) + "; "+ Animal::string() +" }";
+	return "Cat{ .id="+ std::to_string(id) +"; health="+ std::to_string(health) + "; "+ Animal::string() +" }";
 }

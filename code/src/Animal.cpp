@@ -1,13 +1,6 @@
 #include "../include/Animal.hpp"
 struct stat sb;
 
-/** The folder where the sprites are located. */
-const std::string Animal::spriteFolder = "sprites/";
-
-/** The base in order to make the full sprite path. */
-const std::string Animal::spriteBase = Animal::spriteFolder + "other";
-
-
 /**
  * This constructor is only for path we are sur they exist. Directly set `spritePath` to `path` without any test.
  */
@@ -111,15 +104,13 @@ void Animal::setToRandomSprite(void) noexcept(false) {
 [[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, uint velocity, uint8_t spriteNum) noexcept(false)
 	: pos(_pos), dest(_pos), size(_size), speed(velocity)
 {
-	if(spriteNum == 0) {
-		setToRandomSprite();
-		return;
-	}
-	if(!setSprite(spriteNum))
-		throw std::invalid_argument("Couldn't set the sprite.\nMaybe `"+ Animal::spriteFolder + std::to_string(spriteNum) + ".bmp` is not a correct path?");
-	
 	const Pos hitboxPos = (Vector)_pos - Vector{.x = (float)_size, .y = (float)_size	}/2;
 	hitbox = getSquare((float)size, hitboxPos);
+
+	if(spriteNum != 0 && !setSprite(spriteNum))
+		throw std::invalid_argument("Couldn't set the sprite.\nMaybe `"+ Animal::spriteFolder + std::to_string(spriteNum) + ".bmp` is not a correct path?");
+	
+	setToRandomSprite();
 }
 
 /**
@@ -185,6 +176,7 @@ void Animal::move(bool followMouse/*=false*/) {
 		setDestMouse();
 	else if(isAtDest())
 		setDestRand();
+
 	moveToDest();
 }
 
@@ -267,5 +259,5 @@ void Animal::draw(SDL_Renderer* r, bool isColliding, bool drawInfos /*=false*/) 
  * Returns a human-readable string of the instance
  */
 [[ nodiscard ]] std::string Animal::string(void) const {
-	return "Animal{ .pos=" + pos.string() + "; dest="+ dest.string() +"; size="+ std::to_string(size) +"; speed="+ std::to_string(speed) +"; .spritePath=\"" + spritePath + "\"}";
+	return "Animal{ .pos=" + pos.string() + "; dest="+ dest.string() +"; size="+ std::to_string(size) +"; speed="+ std::to_string(speed) +"; .spritePath=\""+ spritePath + "\"}";
 }

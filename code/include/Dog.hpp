@@ -1,12 +1,27 @@
 #include "Animal.hpp"
 
-class Dog final : public Animal{
+#define DOGLIST_SIZE UINT8_MAX
+
+typedef uint8_t ID;
+
+
+class Dog final : public Animal {
 private:
+	ID index;	//The index in `dogList`
+
 	void setToRandomSprite(void) noexcept(false);
+	static ID getLowestID(void);
+
+	/** The size of all dogs in pixels*/
+	static constexpr uint8_t size = 100;
+
+	/** The speed of all dogs in pixels per frame */
+	static constexpr uint8_t speed = 3;
 
 public:
 	explicit Dog(const Pos&);
-	Dog(const Dog&) = default;
+	Dog(const Dog&);
+	~Dog(void);
 
 	std::string string(void) const;
 
@@ -22,11 +37,9 @@ public:
 
 	uint getSize(void) const	= delete;
 
-	/** The size of all dogs in pixels*/
-	static constexpr uint8_t size = 100;
+	/** The base to set sprites. */
+	inline static const std::string spriteBase = Animal::spriteFolder + "dog";
 
-	/** The speed of all dogs in pixels per frame */
-	static constexpr uint8_t speed = 3;
-
-	static const std::string spriteBase;
+	/** A list containing all dog constructed. */
+	inline static Dog* dogList[DOGLIST_SIZE] = {};
 };

@@ -10,10 +10,10 @@
  */
 class Animal {
 protected:
-	Pos pos;
-	Pos dest;
-	uint size;
-	uint speed;
+	Pos pos					= Pos::SCREEN_CENTER;
+	Pos dest				= Pos::SCREEN_CENTER;
+	uint size				= 0;
+	uint speed				= 0;
 	std::string spritePath;
 	Hitbox hitbox;
 
@@ -29,11 +29,11 @@ protected:
 	Vector getSpeedVector(void) const;
 
 public:
-	explicit Animal(Pos)			 noexcept(false);
-	Animal(pos_t, pos_t)			 noexcept(false);
-	Animal(Pos, uint)				 noexcept(false);
-	Animal(Pos, uint, uint)			 noexcept(false);
-	Animal(Pos, uint, uint, uint8_t) noexcept(false);
+	explicit Animal(Pos)				noexcept(false);
+	Animal(pos_t, pos_t)				noexcept(false);
+	Animal(Pos, uint)					noexcept(false);
+	Animal(Pos, uint, uint)				noexcept(false);
+	Animal(Pos, uint, uint, uint8_t)	noexcept(false);
 
 	Animal(const Animal&) = default;
 	virtual ~Animal(void) = default;
@@ -53,6 +53,9 @@ public:
 	virtual void draw(SDL_Renderer*, bool, bool=false) const noexcept(false);
 	virtual std::string string(void) const;
 
-	static const std::string spriteFolder;
-	static const std::string spriteBase;
+	/** The folder where the sprites are located. */
+	inline static const std::string spriteFolder = "sprites/";
+
+	/** The base in order to make the full sprite path. */
+	inline static const std::string spriteBase = Animal::spriteFolder + "other";
 };

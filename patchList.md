@@ -49,7 +49,7 @@ This file simply list the progression of patches in this minor version.
 	4. Fixed a lot of bugs relative to the `.w` and `.h` members of `SDL_Rect`s.
 
 
-+ changes for the `Animal` class:
++ Changes for the `Animal` class:
 	- Added a hitbox to animals.
 	- Renamed `setRandDest()` to `setDestRand()` and made it protected.
 	- Added `setMouseDest()`.
@@ -99,3 +99,26 @@ This file simply list the progression of patches in this minor version.
 	- Aligned and formatted text
 	- Improved some error messages.
 	- Enabled transparency in `main()`.
+
+
+## 0.2.4 bis
++ Added title to the window.
++ Re-enabled RNG initialization since it is used for choosing sprites.
++ Defined all static members of `Animal` and children classes as inline.
++ Added default values to most members of those classes.
++ Created a variable for debugging flags in `CMakeLists.txt`.
++ Changes to **`Cat`**:
+	- Replaced the `alive` member with `health`.
+	- Changed the return type of `trySetLowestID()` from `void` to `bool`.
+	- Changed the return type of `getLowestID()` from `std::optional<ID>` to `ID` because the ID=255 is considered as an error value.
+	- Added an empty constructor `Cat(void)` which construct a Cat with default values not listed in `catList[]`.
+	- Defaulted the copy constructor ($\implies$ it doesn't register the copy in `catList[]`).
+	- Added the method `copy()` which replaces the old copy constructor.
+	- Added getter `getHealth()` and method `incrementHealth()`.
+	- Removed `delete this` statement since it causes undefined behaviors.
+	- Added check to the destructor to avoid an overflow.
+	- Added `createUnlisted()` which construct a Cat instance but does not list it in `catList[]`.
+
++ Changes to `Dog`:
+	- Added type `ID` and `index` member.
+	- Added `getLowestID()` which is like its homonym in `Cat`.

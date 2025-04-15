@@ -1,7 +1,5 @@
 #include "../include/Dog.hpp"
 
-const std::string Dog::spriteBase = Animal::spriteFolder + "dog";
-
 void Dog::setToRandomSprite(void) noexcept(false){
 	const auto mask = [](const fs::path& path){
 		const std::string pathStr = path.string().replace(0, 8, "");
@@ -12,13 +10,42 @@ void Dog::setToRandomSprite(void) noexcept(false){
 	spritePath = getRandomPathFromMask(mask).string();
 }
 
+/**
+ * Get the lowest ID available, return `DOGLIST_SIZE` if there isn't.
+ */
+ID Dog::getLowestID(void) {
+	for(ID i = 0;  i < DOGLIST_SIZE; i++)
+		if(dogList[i] == nullptr)
+			return i;
+	return DOGLIST_SIZE;
+}
 
 [[ nodiscard ]] Dog::Dog(const Pos& p)
 	: Animal(p, Dog::size, Dog::speed)
 {
 	setToRandomSprite();
+
+	const uint8_t lowestID = Dog::getLowestID();
+	if(lowestID >= DOGLIST_SIZE) {
+		wout << "Too many dogs are already present, the one being constructed will still be allocated but will not be in `dogList` (no hit detection, no drawing, etc..)." << std::endl;
+		
+		index = DOGLIST_SIZE;	//error value
+		return;
+	}
+	
+	dogList[lowestID] = this;
+	index = lowestID;
+}
+
+[[ nodiscard ]] Dog::Dog(const Dog& dog)
+	: Dog(dog.pos)
+{}
+
+Dog::~Dog(void) {
+	if(index < DOGLIST_SIZE)		//error value indicating that the dg wasn't 
+		dogList[index] = nullptr;
 }
 
 [[ nodiscard ]] std::string Dog::string(void) const {
-	return "Dog{ "+ Animal::string() +" }";
+	return "Dog{ index="+ std::to_string(index) +"; "+ Animal::string() +" }";
 }

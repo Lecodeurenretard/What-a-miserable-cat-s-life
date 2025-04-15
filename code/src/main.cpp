@@ -46,8 +46,8 @@ int main(int argc, const char** argv) {
 		saveImgs("other", dogCount + catCount	, otherCount);
 	}
 	
-	vout << "Initializing" /*" random seed and"*/ " SDL." << std::endl;
-	//std::srand(std::time(nullptr));		//useless for now, will be handy when mutating cats but not before
+	vout << "Initializing RNG and SDL." << std::endl;
+	std::srand(std::time(nullptr));
 
 	if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
 		std::cerr << "Failed to initialize SDL.\n(SDL last error: " << SDL_GetError() << ')' << std::endl;
@@ -63,6 +63,7 @@ int main(int argc, const char** argv) {
 		
 		quit(EXIT_FAILURE, render, win);
 	}
+	SDL_SetWindowTitle(win, "Evolution killed the cat");
 
 	vout << "Preparing to enter the main loop." << std::endl;
 	SDL_SetRenderDrawColor(render, 15, 15, 15, SDL_ALPHA_OPAQUE);
@@ -76,8 +77,8 @@ int main(int argc, const char** argv) {
 	
 		vout << "Checking events.\t\t\t\t(main loop)" << std::endl;
 		SDL_Event ev;
-		while (SDL_PollEvent(&ev)){
-			switch (ev.type){
+		while (SDL_PollEvent(&ev) ){
+			switch (ev.type) {
 				case SDL_QUIT:
 					quit(EXIT_SUCCESS, render, win);
 

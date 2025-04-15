@@ -1,12 +1,20 @@
 cmake_minimum_required(VERSION 3.6) 
 project("What a miserable cat's life!" VERSION 0.2)
 
+
 # Sets the build mode (default: release)
 if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
 	set(CMAKE_BUILD_TYPE "Release")
 else()
-	add_compile_options(-ggdb -fsanitize=address -fsanitize=leak -fsanitize=undefined)
-	add_link_options(-fsanitize=address -fsanitize=leak -fsanitize=undefined)
+	set(
+		DBG_FLAGS
+		"-fsanitize=address"
+		"-fsanitize=leak"
+		"-fsanitize=undefined"
+	)
+
+	add_compile_options(-ggdb ${DBG_FLAGS})
+	add_link_options(${DBG_FLAGS})
 endif()
 message("Build type used: ${CMAKE_BUILD_TYPE}")
 
