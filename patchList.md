@@ -137,4 +137,3 @@ This file simply list the progression of patches in this minor version.
 	- Added file `Color_SDL.hpp` which contain a list of macros expanding to `SDL_Color`.
 	- Added SDL_ttf to the project.
 	- Updated documentation.
-	- Renamed directory `utility libs` to [`external-libs`](code/include/external-libs/).
