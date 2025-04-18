@@ -20,6 +20,14 @@ ID Dog::getLowestID(void) {
 	return DOGLIST_SIZE;
 }
 
+/**
+ * Do nothing.
+ * This method is inherited from Animal, its goal is to let children classes draw elements with respect to their own members and methods.
+ */
+void Dog::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
+	//do nothing
+}
+
 [[ nodiscard ]] Dog::Dog(const Pos& p)
 	: Animal(p, Dog::size, Dog::speed)
 {

@@ -27,6 +27,10 @@ set(CMAKE_CXX_STANDARD 23)
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
+# Gets SDL_ttf
+INCLUDE(FindPkgConfig)
+PKG_SEARCH_MODULE(SDL2TTF REQUIRED SDL2_ttf>=2.0.0)
+
 include_directories(BEFORE SYSTEM "/usr/include/nlibs")
 
 # The path to all source files
@@ -87,6 +91,7 @@ target_include_directories(ProjectSrc
 add_executable(main "code/src/main.cpp")
 target_link_libraries(main PRIVATE 
 	${SDL2_LIBRARIES}
+	${SDL2TTF_LIBRARIES}
 	${OTHER_DEPS}
 	Images
 	ProjectSrc

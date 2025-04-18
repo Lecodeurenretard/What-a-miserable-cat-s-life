@@ -22,25 +22,46 @@ The program can take up to 4 arguments:
 + **[Animal](code/include/Animal.hpp)**: The `Animal` class is the parent class of `Cat` and `Dog`.
 + **[Cat](code/include/Cat.hpp)**: In the final version, each cat will have to run away of the dogs.
 + **[Dog](code/include/Dog.hpp)**: In the final version, each dog will have to walk randomly and will be an obstacle to the cats.
++ **[Hitbox](code/include/Hitbox.hpp)**: A hitbox to detect collisions.
 + **[Pos](code/include/Pos.hpp)**: This is a simple struct to represent a position on the screen.
 + **[Vector](code/include/Vector.hpp)**: A vector <!--duh-->.
 + **[WarningStream](code/include/Warning.hpp)**: A stream to output warnings.
 + **[VerboseStream](code/include/Verbose.hpp)**: A stream to output verbose.
 
 ### Other files
-Some files don't contain any class, for now there is only five of them:
+Some files don't contain any class:
++ **[Color_SDL.hpp](code/include/Color_SDL.hpp)**: A set of macros reprensenting colors with the type `SDL_Color`.
 + **[Images.hpp](code/include/Images.hpp)**: Import the hex dumps of the images into the project because cmake can't do it.
 + **[Imports.hpp](code/include/Imports.hpp)**: It's just a file that group all imports so we can see them all at once.
 + **[Utilities.hpp](code/include/Utilities.hpp)**: Some functions that I wrote and have nowhere to put them.
 + **[main.cpp](code/src/main.cpp)**: The main program and a few functions that are only useful in the `main()` function.
 + **[imgToHex](sprites/imgToHex)**: A zsh script that convert images in hex dump with `xxd`.
++ **[test/*](test/)**: Some test to verify all is working as expected.
 
 ## Modding
 This is not a tutorial in order to mod this project but a group of information that can be useful.
 
 ### Building from source
-For this project I used cmake so you just have to run those commands:
-```zsh
+This project uses 4 external dependencies:
+- SDL2
+- SDL_ttf
+- Argument-Parser
+- Misc_modules
+
+In order to install those, you can use the followin commands (on Linux):
+```bash
+sudo apt-get install libsdl2-dev										# SDL2
+sudo apt install libfreetype6-dev libsdl2-ttf-dev libsdl2-ttf-2.0-0		# SDL_tff
+
+git clone "https://github.com/Lecodeurenretard/What-a-miserable-cat-s-life.git"
+
+# Argument-Parser and misc_modules are in the project as git submodules
+cd "What-a-miserable-cat-s-life/code/include/utility libs"
+./installSubmodules			# Execute the install scripts of submodules
+```
+
+For this project I used cmake so once the project is imported and you're at the root of the cloned repo, you just have to run those commands:
+```bash
 cd sprites
 ./imgToHex		# Transform .bmp files into C hexdumps, make sure to have zsh installed
 

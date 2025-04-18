@@ -5,6 +5,9 @@
 /** The size of the sprite of **all** `Animal` sprites and child classes. */
 #define ANIMAL_SPRITE_SIZE 100
 
+/** Allocates a `TTF_Font` which represents the default font to use when an Animal draws text. */
+#define ANIMAL_DEFAULT_FONT(size) TTF_OpenFont("/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf", size)
+
 /**
  * Parent class of `Cat` and `Dog`.
  */
@@ -20,13 +23,13 @@ protected:
 	Animal(Pos, uint, uint, std::string);
 	virtual bool setSprite(uint8_t);
 	virtual void setToRandomSprite(void) noexcept(false);
+	virtual void drawSpecificities(SDL_Renderer*, TTF_Font* =nullptr) const = 0;
 
 	void setDestRand(void);
 	void setDestMouse(void);
+	Vector getSpeedVector(void) const;
 
 	static fs::path getRandomPathFromMask(mask_t);
-
-	Vector getSpeedVector(void) const;
 
 public:
 	explicit Animal(Pos)				noexcept(false);
@@ -50,7 +53,7 @@ public:
 	Hitbox getHitbox(void) const;
 
 	
-	virtual void draw(SDL_Renderer*, bool, bool=false) const noexcept(false);
+	virtual void draw(SDL_Renderer*, TTF_Font* =nullptr, bool=false, bool=false) const noexcept(false);
 	virtual std::string string(void) const;
 
 	/** The folder where the sprites are located. */

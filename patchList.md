@@ -122,3 +122,19 @@ This file simply list the progression of patches in this minor version.
 + Changes to `Dog`:
 	- Added type `ID` and `index` member.
 	- Added `getLowestID()` which is like its homonym in `Cat`.
+
+## 0.2.5
++ Big changes:
+	- The health of the `Cat`s are displayed below them.
++ Changes to `Animal`:
+	- Added new macro `ANIMAL_DEFAULT_FONT(size)` which allocates the default font of animals.
+	- Added pure virtual method `drawSpecificities()` which is used by `Cat` to draw additionnal informations when calling `draw()`.
+	- changes to `draw()`:
+		* Added new parameter `font` which is the font to use to draw text.
+		* Added default value to `isColliding`.
+
++ Other changes:
+	- Added file `Color_SDL.hpp` which contain a list of macros expanding to `SDL_Color`.
+	- Added SDL_ttf to the project.
+	- Updated documentation.
+	- Renamed directory `utility libs` to [`external-libs`](code/include/external-libs/).

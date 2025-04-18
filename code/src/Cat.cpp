@@ -87,6 +87,43 @@ void Cat::setToRandomSprite(void) noexcept(false) {
 }
 
 /**
+ * Draw the health of the cat.  
+ * This method is inherited from Animal, its goal is to let children classes draw elements with respect to their own members and methods.
+ */
+void Cat::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
+	const uint8_t digitInHP = (health >= 100) + (health >= 10) + 1;	//how many digits there are in health (health can't go over 255 so we only need to test for those)
+	const int fontWidth(digitInHP * 10);
+	const auto fontRect = SDL_Rect{
+		.x = (int)std::round(hitbox.zone.x + hitbox.zone.w/2 - fontWidth/2),
+		.y = (int)std::round(hitbox.zone.y + hitbox.zone.h),
+		.w = fontWidth,
+		.h = 20
+	};
+	const bool useDefFont(font == nullptr);		//if the default font should be used
+
+	if(useDefFont)
+		font = ANIMAL_DEFAULT_FONT(35);
+	SDL_Surface* surf = TTF_RenderText_Solid(font, std::to_string(health).c_str(), COL_WHITE);
+
+	if(
+		SDL_RenderCopy(
+			r,
+			SDL_CreateTextureFromSurface(r, surf),
+			NULL,
+			&fontRect
+		) < 0
+	) {
+		wout << "Couldn't draw the HP of the object " << string() << ".\n"
+			<< "Last SDL error: " << SDL_GetError() << '\n'
+			<< "Last SDL_ttf error: " << TTF_GetError() << '\n' << std::endl;
+	}
+
+	SDL_FreeSurface(surf);
+	if(useDefFont)
+		TTF_CloseFont(font);
+}
+
+/**
  * Create an UNLISTED instance with all values to default.
  */
 [[ nodiscard ]] Cat::Cat(void) noexcept(false)

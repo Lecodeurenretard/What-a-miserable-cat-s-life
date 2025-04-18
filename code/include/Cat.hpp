@@ -21,6 +21,8 @@ private:
 	static ID getLowestID(void);
 	static fs::path getRandomPathFromMask(mask_t) noexcept(false);
 
+	void drawSpecificities(SDL_Renderer*, TTF_Font* =nullptr) const;
+
 public:
 	Cat(void)						noexcept(false);
 	explicit Cat(Pos)				noexcept(false);

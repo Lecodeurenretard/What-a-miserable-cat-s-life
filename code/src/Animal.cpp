@@ -55,16 +55,6 @@ void Animal::setToRandomSprite(void) noexcept(false) {
 }
 
 /**
- * Get the vector representing how much `this` animal will move this frame.
- */
-[[ nodiscard ]] Vector Animal::getSpeedVector(void) const {
-	return Vector::fromPoints(
-		(SDL_FPoint)pos,
-		(SDL_FPoint)dest
-	).withNorm(speed);
-}
-
-/**
  * Set the `sprite` field, return `false` on failure.
  */
 [[ nodiscard ]] bool Animal::setSprite(uint8_t spriteNum) {
@@ -169,6 +159,16 @@ void Animal::setDestMouse(void) {
 }
 
 /**
+ * Get the vector representing how much `this` animal will move this frame.
+ */
+[[ nodiscard ]] Vector Animal::getSpeedVector(void) const {
+	return Vector::fromPoints(
+		(SDL_FPoint)pos,
+		(SDL_FPoint)dest
+	).withNorm(speed);
+}
+
+/**
  * Move the animal toward its destination, define a new one if the animal is already there.
  */
 void Animal::move(bool followMouse/*=false*/) {
@@ -206,11 +206,12 @@ void Animal::moveToDest(void) {
 
 /**
  * Display the Animal on screen.
- * @param r the renderer to draw onto.
+ * @param r The renderer to draw onto.
+ * @param font The font to use when drawing text/numbers, set to `nullptr` if you want to use the default one.
  * @param isColliding If the hitbox of this Animal is colling with another animal's
  * @param drawInfos If the method should also draw the speed vector, the destination and the hitbox.
  */
-void Animal::draw(SDL_Renderer* r, bool isColliding, bool drawInfos /*=false*/) const noexcept(false) {
+void Animal::draw(SDL_Renderer* r, TTF_Font* font /*=nullptr*/, bool isColliding /*=false*/, bool drawInfos /*=false*/) const noexcept(false) {
 	if(size == 0)
 		return;
 
@@ -232,7 +233,9 @@ void Animal::draw(SDL_Renderer* r, bool isColliding, bool drawInfos /*=false*/) 
 		throw std::runtime_error("Cannot copy sprite at `"+ spritePath +"` into the renderer. SDL returned this error: " + std::string(SDL_GetError()) + ".");
 	
 	SDL_DestroyTexture(spriteTexture);
-	
+
+	drawSpecificities(r, font);
+
 	if(drawInfos) {
 		Uint8* alpha	= new Uint8(0);
 		Uint8* red		= new Uint8(0);

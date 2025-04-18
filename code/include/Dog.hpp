@@ -12,6 +12,8 @@ private:
 	void setToRandomSprite(void) noexcept(false);
 	static ID getLowestID(void);
 
+	void drawSpecificities(SDL_Renderer*, TTF_Font* =nullptr) const;
+
 	/** The size of all dogs in pixels*/
 	static constexpr uint8_t size = 100;
 

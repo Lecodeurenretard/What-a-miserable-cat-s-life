@@ -46,11 +46,17 @@ int main(int argc, const char** argv) {
 		saveImgs("other", dogCount + catCount	, otherCount);
 	}
 	
-	vout << "Initializing RNG and SDL." << std::endl;
+	vout << "Initializing RNG, SDL and SDL_ttf." << std::endl;
 	std::srand(std::time(nullptr));
 
 	if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
 		std::cerr << "Failed to initialize SDL.\n(SDL last error: " << SDL_GetError() << ')' << std::endl;
+		
+		quit(EXIT_FAILURE);
+	}
+
+	if(TTF_Init() < 0) {
+		std::cerr << "Failed to initialize SDL_ttf.\n(SDL_ttf last error: " << TTF_GetError() << ')' << std::endl;
 		
 		quit(EXIT_FAILURE);
 	}
@@ -92,8 +98,8 @@ int main(int argc, const char** argv) {
 		myDog.move(followMouse);
 
 		const bool isThereCollision(myDog.getHitbox().isOverlapping(myCat.getHitbox()));
-		myCat.draw(render, isThereCollision, showDestination);
-		myDog.draw(render, isThereCollision, showDestination);
+		myCat.draw(render, nullptr, isThereCollision, showDestination);
+		myDog.draw(render, nullptr, isThereCollision, showDestination);
 
 		vout << "Rendering then clearing the window.\t\t(main loop)" << std::endl;
 		SDL_RenderPresent(render);
