@@ -1,0 +1,6 @@
+[submodule "code/include/utility libs/misc_modules"]
+	path = code/include/utility libs/misc_modules
+	url = https://github.com/Lecodeurenretard/misc_modules.git
+[submodule "code/include/utility libs/Argument-Parser"]
+	path = code/include/utility libs/Argument-Parser
+	url = https://github.com/Lecodeurenretard/Argument-Parser.git

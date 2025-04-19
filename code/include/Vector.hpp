@@ -1,18 +1,17 @@
 #pragma once
 #include "Imports.hpp"
+#include "Warning.hpp"
 
 /**
  * A 2D vector
  */
-struct Vector{
+struct Vector {
 	float x;
 	float y;
 
-	Vector(float, float);
-	Vector(const SDL_Point&, const SDL_Point&);
-	Vector(const SDL_FPoint&, const SDL_FPoint&);
+	static Vector fromPoints(const SDL_Point&, const SDL_Point&);
+	static Vector fromPoints(const SDL_FPoint&, const SDL_FPoint&);
 	
-	Vector(const Vector&)	= default;
 	~Vector(void)			= default;
 
 	Vector opposite(void) const;

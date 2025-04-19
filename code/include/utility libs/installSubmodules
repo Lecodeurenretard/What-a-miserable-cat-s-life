@@ -1,0 +1,12 @@
+#!/bin/bash
+
+echo "Installing C++ modules from misc_modules"
+cd misc_modules/C++/
+./install.sh
+cd ../..
+
+echo ""		#Empty line
+echo "Installing Argument-Parser"
+cd Argument-Parser
+./compileLibs --install
+cd ..

@@ -2,7 +2,8 @@
 #pragma once
 
 //SDL and extentions
-#include <SDL.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 //String and string manipulation
 #include <iostream>
@@ -23,6 +24,13 @@ namespace fs = std::filesystem;
 #include <cstdlib>		//random
 
 
-#include "Images.hpp"
+//code I wrote
 #include "Utilities.hpp"
-#include "utility libs/Color Constants.hpp"
+#include "Color_SDL.hpp"
+
+#if !__has_include(<nlibs/Parser>)
+	#error "Run the install script `installSubModules` before compliling."
+#endif
+
+#include <nlibs/colors.h>
+#include <nlibs/Parser>

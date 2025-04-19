@@ -7,6 +7,7 @@
 class WarningStream {
 private:
 	std::ostream* stream;
+	bool printHeading = true;
 
 	const WarningStream& operator=(const WarningStream&);
 public:
@@ -17,12 +18,14 @@ public:
 
 	template<typename T>
 	WarningStream& operator<<(const T& value) {
-		*stream << STYLE_WARNING << WarningStream::heading << value << COLOR_ALL_RESET;
+		*stream << STYLE_WARNING << (printHeading? WarningStream::heading : "\0") << value << STYLE_RESET;
+		printHeading = false;
 		return *this;
 	}
 
 	WarningStream& operator<<(ostream_manipulator);
 
+	static WarningStream& end(WarningStream&);
 };
 
 /** The warning stream */

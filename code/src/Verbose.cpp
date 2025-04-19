@@ -10,7 +10,7 @@ bool VerboseStream::enabled(false);
  * - printHeading
  * - stream
  */
-const VerboseStream& VerboseStream::operator=(const VerboseStream& toCopy){
+const VerboseStream& VerboseStream::operator=(const VerboseStream& toCopy) {
 	if(this == &toCopy)
 		return *this;
 
@@ -27,12 +27,10 @@ VerboseStream::VerboseStream(const std::ostream& out/* = std::cout*/)
 
 /**
  * Verify if the user enabled verbose with `-v` or `--verbose`.
- * @param argc The number of argument the user passed. Must come from `argc` in the `main()` definition.
- * @param argc The values of the arguments passed by the user. Must come from `argv` in the `main()` definition.
- * @return If verbose will be displayed
+ * @param args The result of parsing the arguments with `Parser.parse()`.
  */
-void VerboseStream::setEnabled(int argc, char** argv){	//Who needs safety?
-	enabled = argc > 1 && (std::string(argv[1]) == "-v" || std::string(argv[1]) == "--verbose");
+void VerboseStream::setEnabled(cmd::Parser::parseReturn_t& args) {		//not const because the [] operator returns a mutable reference
+	enabled = std::get<bool>(args["-v"]) || std::get<bool>(args["--verbose"]);
 }
 
 VerboseStream& VerboseStream::operator<<(ostream_manipulator foo) {
@@ -45,7 +43,7 @@ VerboseStream& VerboseStream::operator<<(ostream_manipulator foo) {
 
 using v_manip=VerboseStream::verbose_manipulator;
 VerboseStream& VerboseStream::operator<<(v_manip foo) {
-	*this = foo(*this);
+	operator=(foo(*this));
 	return *this;
 }
 
@@ -57,7 +55,7 @@ const std::string VerboseStream::heading("Verbose: ");
 /**
  * Forbid the display of the annoying `Verbose: `.
  */
-VerboseStream& VerboseStream::noHeading(VerboseStream& ver){
+VerboseStream& VerboseStream::noHeading(VerboseStream& ver) {
 	ver.printHeading = false;
 	return ver;
 }
@@ -65,7 +63,7 @@ VerboseStream& VerboseStream::noHeading(VerboseStream& ver){
 /**
  * Insert a new line, ignore the heading.
  */
-VerboseStream& VerboseStream::newLine(VerboseStream& ver){
+VerboseStream& VerboseStream::newLine(VerboseStream& ver) {
 	*(ver.stream) << "\r\n";	//preparing the windows port
 	return ver;
 }

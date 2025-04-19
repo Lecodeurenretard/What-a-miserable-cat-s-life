@@ -1,67 +1,76 @@
 #include "../include/Vector.hpp"
 
 /** The null vector */
-const Vector Vector::ZERO = Vector(0, 0);
+const Vector Vector::ZERO	= {.x = 0, .y = 0};
 
 /** The unit vector pointing right, in a (O, i, j) plane it would be $i$ */
-const Vector Vector::RIGHT = Vector(-1, 0);		//Based on SDL's coordonates system
+const Vector Vector::RIGHT	= {.x = -1,.y =  0};		//Based on SDL's coordonates system
 
 /** The unit vector pointing right, in a (O, i, j) plane it would be $-i$ */
-const Vector Vector::LEFT = Vector(1, 0);		//Based on SDL's coordonates system
+const Vector Vector::LEFT	= {.x = 1, .y = 0};		//Based on SDL's coordonates system
 
 /** The unit vector pointing up, in a (O, i, j) plane it would be $j$ */
-const Vector Vector::UP = Vector(0, -1);
+const Vector Vector::UP		= {.x = 0, .y = -1};
 
 /** The unit vector pointing up, in a (O, i, j) plane it would be $-j$ */
-const Vector Vector::DOWN = Vector(0, 1);
+const Vector Vector::DOWN	= {.x = 0, .y = 1};
 
+/**
+ * Return the vector from point `from` to the point `to`.
+ */
+[[ nodiscard ]] Vector Vector::fromPoints(const SDL_Point& from, const SDL_Point& to) {
+	return Vector{
+		.x = static_cast<float>(to.x - from.x),		//implicit int to float throws a warning
+		.y = static_cast<float>(to.y - from.y)
+	};
+}
 
-[[ nodiscard ]] Vector::Vector(float _x, float _y)
-	: x(_x), y(_y)
-{}
-
-[[ nodiscard ]] Vector::Vector(const SDL_Point& from, const SDL_Point& to)
-	: x(to.x - from.x), y(to.y - from.y)
-{}
-
-[[ nodiscard ]] Vector::Vector(const SDL_FPoint& from, const SDL_FPoint& to)
-	: x(to.x - from.x), y(to.y - from.y)
-{}
+/**
+ * Return the vector from point `from` to the point `to`.
+ */
+[[ nodiscard ]] Vector Vector::fromPoints(const SDL_FPoint& from, const SDL_FPoint& to) {
+	return Vector{
+		.x = to.x - from.x,
+		.y = to.y - from.y
+	};
+}
 
 /**
  * Return the opposite of `this`.
  */
-Vector Vector::opposite(void) const{
+Vector Vector::opposite(void) const {
 	return this->operator*(-1);
 }
 
 /**
- * Returns the length of this vector.
+ * Return the length of this vector.
  */
-float Vector::norm(void) const{
+float Vector::norm(void) const {
 	return std::sqrt(x*x + y*y);
 }
 
 /**
- * Returns A vector with the same direction but with a given norm.
+ * Scales the current vector to have a length of `newNorm` (`newNorm` will always be treated as positive).
  */
-Vector Vector::withNorm(float newNorm) const{
-	newNorm = abs(newNorm);
-	return unit().operator*(newNorm);
+Vector Vector::withNorm(float newNorm) const {
+	return unit() * abs(newNorm);
 }
 
 /**
  * Get corresponding unit vector.
  */
-Vector Vector::unit(void) const{
-	return operator/(norm());
+Vector Vector::unit(void) const {
+	const float length(norm());
+	if(length == 0)
+		wout << "Division by zero in " + string() << ".unit()" << std::endl;
+	return operator/(length);
 }
 
 /**
- * Draw the vector in the renderer, the tail of the vector is loacted at `start`.
+ * Draw the vector in the renderer, the tail of the vector is located at `start`.
  */
-void Vector::draw(SDL_Renderer* const r, const Vector& start /*= Vector::ZERO*/) const{
-	if(*this == Vector::ZERO){
+void Vector::draw(SDL_Renderer* const r, const Vector& start /*= Vector::ZERO*/) const {
+	if(operator==(Vector::ZERO)) {
 		SDL_RenderDrawPointF(r, start.x, start.y);
 		return;
 	}
@@ -77,27 +86,26 @@ void Vector::draw(SDL_Renderer* const r, const Vector& start /*= Vector::ZERO*/)
 
 
 /**
- * Outputs a human-readable representation of the vector.
+ * Output a human-readable representation of the vector.
  */
-[[ nodiscard ]] std::string Vector::string(void) const{
-	return "("+ std::to_string(x) + ", " + std::to_string(y) + ")";
+[[ nodiscard ]] std::string Vector::string(void) const {
+	return "Vector{"+ std::to_string(x) + ", " + std::to_string(y) + "}";
 }
 
 /**
- * Rotates the vector around its tail by `angle` radians.  
- * The norm can change of a few pixels, that's due to rounding the result since `Vector` uses `int`.
+ * Rotate the vector around its tail by `angle` radians.
  */
-[[ nodiscard ]] Vector Vector::rotate(float angle) const{
-	return Vector(
-		x * std::cos(angle) - y * std::sin(angle),
-		x * std::sin(angle) + y * std::cos(angle)
-	);
+[[ nodiscard ]] Vector Vector::rotate(float angle) const {
+	return Vector{
+		.x = x * std::cos(angle) - y * std::sin(angle),
+		.y = x * std::sin(angle) + y * std::cos(angle)
+	};
 }
 
 /**
- * How much two vectors are different
+ * Return the dot product between `v` and `u`.
  */
-float Vector::dotProduct(const Vector& v, const Vector& u){
+float Vector::dotProduct(const Vector& v, const Vector& u) {
 	return v.x*u.x + v.x*u.y;
 }
 
@@ -108,7 +116,7 @@ float Vector::dotProduct(const Vector& v, const Vector& u){
  * @param to The point to end.
  * @param t How far between two points we have to go, if not in [-1, 1], it gets treated as the closest bound (ie: if `-5`, gets treated as `-1`).
  */
-[[ nodiscard ]] Vector Vector::lerp(const Vector& from, const Vector& to, float t){
+[[ nodiscard ]] Vector Vector::lerp(const Vector& from, const Vector& to, float t) {
 	if(t > 1)
 		t = 1;
 	else if(t < -1)
@@ -123,7 +131,7 @@ float Vector::dotProduct(const Vector& v, const Vector& u){
  * @param to The point to end.
  * @param t How far between two points we have to go.
  */
-[[ nodiscard ]] Vector Vector::lerpNoRestrict(const Vector& from, const Vector& to, float t){
+[[ nodiscard ]] Vector Vector::lerpNoRestrict(const Vector& from, const Vector& to, float t) {
 	return from + t*(to - from);
 }
 
@@ -132,57 +140,69 @@ float Vector::dotProduct(const Vector& v, const Vector& u){
 /**
  * Translate `p` by `this` vector
  */
-SDL_FPoint Vector::translate(SDL_FPoint p) const{
+SDL_FPoint Vector::translate(SDL_FPoint p) const {
 	p.x += x;
 	p.y += y;
 	return p;
 }
 
 
-[[ nodiscard ]] Vector Vector::operator+(const Vector& v) const{
-	return Vector(x + v.x, y + v.y);
+[[ nodiscard ]] Vector Vector::operator+(const Vector& v) const {
+	return Vector{
+		.x = x + v.x,
+		.y = y + v.y
+	};
 }
 
-[[ nodiscard ]] Vector Vector::operator-(const Vector& v) const{
-	return Vector(x - v.x, y - v.y);
+[[ nodiscard ]] Vector Vector::operator-(const Vector& v) const {
+	return Vector{
+		.x = x - v.x,
+		.y = y - v.y
+	};
 }
 
-[[ nodiscard ]] Vector Vector::operator*(float k) const{
-	return Vector(x * k, y * k);
+[[ nodiscard ]] Vector Vector::operator*(float k) const {
+	return Vector{
+		.x = x * k,
+		.y = y * k
+	};
 }
 
-[[ nodiscard ]] Vector Vector::operator/(float k) const{
-	return Vector(x / k, y / k);
+[[ nodiscard ]] Vector Vector::operator/(float k) const {
+	return Vector{
+		.x = x / k,
+		.y = y / k
+	};
 }
 
-[[ nodiscard ]] Vector& Vector::operator+=(const Vector& v){
+[[ nodiscard ]] Vector& Vector::operator+=(const Vector& v) {
 	x += v.x;
 	y += v.y;
 	return *this;
 }
 
-[[ nodiscard ]] Vector& Vector::operator-=(const Vector& v){
+[[ nodiscard ]] Vector& Vector::operator-=(const Vector& v) {
 	x -= v.x;
 	y -= v.y;
 	return *this;
 }
 
-[[ nodiscard ]] Vector& Vector::operator*=(float k){
+[[ nodiscard ]] Vector& Vector::operator*=(float k) {
 	x *= k;
 	y *= k;
 	return *this;
 }
 
-[[ nodiscard ]] Vector& Vector::operator/=(float k){
+[[ nodiscard ]] Vector& Vector::operator/=(float k) {
 	x /= k;
 	y /= k;
 	return *this;
 }
 
-[[ nodiscard ]] Vector operator*(float k, const Vector& v){
+[[ nodiscard ]] Vector operator*(float k, const Vector& v) {
 	return v * k;
 }
 
-[[ nodiscard ]] Vector operator/(float k, const Vector& v){
+[[ nodiscard ]] Vector operator/(float k, const Vector& v) {
 	return v / k;
 }

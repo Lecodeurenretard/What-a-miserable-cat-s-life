@@ -16,16 +16,16 @@ public:
 	explicit VerboseStream(const std::ostream& = std::cout);
 	VerboseStream(const VerboseStream&) = default;
 
-	static void setEnabled(int, char**);
+	static void setEnabled(cmd::Parser::parseReturn_t&);
 
 	template<typename T>
 	VerboseStream& operator<<(const T& value) {
 		if (enabled) {
-			if(printHeading){
+			if(printHeading) {
 				printHeading = false;
 				*stream << VerboseStream::heading;
 			}
-			*stream << STYLE_VERBOSE << value << COLOR_ALL_RESET;
+			*stream << STYLE_VERBOSE << value << STYLE_RESET;
 		}
 		return *this;
 	}
