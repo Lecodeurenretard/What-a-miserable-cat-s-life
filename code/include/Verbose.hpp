@@ -21,7 +21,7 @@ public:
 	template<typename T>
 	VerboseStream& operator<<(const T& value) {
 		if (enabled) {
-			if(printHeading){
+			if(printHeading) {
 				printHeading = false;
 				*stream << VerboseStream::heading;
 			}

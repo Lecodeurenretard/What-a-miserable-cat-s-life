@@ -18,9 +18,9 @@ constexpr uint8_t DESIRED_FPS = 60;
 typedef bool (*mask_t)(const fs::path&);
 
 /**
- * Returns a double in the [`min`, `max`] range
+ * Returns a double in the [`min`, `max`] range, undefined behaviour if max < min.
  */
-inline double randDouble(int min=0, int max=RAND_MAX){
+inline double randDouble(int min=0, int max=RAND_MAX) {
 	return (double)std::rand()/RAND_MAX
 		* (max - min)
 		+ min;
@@ -35,14 +35,14 @@ inline double randDouble(int min=0, int max=RAND_MAX){
 /**
  * Returns an int in the [`min`, `max`] range
  */
-inline int randInt(int min=0, int max=RAND_MAX){
+inline int randInt(int min=0, int max=RAND_MAX) {
 	return std::round(randDouble(min, max));
 }
 
 /**
  * Returns the number of files the `dir` directory according to `fileMask`
  */
-inline size_t howManyFiles(fs::path dir, mask_t fileMask){
+inline size_t howManyFiles(fs::path dir, mask_t fileMask) {
 	return std::count_if(
 		fs::directory_iterator(dir),
 		fs::directory_iterator{},
@@ -53,6 +53,6 @@ inline size_t howManyFiles(fs::path dir, mask_t fileMask){
 /**
  * Returns the number of regular files the `dir` directory
  */
-inline size_t howManyRegularFiles(fs::path dir){
+inline size_t howManyRegularFiles(fs::path dir) {
 	return howManyFiles(dir, (mask_t)fs::is_regular_file);
 }

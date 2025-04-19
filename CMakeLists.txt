@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.6) 
-project("What a miserable cat's life!" VERSION 0.2)
+project("What a miserable cat's life!" VERSION 0.3)
 
 
 # Sets the build mode (default: release)
@@ -13,7 +13,7 @@ else()
 		"-fsanitize=undefined"
 	)
 
-	add_compile_options(-ggdb ${DBG_FLAGS})
+	add_compile_options(-ggdb -Wextra ${DBG_FLAGS})
 	add_link_options(${DBG_FLAGS})
 endif()
 message("Build type used: ${CMAKE_BUILD_TYPE}")

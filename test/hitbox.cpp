@@ -29,10 +29,8 @@ int main() {
 /**
  * Wait until the specified key is entered or quit if the corresponding event is fired.
  * @param key The key code (one of `SDLK_*` macros) of the key to wait.
- * @param r The renderer to free if the user quits.
- * @param win The window to free if the user quits
  */
-void waitKeyPress(void){
+void waitKeyPress(void) {
 	SDL_Event ev;
 	SDL_PollEvent(&ev);
 
@@ -40,6 +38,9 @@ void waitKeyPress(void){
 		SDL_PollEvent(&ev);
 }
 
+/**
+ * Repeat `nb` times the string `r`.
+ */
 std::string strRepeat(const std::string& r, size_t nb) {
 	if(nb == 0)
 		return "\0";
@@ -76,7 +77,7 @@ void drawTest(Hitbox h1, Hitbox h2, bool pretty/*=false*/) {
 	SDL_Renderer* ren;
 	SDL_CreateWindowAndRenderer(500, 500, 0, &win, &ren);
 	
-	if(pretty){
+	if(pretty) {
 		constexpr uint growth = 30;
 		h1.expand(growth).draw(ren, HITBOX_COLOR_INACTIVE	, Vector::ZERO);
 		h2.expand(growth).draw(ren, HITBOX_COLOR_ACTIVE		, {growth, growth});

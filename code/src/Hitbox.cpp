@@ -87,8 +87,8 @@
  * Draw the hitbox in the `r` renderer with `col` as color (alpha value ignored and always set to `HITBOX_ALPHA`).
  */
 void Hitbox::draw(SDL_Renderer* r, SDL_Color col/*= HITBOX_COLOR_INACTIVE*/, Vector offset/*= Vector::ZERO*/) const {
-	Uint8 old_colors[4];
-	SDL_GetRenderDrawColor(r, &old_colors[0], &old_colors[1], &old_colors[2], &old_colors[3]);
+	SDL_Color old_color;
+	SDL_GetRenderDrawColor(r, old_color);
 
 	SDL_SetRenderDrawColor(r, col.r, col.g, col.b, HITBOX_ALPHA);
 
@@ -100,7 +100,7 @@ void Hitbox::draw(SDL_Renderer* r, SDL_Color col/*= HITBOX_COLOR_INACTIVE*/, Vec
 	};
 	SDL_RenderFillRectF(r, &toDraw);
 
-	SDL_SetRenderDrawColor(r, old_colors[0], old_colors[1], old_colors[2], old_colors[3]);
+	SDL_SetRenderDrawColor(r, old_color);
 }
 
 
@@ -176,4 +176,15 @@ void Hitbox::draw(SDL_Renderer* r, SDL_Color col/*= HITBOX_COLOR_INACTIVE*/, Vec
 		.w = size,
 		.h = size,
 	};
+}
+
+/**
+ * Return a human-readable representation of this instance.
+ */
+[[ nodiscard ]] std::string Hitbox::string(void) const {
+	return "Hitbox{ .x="+ std::to_string(zone.x)
+		+ "; .y="+ std::to_string(zone.y)
+		+ "; .w="+ std::to_string(zone.w)
+		+ "; .h="+ std::to_string(zone.h)
+		+" }";
 }

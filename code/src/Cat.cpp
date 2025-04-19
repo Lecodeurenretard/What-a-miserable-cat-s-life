@@ -4,28 +4,42 @@
  * Set the `sprite` field, return `false` on failure.
  */
 [[ nodiscard ]] bool Cat::setSprite(uint8_t spriteNum) {
-	const std::string sprite(Cat::spriteBase + std::string((spriteNum < 10)? "0" : "") + std::to_string(spriteNum) + std::string(".bmp"));
+	const std::string spriteAlive(Cat::spriteBase		+ std::string((spriteNum		< 10)? "0" : "") + std::to_string(spriteNum) + std::string(".bmp"));
+
+	const uint spriteDeadNum(spriteNum%deadCatCount);
+	const std::string spriteDead (Cat::spriteDeadBase	+ std::string((spriteDeadNum	< 10)? "0" : "") + std::to_string(spriteDeadNum) + std::string(".bmp"));
+
 	struct stat sb;
 
-	if (!stat(sprite.c_str(), &sb)) {
-		spritePath = sprite;
-		return true;
-	}
-	
-	return false;
+	if (stat(spriteAlive.c_str(), &sb))
+		return false;
+
+	spritePath = spriteAlive;
+
+	if (stat(spriteDead.c_str(), &sb))
+		return false;
+
+	spritePathDead = spriteDead;	
+	return true;
 }
 
 /**
  * Set the current sprite at a random sprite
  */
 void Cat::setToRandomSprite(void) noexcept(false) {
-	const auto mask = [](const fs::path& path) {
+	const auto maskAlive = [](const fs::path& path) {
 		const std::string pathStr = path.string().replace(0, 8, "");
 
 		return fs::is_regular_file(path) && pathStr.starts_with("cat") && pathStr.ends_with(".bmp");
 	};
+	const auto maskDead = [](const fs::path& path) {
+		const std::string pathStr = path.string().replace(0, 8, "");
+
+		return fs::is_regular_file(path) && pathStr.starts_with("deadCat") && pathStr.ends_with(".bmp");
+	};
 	
-	spritePath = getRandomPathFromMask(mask).string();
+	spritePath = getRandomPathFromMask(maskAlive).string();
+	spritePathDead = getRandomPathFromMask(maskDead).string();
 }
 
 
@@ -40,6 +54,16 @@ void Cat::setToRandomSprite(void) noexcept(false) {
 	
 	catList[id] = this;
 	return true;
+}
+
+/**
+ * Check if this instance collides with a dog from `dogList`.
+ */
+[[ nodiscard ]] bool Cat::isHitByDog(void) const {
+	for(size_t i = 0; i < Dog::getLowestID(); i++)		//Avoid iterating through all `dogList` and getting bad values
+		if(hitbox.isOverlapping(Dog::dogList[i]->getHitbox()))
+			return true;
+	return false;
 }
 
 /**
@@ -93,6 +117,7 @@ void Cat::setToRandomSprite(void) noexcept(false) {
 void Cat::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
 	const uint8_t digitInHP = (health >= 100) + (health >= 10) + 1;	//how many digits there are in health (health can't go over 255 so we only need to test for those)
 	const int fontWidth(digitInHP * 10);
+
 	const auto fontRect = SDL_Rect{
 		.x = (int)std::round(hitbox.zone.x + hitbox.zone.w/2 - fontWidth/2),
 		.y = (int)std::round(hitbox.zone.y + hitbox.zone.h),
@@ -127,7 +152,7 @@ void Cat::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
  * Create an UNLISTED instance with all values to default.
  */
 [[ nodiscard ]] Cat::Cat(void) noexcept(false)
-	: Animal(Pos::ORIGIN), health(0)
+	: Animal(Pos::ORIGIN)
 {}
 
 /**
@@ -141,7 +166,7 @@ void Cat::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
  * Construct a new Cat obj with a random sprite and registers it in catList
  */
 [[ nodiscard ]] Cat::Cat(Pos _pos, uint _size) noexcept(false)
-	: Animal(_pos, _size), health(1)
+	: Animal(_pos, _size)
 {
 	setToRandomSprite();
 	if(!trySetLowestID())
@@ -166,12 +191,17 @@ void Cat::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
  * Construct a new Cat obj and register it in `catList`.
  */
 [[ nodiscard ]] Cat::Cat(Pos _pos, uint _size, uint velocity, uint8_t spriteNum) noexcept(false)
-	: Animal(_pos, _size, spriteNum)
+	: Animal(_pos, _size, velocity, spriteNum)
 {
 	if(!trySetLowestID())
 		wout << "Too many cats are already present." << std::endl;
+
+	if(spriteNum == 0) {
+		setToRandomSprite();
+		return;
+	}
 	if(!setSprite(spriteNum))
-		throw std::runtime_error("Couldn't set the sprite in constructor of Cat.");
+		throw std::runtime_error("Couldn't set the sprite number "+ std::to_string(spriteNum) +" in constructor of Cat.");
 }
 
 Cat::~Cat(void) {
@@ -214,29 +244,56 @@ Cat::~Cat(void) {
 }
 
 /**
- * Getter for `speed`
+ * Display the Cat on screen.
+ * @param r The renderer to draw onto.
+ * @param font The font to use when drawing text/numbers, set to `nullptr` if you want to use the default one.
+ * @param canDrawInfos If the method should also draw the speed vector, the destination and the hitbox.
  */
-[[ nodiscard ]] uint Cat::getSpeed(void) const {
-	return speed;
-}
+void Cat::draw(SDL_Renderer* r, TTF_Font* font /*=nullptr*/, bool canDrawInfos /*=false*/) const noexcept(false) {
+	if(size == 0)
+		return;
 
-/**
- * Getter for `health`
- */
-[[ nodiscard ]] uint8_t Cat::getHealth(void) const {
-	return health;
-}
+	drawSprite(r);
+	drawSpecificities(r, font);
 
-/**
- * Increment the health.
- */
-void Cat::incrementHealth(void) {
-	health++;
+	if(canDrawInfos && !isDead())
+		drawInfos(r);
 }
 
 /**
  * Returns a human-readable string representing `this` Cat
  */
 std::string Cat::string(void) const {
-	return "Cat{ .id="+ std::to_string(id) +"; health="+ std::to_string(health) + "; "+ Animal::string() +" }";
+	return "Cat{ .id="+ std::to_string(id) +"; "+ Animal::string() +" }";
+}
+
+/**
+ * Check hits took and handle health.
+ */
+void Cat::handleCollisions(void) {
+	if(isDead())
+		return;
+
+	if(!isHitByDog()) {
+		collisionLastFrame = false;
+		return;
+	}
+	if(collisionLastFrame)
+		return;
+
+	health--;
+	collisionLastFrame = true;
+}
+
+/**
+ * Generates `howMany` cats, their IDs are returned by the parameter `ids`.
+ */
+void Cat::generateCats(uint8_t howMany, ID (*ids)[] /*= nullptr*/, Pos pos/*=Pos::ORIGIN*/, uint size/*=0*/, uint speed/*=0*/, uint8_t spriteNum/*=0*/) {
+	for (uint8_t i = 0; i < howMany; i++) {
+		const Vector position = (Vector)pos + Vector{.x = (float)size*i, .y=0};	//shift the cats to the don't overlap each other
+		Cat* generated = new Cat(position, size, speed, spriteNum);
+
+		if(ids != nullptr)
+			(*ids)[i] = generated->id;
+	}
 }

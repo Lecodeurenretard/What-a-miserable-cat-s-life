@@ -17,17 +17,24 @@ protected:
 	Pos dest				= Pos::SCREEN_CENTER;
 	uint size				= 0;
 	uint speed				= 0;
+	uint8_t health			= 1;
+
 	std::string spritePath;
+	std::string spritePathDead;
 	Hitbox hitbox;
 
 	Animal(Pos, uint, uint, std::string);
 	virtual bool setSprite(uint8_t);
 	virtual void setToRandomSprite(void) noexcept(false);
-	virtual void drawSpecificities(SDL_Renderer*, TTF_Font* =nullptr) const = 0;
 
 	void setDestRand(void);
 	void setDestMouse(void);
 	Vector getSpeedVector(void) const;
+	bool isAtDest(void) const;
+
+	virtual void drawSprite(SDL_Renderer*) const;
+	virtual void drawInfos(SDL_Renderer*, bool=false) const;
+	virtual void drawSpecificities(SDL_Renderer*, TTF_Font* =nullptr) const = 0;
 
 	static fs::path getRandomPathFromMask(mask_t);
 
@@ -43,17 +50,15 @@ public:
 
 	void increaseSize(uint);
 	void increaseSpeed(uint);
-
-	bool isAtDest(void) const;
+	void incrementHealth(void);
 
 	void move(bool=false);
 	void moveToDest(void);
 
-	uint getSize(void) const;
-	Hitbox getHitbox(void) const;
+	Hitbox getHitbox(void)	const;
+	bool isDead(void)		const;
 
-	
-	virtual void draw(SDL_Renderer*, TTF_Font* =nullptr, bool=false, bool=false) const noexcept(false);
+	virtual void draw(SDL_Renderer*, TTF_Font* =nullptr, bool=false) const noexcept(false);
 	virtual std::string string(void) const;
 
 	/** The folder where the sprites are located. */
@@ -61,4 +66,7 @@ public:
 
 	/** The base in order to make the full sprite path. */
 	inline static const std::string spriteBase = Animal::spriteFolder + "other";
+
+	/** The base in order to make the full sprite path of the dead animal. */
+	inline static const std::string spriteBaseDead = Animal::spriteFolder + "deadOther";
 };

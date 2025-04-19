@@ -10,7 +10,6 @@ private:
 	ID index;	//The index in `dogList`
 
 	void setToRandomSprite(void) noexcept(false);
-	static ID getLowestID(void);
 
 	void drawSpecificities(SDL_Renderer*, TTF_Font* =nullptr) const;
 
@@ -33,11 +32,15 @@ public:
 	Dog(Pos, uint, uint)			= delete;
 	Dog(Pos, uint, uint, uint8_t)	= delete;
 
+	static void generateDogs(uint8_t, ID(*)[] = nullptr, Pos=Pos::ORIGIN);
+
 	//Dogs' speeds and sizes are constant
 	void increaseSize(uint)		= delete;
 	void increaseSpeed(uint)	= delete;
 
 	uint getSize(void) const	= delete;
+
+	static ID getLowestID(void);
 
 	/** The base to set sprites. */
 	inline static const std::string spriteBase = Animal::spriteFolder + "dog";

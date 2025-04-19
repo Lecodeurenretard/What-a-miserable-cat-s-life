@@ -25,6 +25,8 @@ struct Hitbox {
 	Hitbox expand(uint) const;
 
 	void draw(SDL_Renderer*, SDL_Color=HITBOX_COLOR_INACTIVE, Vector=Vector::ZERO) const;
+
+	std::string string(void) const;
 };
 
 SDL_Rect  rectFromVector(Vector, Pos);

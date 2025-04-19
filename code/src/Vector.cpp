@@ -70,7 +70,7 @@ Vector Vector::unit(void) const {
  * Draw the vector in the renderer, the tail of the vector is located at `start`.
  */
 void Vector::draw(SDL_Renderer* const r, const Vector& start /*= Vector::ZERO*/) const {
-	if(operator==(Vector::ZERO)){
+	if(operator==(Vector::ZERO)) {
 		SDL_RenderDrawPointF(r, start.x, start.y);
 		return;
 	}

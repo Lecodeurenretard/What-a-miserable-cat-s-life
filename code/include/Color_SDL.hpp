@@ -17,3 +17,18 @@
 #define COL_NAVY		SDL_Color{.r =   0, .g =   0, .b = 128, .a = SDL_ALPHA_OPAQUE}
 #define COL_FIREBRICK	SDL_Color{.r = 178, .g =  34, .b =  34, .a = SDL_ALPHA_OPAQUE}
 #define COL_DARKCYAN	SDL_Color{.r =   0, .g = 139, .b = 139, .a = SDL_ALPHA_OPAQUE}
+
+
+/**
+ * A shorthand for `SDL_SetRenderDrawColor(r, color.r, color.g, color.b, color.a);`.
+ */
+inline int SDL_SetRenderDrawColor(SDL_Renderer* r, SDL_Color color) {
+	return SDL_SetRenderDrawColor(r, color.r, color.g, color.b, color.a);
+}
+
+/**
+ * A shorthand for `SDL_GetRenderDrawColor(r, &color.r, &color.g, &color.b, &color.a);`.
+ */
+inline int SDL_GetRenderDrawColor(SDL_Renderer* r, SDL_Color& color) {
+	return SDL_GetRenderDrawColor(r, &color.r, &color.g, &color.b, &color.a);
+}

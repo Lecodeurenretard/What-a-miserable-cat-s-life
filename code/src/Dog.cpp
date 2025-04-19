@@ -1,23 +1,13 @@
 #include "../include/Dog.hpp"
 
-void Dog::setToRandomSprite(void) noexcept(false){
-	const auto mask = [](const fs::path& path){
+void Dog::setToRandomSprite(void) noexcept(false) {
+	const auto mask = [](const fs::path& path) {
 		const std::string pathStr = path.string().replace(0, 8, "");
 		
 		return fs::is_regular_file(path) && pathStr.starts_with("dog") && pathStr.ends_with(".bmp");
 	};
 	
 	spritePath = getRandomPathFromMask(mask).string();
-}
-
-/**
- * Get the lowest ID available, return `DOGLIST_SIZE` if there isn't.
- */
-ID Dog::getLowestID(void) {
-	for(ID i = 0;  i < DOGLIST_SIZE; i++)
-		if(dogList[i] == nullptr)
-			return i;
-	return DOGLIST_SIZE;
 }
 
 /**
@@ -54,6 +44,30 @@ Dog::~Dog(void) {
 		dogList[index] = nullptr;
 }
 
+/**
+ * Generates `howMany` dogs, their IDs are returned by the parameter `indexes`.
+ */
+void Dog::generateDogs(uint8_t howMany, ID (*indexes)[] /*= nullptr*/, Pos pos/*=Pos::ORIGIN*/) {
+	for (uint8_t i = 0; i < howMany; i++) {
+		Dog* generated = new Dog(
+			(Vector)pos + Vector{.x = (float)size*i, .y=0}//shift the dogs to the don't overlap each other
+		);
+
+		if(indexes != nullptr)
+			(*indexes)[i] = generated->index;
+	}
+}
+
 [[ nodiscard ]] std::string Dog::string(void) const {
 	return "Dog{ index="+ std::to_string(index) +"; "+ Animal::string() +" }";
+}
+
+/**
+ * Get the lowest ID available, return `DOGLIST_SIZE` if there isn't.
+ */
+ID Dog::getLowestID(void) {
+	for(ID i = 0;  i < DOGLIST_SIZE; i++)
+		if(dogList[i] == nullptr)
+			return i;
+	return DOGLIST_SIZE;
 }

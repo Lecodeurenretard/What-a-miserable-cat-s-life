@@ -12,9 +12,9 @@
 /** The type for representing a position on 1 dimension */
 struct pos_t {
 	float val;
-	inline pos_t(float x){val = std::abs(x);}
+	inline pos_t(float x) {val = std::abs(x);}
 
-	inline operator float() const{ return val; }
+	inline operator float() const { return val; }
 
 	inline pos_t operator+=(const pos_t& p) { val += p.val; return *this;}
 	inline pos_t operator-=(const pos_t& p) { val -= p.val; return *this;}

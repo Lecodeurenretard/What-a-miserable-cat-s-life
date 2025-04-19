@@ -9,7 +9,7 @@ const std::string WarningStream::heading("Warning: ");
  * For now, it copies:
  * - stream
  */
-const WarningStream& WarningStream::operator=(const WarningStream& toCopy){
+const WarningStream& WarningStream::operator=(const WarningStream& toCopy) {
 	if(this == &toCopy)
 		return *this;
 
@@ -17,7 +17,7 @@ const WarningStream& WarningStream::operator=(const WarningStream& toCopy){
 	return *this;
 }
 
-WarningStream::WarningStream(const std::ostream& out/* = std::cerr*/){
+WarningStream::WarningStream(const std::ostream& out/* = std::cerr*/) {
 	stream = new std::ostream(out.rdbuf());
 }
 
