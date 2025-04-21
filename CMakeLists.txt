@@ -44,6 +44,7 @@ set(
 	"code/src/Warning.cpp"
 	"code/src/Verbose.cpp"
 	"code/src/Vector.cpp"
+	#"code/src/AlogrithmHandler.cpp"
 )
 
 set(

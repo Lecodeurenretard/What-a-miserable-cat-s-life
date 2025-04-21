@@ -99,7 +99,7 @@ int main(int argc, const char** argv) {
 			Cat::catList[i]->incrementHealth();
 	}
 
-	std::cout << Cat::catList[0]->string() << std::endl;
+
 	while(true) {
 		const Uint64 frameStart = SDL_GetPerformanceCounter();
 	

@@ -1,6 +1,9 @@
 #pragma once
 #include "Hitbox.hpp"
-#include "Images.hpp"
+
+#ifndef NOT_INCLUDE_IMGS		//while compiling tests, we don't need to include images
+	#include "Images.hpp"
+#endif
 
 /** The size of the sprite of **all** `Animal` sprites and child classes. */
 #define ANIMAL_SPRITE_SIZE 100

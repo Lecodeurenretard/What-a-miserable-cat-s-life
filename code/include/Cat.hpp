@@ -6,6 +6,8 @@ typedef uint8_t ID;
 
 /** The (future) prey and subject to evolution (not implemented yet) */
 class Cat final : public Animal {
+	friend class AlogrithmHandler;	//defined in `AlgorithmHandler.hpp`
+
 private:
 	ID id = CATLIST_SIZE;
 	bool collisionLastFrame = false;

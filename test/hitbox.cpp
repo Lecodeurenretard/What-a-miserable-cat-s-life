@@ -1,3 +1,4 @@
+#define NOT_INCLUDE_IMGS
 #include <iostream>
 #include "../code/include/Hitbox.hpp"
 
