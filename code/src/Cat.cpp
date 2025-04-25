@@ -216,7 +216,7 @@ Cat::~Cat(void) {
 	Cat res;
 	res.pos = _pos;
 	res.size = _size;
-	res.speed = velocity;
+	res.speedPerSecond = velocity;
 	
 	if(!res.setSprite(spriteNum))
 		throw std::runtime_error("Couldn't set the sprite of a new cat instance.");

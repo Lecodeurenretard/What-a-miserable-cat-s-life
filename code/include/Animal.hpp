@@ -16,7 +16,7 @@ protected:
 	Pos pos					= Pos::SCREEN_CENTER;
 	Pos dest				= Pos::SCREEN_CENTER;
 	uint size				= 0;
-	uint speed				= 0;
+	uint speedPerSecond		= 0;
 	uint8_t health			= 1;
 
 	std::string spritePath;

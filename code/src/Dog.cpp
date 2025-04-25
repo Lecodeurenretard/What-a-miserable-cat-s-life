@@ -19,7 +19,7 @@ void Dog::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
 }
 
 [[ nodiscard ]] Dog::Dog(const Pos& p)
-	: Animal(p, Dog::size, Dog::speed)
+	: Animal(p, Dog::size, Dog::speedPerSecond)
 {
 	setToRandomSprite();
 

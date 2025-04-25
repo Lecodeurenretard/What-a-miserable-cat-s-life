@@ -5,7 +5,7 @@ bool saveImageToFile(const char*, const unsigned char*, const unsigned int);
 bool saveImageToFile(const char*, uint8_t);
 void saveImgs(const char*, size_t, size_t);
 
-double waitNextFrame(float);
+void waitNextFrame(float);
 void waitEvent(SDL_EventType, SDL_Renderer* = nullptr, SDL_Window* = nullptr);
 void waitKeyPress(SDL_KeyCode, SDL_Renderer* = nullptr, SDL_Window* = nullptr);
 
@@ -87,7 +87,7 @@ int main(int argc, const char** argv) {
 	SDL_SetRenderDrawColor(render, 15, 15, 15, SDL_ALPHA_OPAQUE);
 	SDL_SetRenderDrawBlendMode(render, SDL_BLENDMODE_BLEND);		//enable transparency
 
-	Cat::generateCats(catCount, nullptr, Pos::SCREEN_CENTER, 50, 2);
+	Cat::generateCats(catCount, nullptr, Pos::SCREEN_CENTER, 50, 100);
 	Dog::generateDogs(dogCount, nullptr, Pos(100, 100));
 	
 	//randomizing health
@@ -99,7 +99,6 @@ int main(int argc, const char** argv) {
 			Cat::catList[i]->incrementHealth();
 	}
 
-	std::cout << Cat::catList[0]->string() << std::endl;
 	while(true) {
 		const Uint64 frameStart = SDL_GetPerformanceCounter();
 	
@@ -140,15 +139,15 @@ int main(int argc, const char** argv) {
 		if(stepByStep) {
 			vout << "Waiting until next frame.\t\t\t(main loop)" << std::endl;
 			waitKeyPress(SDLK_RIGHT, render, win);
-		}
-		SDL_RenderClear(render);
-		
-		if(!stepByStep) {
-			vout << "Waiting until next frame.\t\t\t(main loop)" << std::endl;
-			waitNextFrame((SDL_GetPerformanceCounter()-frameStart) / (float)SDL_GetPerformanceFrequency());		//For how long the frame lasted
-		} else {
+
+			SDL_RenderClear(render);
 			VerboseStream::newLine(vout);
+			continue;
 		}
+
+		vout << "Waiting until next frame.\t\t\t(main loop)" << std::endl;
+		waitNextFrame((SDL_GetPerformanceCounter()-frameStart) / (float)SDL_GetPerformanceFrequency());		//SDL_GetPerformanceCounter() get the time in nano/micro second, dividing by SDL_GetPerformanceFrequency() convert it to seconds
+		SDL_RenderClear(render);
 	}
 
 	quit(EXIT_SUCCESS, render, win);
@@ -213,21 +212,20 @@ void saveImgs(const char* name, size_t offset, size_t count) {
 
 
 /**
- * Wait the appropriate time until next frame and returns delta in second/frame (delta is the maximum time that can be allowed)
+ * Wait the appropriate time until next frame and updates delta.
  * @param lasted How many seconds took the last frame to run
  */
-double waitNextFrame(float lasted) {
-	constexpr double delta = 1 / (double)DESIRED_FPS;
+void waitNextFrame(float lasted) {
+	deltaTime = std::max(lasted, 0.0f);		//clamping delta to 0
+	const int timeTaken = deltaTime * 1000;	//seconds to microseconds
 
-	const int timeTaken = (delta - lasted) * 1000;
-
-	if (timeTaken >= 0) {
-		SDL_Delay(timeTaken);
-		vout << "Frame completed in " << timeTaken << "ms.\t\t\t(main loop/waitNextFrame())\n" << std::endl;
-	} else {
+	if (timeTaken < 0) {
 		wout << "The frame ended " << -timeTaken << "ms late (took " << lasted * 1000 << "ms to run)." << std::endl;
+		return;
 	}
-	return delta;
+
+	SDL_Delay(timeTaken);
+	vout << "Frame completed in " << timeTaken << "ms.\t\t\t(main loop/waitNextFrame())\n" << std::endl;
 }
 
 /**

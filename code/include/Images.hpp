@@ -4,6 +4,18 @@
 extern unsigned char img_deadOther_deadOther01_bmp;
 extern unsigned int  img_deadOther_deadOther01_bmp_len;
 
+extern unsigned char img_other_other01_bmp;
+extern unsigned int  img_other_other01_bmp_len;
+
+extern unsigned char img_deadCat_deadcat1_bmp;
+extern unsigned int  img_deadCat_deadcat1_bmp_len;
+
+extern unsigned char img_deadCat_deadcat2_bmp;
+extern unsigned int  img_deadCat_deadcat2_bmp_len;
+
+extern unsigned char img_deadCat_deadcat3_bmp;
+extern unsigned int  img_deadCat_deadcat3_bmp_len;
+
 extern unsigned char img_dog_dog01_bmp;
 extern unsigned int  img_dog_dog01_bmp_len;
 
@@ -49,23 +61,15 @@ extern unsigned int  img_cat_cat09_bmp_len;
 extern unsigned char img_cat_cat10_bmp;
 extern unsigned int  img_cat_cat10_bmp_len;
 
-extern unsigned char img_other_other01_bmp;
-extern unsigned int  img_other_other01_bmp_len;
-
-extern unsigned char img_deadCat_deadcat1_bmp;
-extern unsigned int  img_deadCat_deadcat1_bmp_len;
-
-extern unsigned char img_deadCat_deadcat2_bmp;
-extern unsigned int  img_deadCat_deadcat2_bmp_len;
-
-extern unsigned char img_deadCat_deadcat3_bmp;
-extern unsigned int  img_deadCat_deadcat3_bmp_len;
-
 
 
 /** An array containing pointers to all image dumps */
 inline const unsigned char* allDump[] = {
 	&img_deadOther_deadOther01_bmp,
+	&img_other_other01_bmp,
+	&img_deadCat_deadcat1_bmp,
+	&img_deadCat_deadcat2_bmp,
+	&img_deadCat_deadcat3_bmp,
 	&img_dog_dog01_bmp,
 	&img_dog_dog02_bmp,
 	&img_dog_dog03_bmp,
@@ -81,10 +85,6 @@ inline const unsigned char* allDump[] = {
 	&img_cat_cat08_bmp,
 	&img_cat_cat09_bmp,
 	&img_cat_cat10_bmp,
-	&img_other_other01_bmp,
-	&img_deadCat_deadcat1_bmp,
-	&img_deadCat_deadcat2_bmp,
-	&img_deadCat_deadcat3_bmp,
 };
 /** The size of `allDump` */
 inline constexpr size_t allDumpSize = 20;
@@ -93,6 +93,10 @@ inline constexpr size_t allDumpSize = 20;
 /** An array containing the length of all image dumps (sorted in the same order as `allDump`) */
 inline const unsigned int allDumpLen[] = {
 	img_deadOther_deadOther01_bmp_len,
+	img_other_other01_bmp_len,
+	img_deadCat_deadcat1_bmp_len,
+	img_deadCat_deadcat2_bmp_len,
+	img_deadCat_deadcat3_bmp_len,
 	img_dog_dog01_bmp_len,
 	img_dog_dog02_bmp_len,
 	img_dog_dog03_bmp_len,
@@ -108,10 +112,6 @@ inline const unsigned int allDumpLen[] = {
 	img_cat_cat08_bmp_len,
 	img_cat_cat09_bmp_len,
 	img_cat_cat10_bmp_len,
-	img_other_other01_bmp_len,
-	img_deadCat_deadcat1_bmp_len,
-	img_deadCat_deadcat2_bmp_len,
-	img_deadCat_deadcat3_bmp_len,
 };
 /** The size of `allDumpLen` */
 inline constexpr size_t allDumpLenSize = 20;
@@ -120,10 +120,10 @@ inline constexpr size_t allDumpLenSize = 20;
 /** An array containing all the names of folders. */
 inline const char* allNames[] = {
 	"deadOther",
-	"dog",
-	"cat",
 	"other",
 	"deadCat",
+	"dog",
+	"cat",
 };
 inline constexpr size_t allNamesSize = 5;
 
@@ -146,10 +146,10 @@ inline constexpr uint8_t catCount	= 10;
 /** An array containing all {class}Count, should be used with `allNames`. */
 inline size_t countList[] = {
 	deadOtherCount,
-	dogCount,
-	catCount,
 	otherCount,
 	deadCatCount,
+	dogCount,
+	catCount,
 };
 inline constexpr size_t countListSize = 5;
 

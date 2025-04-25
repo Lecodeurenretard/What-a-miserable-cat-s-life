@@ -16,8 +16,8 @@ private:
 	/** The size of all dogs in pixels*/
 	static constexpr uint8_t size = 100;
 
-	/** The speed of all dogs in pixels per frame */
-	static constexpr uint8_t speed = 3;
+	/** The speedPerSecond of all dogs in pixels per frame */
+	static constexpr uint8_t speedPerSecond = 255u;
 
 public:
 	explicit Dog(const Pos&);

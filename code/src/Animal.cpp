@@ -5,7 +5,7 @@ struct stat sb;
  * This constructor is only for path we are sure the sprite exists. Directly set `spritePath` to `path` without any test.
  */
 [[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, uint _speed, std::string path) 
-	: pos(_pos), dest(_pos), size(_size), speed(_speed), spritePath(path)
+	: pos(_pos), dest(_pos), size(_size), speedPerSecond(_speed), spritePath(path)
 {}
 
 /**
@@ -136,7 +136,7 @@ void Animal::drawInfos(SDL_Renderer* render, bool isColliding/*=false*/) const {
 {}
 
 [[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, uint velocity) noexcept(false)
-	: pos(_pos), dest(_pos), size(_size), speed(velocity)
+	: pos(_pos), dest(_pos), size(_size), speedPerSecond(velocity)
 {
 	Animal::setToRandomSprite();
 
@@ -146,7 +146,7 @@ void Animal::drawInfos(SDL_Renderer* render, bool isColliding/*=false*/) const {
 
 
 [[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, uint velocity, uint8_t spriteNum) noexcept(false)
-	: pos(_pos), dest(_pos), size(_size), speed(velocity)
+	: pos(_pos), dest(_pos), size(_size), speedPerSecond(velocity)
 {
 	const Pos hitboxPos = (Vector)_pos - Vector{.x = (float)_size, .y = (float)_size	}/2;
 	hitbox = getSquare((float)size, hitboxPos);
@@ -170,15 +170,15 @@ void Animal::increaseSize(uint by) {
 }
 
 /**
- * Increase the speed of by `by` pixels per frame.
+ * Increase the speedPerSecond of by `by` pixels per frame.
  */
 void Animal::increaseSpeed(uint by) {
-	if(speed + by < speed || speed + by < by) {
-		speed = UINT32_MAX;
+	if(speedPerSecond + by < speedPerSecond || speedPerSecond + by < by) {
+		speedPerSecond = UINT32_MAX;
 		return;
 	}
 
-	speed += by;
+	speedPerSecond += by;
 }
 
 /**
@@ -216,14 +216,14 @@ void Animal::setDestMouse(void) {
 	return Vector::fromPoints(
 		(SDL_FPoint)pos,
 		(SDL_FPoint)dest
-	).withNorm(speed);
+	).withNorm(speedPerSecond * deltaTime);
 }
 
 /**
  * Check if the animal is at destination.
  */
 bool Animal::isAtDest(void) const {
-	const float threshold = speed + 0.01;	//making sure the animal can't jump behind the destination's bounding box.
+	const float threshold = speedPerSecond + 0.01;	//making sure the animal can't jump behind the destination's bounding box.
 	return 
 		dest.x - threshold < pos.x && pos.x < dest.x + threshold &&		//dest.x - threshold < pos.x < dest.x + threshold
 		dest.y - threshold < pos.y && pos.y < dest.y + threshold;		//dest.y - threshold < pos.y < dest.y + threshold
@@ -293,7 +293,7 @@ void Animal::draw(SDL_Renderer* r, TTF_Font* font /*=nullptr*/, bool canDrawInfo
 	return "Animal{ .pos=" + pos.string() 
 		+ "; dest="+ dest.string()
 		+ "; size="+ std::to_string(size)
-		+ "; speed="+ std::to_string(speed)
+		+ "; speedPerSecond="+ std::to_string(speedPerSecond)
 		+ "; health="+ std::to_string(health)
 		+ "; .spritePath=\""+ spritePath
 		+ "\"; .spritePathDead=\""+ spritePathDead

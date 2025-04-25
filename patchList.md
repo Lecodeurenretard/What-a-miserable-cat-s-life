@@ -38,3 +38,9 @@ This file simply list the progression of patches in this minor version.
 	- Fixed the lateness detection in `waitNextFrame()`.
 	- Updated doc.
 	- Added a space before `{` which begin a scope to make the code a little bit prettier.
+
+## 0.3.0 bis
++ The speed vector is now calculated with delta time.
++ Corrected the calculations of delta.
++ Added new global variable `deltaTime`.
++ Renamed `speed` member on animals to `speedPerSecond`.

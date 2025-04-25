@@ -14,6 +14,9 @@ constexpr uint WIN_MAX = std::min(WIN_HEIGHT, WIN_WIDTH);
 /** The framerate */
 constexpr uint8_t DESIRED_FPS = 60;
 
+/** Time elapsed since last frame */
+inline float deltaTime = 0;
+
 /** The type of a path mask */
 typedef bool (*mask_t)(const fs::path&);
 
