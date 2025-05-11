@@ -79,7 +79,7 @@ void drawTest(Hitbox h1, Hitbox h2, bool pretty/*=false*/) {
 	
 	if(pretty) {
 		constexpr uint growth = 30;
-		h1.expand(growth).draw(ren, HITBOX_COLOR_INACTIVE	, Vector::ZERO);
+		h1.expand(growth).draw(ren, HITBOX_COLOR_INACTIVE	, Vec_ZERO);
 		h2.expand(growth).draw(ren, HITBOX_COLOR_ACTIVE		, {growth, growth});
 	} else {
 		h1.draw(ren, HITBOX_COLOR_INACTIVE);

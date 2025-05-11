@@ -22,6 +22,8 @@ namespace fs = std::filesystem;
 //Misc
 #include <algorithm>	//count_if
 #include <cstdlib>		//random
+#include <array>
+#include <concepts>
 
 
 //code I wrote

@@ -10,29 +10,32 @@ bool VerboseStream::enabled(false);
  * - printHeading
  * - stream
  */
-const VerboseStream& VerboseStream::operator=(const VerboseStream& toCopy) {
+const VerboseStream& VerboseStream::operator=(const VerboseStream& toCopy) noexcept {
 	if(this == &toCopy)
 		return *this;
 
-	this->printHeading = toCopy.printHeading;
-	this->stream = toCopy.stream;
+	printHeading = toCopy.printHeading;
+	stream = toCopy.stream;
 	return *this;
 }
 
-VerboseStream::VerboseStream(const std::ostream& out/* = std::cout*/)
+VerboseStream::VerboseStream(std::ostream& out/* = std::cout*/) noexcept
 	: printHeading(true)
 {
-	stream = new std::ostream(out.rdbuf());
+	stream = &out;
 }
 
 /**
  * Verify if the user enabled verbose with `-v` or `--verbose`.
  * @param args The result of parsing the arguments with `Parser.parse()`.
  */
-void VerboseStream::setEnabled(cmd::Parser::parseReturn_t& args) {		//not const because the [] operator returns a mutable reference
-	enabled = std::get<bool>(args["-v"]) || std::get<bool>(args["--verbose"]);
+void VerboseStream::setEnabled(const cmd::Parser::parseReturn_t& args) {
+	enabled = std::get<bool>(args.at("-v")) || std::get<bool>(args.at("--verbose"));
 }
 
+/**
+ * @throw Throw an exception only if `foo()` throws one.
+ */
 VerboseStream& VerboseStream::operator<<(ostream_manipulator foo) {
 	if (enabled && (foo == (ostream_manipulator)std::endl || foo == (ostream_manipulator)std::flush))
 		printHeading = true;
@@ -42,6 +45,9 @@ VerboseStream& VerboseStream::operator<<(ostream_manipulator foo) {
 }
 
 using v_manip=VerboseStream::verbose_manipulator;
+/**
+ * @throw Throw an exception only if `foo()` throws one.
+ */
 VerboseStream& VerboseStream::operator<<(v_manip foo) {
 	operator=(foo(*this));
 	return *this;
@@ -55,7 +61,7 @@ const std::string VerboseStream::heading("Verbose: ");
 /**
  * Forbid the display of the annoying `Verbose: `.
  */
-VerboseStream& VerboseStream::noHeading(VerboseStream& ver) {
+VerboseStream& VerboseStream::noHeading(VerboseStream& ver) noexcept {
 	ver.printHeading = false;
 	return ver;
 }
@@ -63,7 +69,7 @@ VerboseStream& VerboseStream::noHeading(VerboseStream& ver) {
 /**
  * Insert a new line, ignore the heading.
  */
-VerboseStream& VerboseStream::newLine(VerboseStream& ver) {
-	*(ver.stream) << "\r\n";	//preparing the windows port
+VerboseStream& VerboseStream::newLine(VerboseStream& ver) noexcept {
+	(*ver.stream) << "\r\n";	//preparing the windows port
 	return ver;
 }

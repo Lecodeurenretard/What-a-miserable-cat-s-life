@@ -1,54 +1,124 @@
 #pragma once
-#include "Imports.hpp"
 #include "Warning.hpp"
 
+/** The null vector, it has coordonates (0, 0). */
+#define Vec_ZERO	Vector{.x = 0, .y =  0}
+
+/** The unit vector pointing right, in a (O, i, j) plane it would be $i$ */
+#define Vec_RIGHT	Vector{.x = -1,.y =  0}		//Based on SDL's coordonates system
+
+/** The unit vector pointing left, in a (O, i, j) plane it would be $-i$ */
+#define Vec_LEFT	Vector{.x = 1, .y =  0}
+
+/** The unit vector pointing up, in a (O, i, j) plane it would be $j$ */
+#define Vec_UP		Vector{.x = 0, .y = -1}
+
+/** The unit vector pointing down, in a (O, i, j) plane it would be $-j$ */
+#define Vec_DOWN	Vector{.x = 0, .y =  1}
+
 /**
- * A 2D vector
+ * A 2D vector.  
+ * Aggregate type
+ * Literal type
  */
 struct Vector {
 	float x;
 	float y;
 
-	static Vector fromPoints(const SDL_Point&, const SDL_Point&);
-	static Vector fromPoints(const SDL_FPoint&, const SDL_FPoint&);
+	static Vector fromPoints(SDL_Point, SDL_Point)	 noexcept;
+	static Vector fromPoints(SDL_FPoint, SDL_FPoint) noexcept;
 	
-	~Vector(void)			= default;
+	~Vector(void) = default;
 
-	Vector opposite(void) const;
+	/** Return the length of this vector.*/
+	constexpr float norm(void) const noexcept {
+		return std::sqrt(x*x + y*y);
+	}
 
-	float norm(void) const;
-	Vector withNorm(float) const;
-	Vector unit(void) const;
-	void draw(SDL_Renderer* const, const Vector& = Vector::ZERO) const;
-	std::string string(void) const;
+	Vector withNorm(float)	const;
+	Vector unit(void)		const;
+
+	void draw(SDL_Renderer* const, const Vector& = Vec_ZERO) const;
+	std::string string(void) const noexcept;
 	
-	Vector rotate(float) const;
+	Vector rotate(float) const noexcept;
 
-	static float dotProduct(const Vector&, const Vector&);
+	/**
+	 * Return the dot product between `v` and `u`.
+	 */
+	static constexpr float dotProduct(Vector v, Vector u) noexcept {
+		return v.x*u.x + v.x*u.y;
+	}
 
-	static Vector lerp(const Vector&, const Vector&, float);
-	static Vector lerpNoRestrict(const Vector&, const Vector&, float);
+	static Vector lerp(Vector from, Vector to, float t)				noexcept;
+	static Vector lerpNoRestrict(Vector from, Vector to, float t)	noexcept;
 
-	SDL_FPoint translate(SDL_FPoint) const;
+	SDL_FPoint translate(SDL_FPoint) const noexcept;
 
 	bool operator==(const Vector&) const = default;
 	bool operator!=(const Vector&) const = default;
 
-	Vector operator+(const Vector&) const;
-	Vector operator-(const Vector&) const;
-	Vector operator*(float) const;
-	Vector operator/(float) const;
+	constexpr bool isNull(void) const noexcept {
+		return x == 0 && y == 0;
+	}
 
-	Vector& operator+=(const Vector&);
-	Vector& operator-=(const Vector&);
-	Vector& operator*=(float);
-	Vector& operator/=(float);
+	Vector& operator+=(const Vector&) noexcept;
+	Vector& operator-=(const Vector&) noexcept;
+	Vector& operator*=(float) noexcept;
+	Vector& operator/=(float) noexcept;
 
-	static const Vector ZERO;
-	static const Vector UP;
-	static const Vector DOWN;
-	static const Vector RIGHT;
-	static const Vector LEFT;
 };
-Vector operator*(float, const Vector&);
-Vector operator/(float, const Vector&);
+
+
+
+
+
+//unary + and minus
+[[ nodiscard ]] constexpr Vector operator+(const Vector& v) noexcept {
+	return v;
+}
+
+[[ nodiscard ]] constexpr Vector operator-(const Vector& v) noexcept {
+	return Vector{
+		.x = -v.x,
+		.y = -v.y
+	};
+}
+
+//binary addition and substraction
+[[ nodiscard ]] constexpr Vector operator+(const Vector& v, const Vector& u) noexcept {
+	return Vector{
+		.x = u.x + v.x,
+		.y = u.y + v.y
+	};
+}
+
+[[ nodiscard ]] constexpr Vector operator-(const Vector& v, const Vector& u) noexcept {
+	return Vector{
+		.x = u.x - v.x,
+		.y = u.y - v.y
+	};
+}
+
+// multiplication and division by scalars
+[[ nodiscard ]] constexpr Vector operator*(const Vector& v, float k) noexcept {
+	return Vector{
+		.x = v.x * k,
+		.y = v.y * k
+	};
+}
+
+[[ nodiscard ]] constexpr Vector operator/(const Vector& v, float k) noexcept {
+	return Vector{
+		.x = v.x / k,
+		.y = v.y / k
+	};
+}
+
+[[ nodiscard ]] constexpr Vector operator*(float k, const Vector& v) noexcept {
+	return v * k;
+}
+
+[[ nodiscard ]] constexpr Vector operator/(float k, const Vector& v) noexcept {
+	return v / k;
+}

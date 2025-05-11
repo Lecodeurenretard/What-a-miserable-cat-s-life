@@ -9,19 +9,19 @@ const Pos Pos::ORIGIN = Pos(0, 0);
 /** The center of the screen. */
 Pos Pos::SCREEN_CENTER = Pos(WIN_WIDTH/2, WIN_HEIGHT/2);
 
-[[ nodiscard ]] Pos::Pos(pos_t _x, pos_t _y)
+[[ nodiscard ]] Pos::Pos(pos_t _x, pos_t _y) noexcept
 	: x(_x), y(_y)
 {}
 
-[[ nodiscard ]] Pos::Pos(const Vector& v)
+[[ nodiscard ]] Pos::Pos(const Vector& v) noexcept
 	: Pos(v.x, v.y)
 {}
 
-[[ nodiscard ]] Pos::Pos(const SDL_Point& p)
+[[ nodiscard ]] Pos::Pos(const SDL_Point& p) noexcept
 	: Pos(p.x, p.y)
 {}
 
-[[ nodiscard ]] Pos::Pos(const SDL_FPoint& p)
+[[ nodiscard ]] Pos::Pos(const SDL_FPoint& p) noexcept
 	: Pos(p.x, p.y)
 {}
 
@@ -59,11 +59,8 @@ Pos Pos::SCREEN_CENTER = Pos(WIN_WIDTH/2, WIN_HEIGHT/2);
  * It shift this object of `x` pixels down and `y` pixels right. You can see it as `lerp(*this, Pos(x, y), 1)`.
  */
 [[ nodiscard ]] Pos Pos::shift(pos_t _x, pos_t _y) const {
-	if(x + _x < x)
-		wout << "The sum of the parameter `_x` (" << _x << ") and the field `x` " << x <<" is greater than the maximum of `pos_t` (" << POS_MAX << ")." << std::endl;
-	if(y + _y < x)
-		wout << "The sum of the parameter `_y` (" << _y << ") and the field `y` " << y <<" is greater than the maximum of `pos_t` (" << POS_MAX << ")." << std::endl;
-
+	//no bound checking, adding suffeciently large floats yields infinity (for result above ~std::numeric_limits<float>::max()*2.5 by testing)
+	//that's way beyond the screen bottom right corner, so we can say infinity and this large number are, in this case equivalent
 	return Pos(x + _x, y + _y);
 }
 
@@ -102,22 +99,25 @@ void Pos::draw(SDL_Renderer* r) const {
 }
 
 [[ nodiscard ]] Pos::operator SDL_Point() const {
-	SDL_Point res;
-	res.x = x;
-	res.y = y;
-	return res;
+	return SDL_Point{
+		.x = (int)std::round(x),
+		.y = (int)std::round(y)
+	};
 }
 
 [[ nodiscard ]] Pos::operator SDL_FPoint() const {
-	SDL_FPoint res;
-	res.x = x;
-	res.y = y;
-	return res;
+	return SDL_FPoint{
+		.x = x,
+		.y = y
+	};
 }
 
 /**
- * A shorthand to `Pos(std::round(toRound.x), std::round(toRound.y))`.
+ * A shorthand for rounding fields of a `Pos` object.
  */
 [[ nodiscard ]] Pos round(const Pos& toRound) {
-	return Pos(std::round(toRound.x), std::round(toRound.y));
+	return Pos(
+		std::round(toRound.x),
+		std::round(toRound.y)
+	);
 }

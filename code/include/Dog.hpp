@@ -9,9 +9,9 @@ class Dog final : public Animal {
 private:
 	ID index;	//The index in `dogList`
 
-	void setToRandomSprite(void) noexcept(false);
+	void setToRandomSprite(void);
 
-	void drawSpecificities(SDL_Renderer*, TTF_Font* =nullptr) const;
+	void drawSpecificities(SDL_Renderer*, TTF_Font* =nullptr) const noexcept;
 
 	/** The size of all dogs in pixels*/
 	static constexpr uint8_t size = 100;
@@ -22,9 +22,9 @@ private:
 public:
 	explicit Dog(const Pos&);
 	Dog(const Dog&);
-	~Dog(void);
+	~Dog(void) noexcept;
 
-	std::string string(void) const;
+	std::string string(void) const noexcept;
 
 	//Those constructors give too much liberty
 	Dog(pos_t, pos_t)				= delete;
@@ -32,7 +32,8 @@ public:
 	Dog(Pos, uint, uint)			= delete;
 	Dog(Pos, uint, uint, uint8_t)	= delete;
 
-	static void generateDogs(uint8_t, ID(*)[] = nullptr, Pos=Pos::ORIGIN);
+	static void generateDogs(uint8_t, ID (*)[] = nullptr, Pos=Pos::ORIGIN);
+	static void freeDogList(void) noexcept;
 
 	//Dogs' speeds and sizes are constant
 	void increaseSize(uint)		= delete;
@@ -40,11 +41,12 @@ public:
 
 	uint getSize(void) const	= delete;
 
-	static ID getLowestID(void);
+	static ID getLowestID(void) noexcept;
 
 	/** The base to set sprites. */
 	inline static const std::string spriteBase = Animal::spriteFolder + "dog";
 
 	/** A list containing all dog constructed. */
-	inline static Dog* dogList[DOGLIST_SIZE] = {};
+	typedef std::array<Dog*, DOGLIST_SIZE> dogList_t;
+	inline static dogList_t dogList{};
 };

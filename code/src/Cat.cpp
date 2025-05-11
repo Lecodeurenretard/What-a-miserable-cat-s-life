@@ -3,7 +3,7 @@
 /**
  * Set the `sprite` field, return `false` on failure.
  */
-[[ nodiscard ]] bool Cat::setSprite(uint8_t spriteNum) {
+[[ nodiscard ]] bool Cat::setSprite(uint8_t spriteNum) noexcept {
 	const std::string spriteAlive(Cat::spriteBase		+ std::string((spriteNum		< 10)? "0" : "") + std::to_string(spriteNum) + std::string(".bmp"));
 
 	const uint spriteDeadNum(spriteNum%deadCatCount);
@@ -19,14 +19,15 @@
 	if (stat(spriteDead.c_str(), &sb))
 		return false;
 
-	spritePathDead = spriteDead;	
+	spritePathDead = spriteDead;
 	return true;
 }
 
 /**
  * Set the current sprite at a random sprite
+ * @throw `fs::is_regular_file()` errors are assumed to not occur.
  */
-void Cat::setToRandomSprite(void) noexcept(false) {
+void Cat::setToRandomSprite(void) noexcept {
 	const auto maskAlive = [](const fs::path& path) {
 		const std::string pathStr = path.string().replace(0, 8, "");
 
@@ -38,15 +39,15 @@ void Cat::setToRandomSprite(void) noexcept(false) {
 		return fs::is_regular_file(path) && pathStr.starts_with("deadCat") && pathStr.ends_with(".bmp");
 	};
 	
-	spritePath = getRandomPathFromMask(maskAlive).string();
-	spritePathDead = getRandomPathFromMask(maskDead).string();
+	spritePath = getRandomPathFromMask(maskAlive, Cat::spriteFolder);
+	spritePathDead = getRandomPathFromMask(maskDead, Cat::spriteFolder);
 }
 
 
 /**
  * Set `id` to the smallest available, return if it was a success.
  */
-[[ nodiscard ]] bool Cat::trySetLowestID(void) {
+[[ nodiscard ]] bool Cat::trySetLowestID(void) noexcept {
 	id = getLowestID();
 	
 	if(id >= CATLIST_SIZE)
@@ -59,7 +60,7 @@ void Cat::setToRandomSprite(void) noexcept(false) {
 /**
  * Check if this instance collides with a dog from `dogList`.
  */
-[[ nodiscard ]] bool Cat::isHitByDog(void) const {
+[[ nodiscard ]] bool Cat::isHitByDog(void) const noexcept {
 	for(size_t i = 0; i < Dog::getLowestID(); i++)		//Avoid iterating through all `dogList` and getting bad values
 		if(hitbox.isOverlapping(Dog::dogList[i]->getHitbox()))
 			return true;
@@ -69,7 +70,7 @@ void Cat::setToRandomSprite(void) noexcept(false) {
 /**
  * Returns the lowest ID available. If there is more than `CATLIST_SIZE` cats, returns `CATLIST_SIZE`.
  */
-[[ nodiscard ]] ID Cat::getLowestID(void) {
+[[ nodiscard ]] ID Cat::getLowestID(void) noexcept {
 	for(ID i = 0; i < CATLIST_SIZE; i++)
 		if(catList[i] == nullptr)
 			return i;
@@ -78,41 +79,9 @@ void Cat::setToRandomSprite(void) noexcept(false) {
 }
 
 /**
- * Return a path to random sprite corresponding to the mask passed.
- * @param mask A function pointer pointing to a function taking a path in argument and returning `true` if this argument is a path to include in the search.
- */
-[[ nodiscard ]] fs::path Cat::getRandomPathFromMask(mask_t mask) noexcept(false) {
-	uint8_t limit = randInt(
-		1,
-		std::min(
-			(size_t)UINT8_MAX,	//In case there's more than 255 files
-			howManyFiles(
-				spriteFolder,
-				mask
-			)
-		)
-	);
-	if(limit == 0)
-		throw std::runtime_error("There are no files in `" + Cat::spriteFolder + "`!");
-	limit--;
-
-	const auto folderIt = fs::directory_iterator(spriteFolder);
-	
-	uint8_t found(0);			//The number of correct matches found
-	for(const auto& file : folderIt)
-		if(mask(file.path()) && found >= limit) {
-			return file.path();
-		}else if(mask(file.path())) {
-			found++;
-		}
-	
-	//if `limit` > nb correct files
-	throw std::logic_error("The limit = " + std::to_string(limit) +" is aboves the number of regular files =  in Animal::getRandomPathFromMask().");
-}
-
-/**
  * Draw the health of the cat.  
  * This method is inherited from Animal, its goal is to let children classes draw elements with respect to their own members and methods.
+ * @throw `std::round()` may throw. If fail to render health to surface, throw an `std::runtime_error`.
  */
 void Cat::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
 	const uint8_t digitInHP = (health >= 100) + (health >= 10) + 1;	//how many digits there are in health (health can't go over 255 so we only need to test for those)
@@ -124,19 +93,17 @@ void Cat::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
 		.w = fontWidth,
 		.h = 20
 	};
-	const bool useDefFont(font == nullptr);		//if the default font should be used
 
+	const bool useDefFont(font == nullptr);		//if the default font should be used
 	if(useDefFont)
-		font = ANIMAL_DEFAULT_FONT(35);
+		font = ANIMAL_ALLOCATE_DEFAULT_FONT(35);
+
 	SDL_Surface* surf = TTF_RenderText_Solid(font, std::to_string(health).c_str(), COL_WHITE);
+	if(surf == nullptr)
+		throw std::runtime_error("Couldn't render font to the screen.\nLast SDL_ttf error: " + std::string(TTF_GetError()));
 
 	if(
-		SDL_RenderCopy(
-			r,
-			SDL_CreateTextureFromSurface(r, surf),
-			NULL,
-			&fontRect
-		) < 0
+		SDL_RenderCopy(r, SDL_CreateTextureFromSurface(r, surf), NULL, &fontRect) < 0
 	) {
 		wout << "Couldn't draw the HP of the object " << string() << ".\n"
 			<< "Last SDL error: " << SDL_GetError() << '\n'
@@ -151,21 +118,21 @@ void Cat::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
 /**
  * Create an UNLISTED instance with all values to default.
  */
-[[ nodiscard ]] Cat::Cat(void) noexcept(false)
+[[ nodiscard ]] Cat::Cat(void) noexcept
 	: Animal(Pos::ORIGIN)
 {}
 
 /**
- * Construct a new Cat obj with a random sprite and registers it in catList
+ * Shorthand for `Cat(_pos, 0)`.
  */
-[[ nodiscard ]] Cat::Cat(Pos _pos) noexcept(false)
+[[ nodiscard ]] Cat::Cat(Pos _pos) noexcept
 	: Cat(_pos, 0)
 {}
 
 /**
  * Construct a new Cat obj with a random sprite and registers it in catList
  */
-[[ nodiscard ]] Cat::Cat(Pos _pos, uint _size) noexcept(false)
+[[ nodiscard ]] Cat::Cat(Pos _pos, uint _size) noexcept
 	: Animal(_pos, _size)
 {
 	setToRandomSprite();
@@ -174,23 +141,26 @@ void Cat::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
 }
 
 /**
- * Shorthand for `Cat(Pos(x, y))`
+ * Shorthand for `Cat(Pos(x, y), 0)`
  */
-[[ nodiscard ]] Cat::Cat(pos_t x, pos_t y) noexcept(false)
+[[ nodiscard ]] Cat::Cat(pos_t x, pos_t y) noexcept
 	: Cat(Pos(x, y), 0) 
 {}
 
 /**
- * Construct a new Cat obj and registers it in `catList`
+ * Shorthand for `Cat(_pos, _size, 0, spriteNum)`
+ * @throw Throw an `std::runtime_error` if failed to set the sprite.
  */
-[[ nodiscard ]] Cat::Cat(Pos _pos, uint _size, uint8_t spriteNum) noexcept(false)
+
+[[ nodiscard ]] Cat::Cat(Pos _pos, uint _size, uint8_t spriteNum)
 	: Cat(_pos, _size, 0, spriteNum)
 {}
 
 /**
  * Construct a new Cat obj and register it in `catList`.
+ * @throw Throw an `std::runtime_error` if failed to set the sprite.
  */
-[[ nodiscard ]] Cat::Cat(Pos _pos, uint _size, uint velocity, uint8_t spriteNum) noexcept(false)
+[[ nodiscard ]] Cat::Cat(Pos _pos, uint _size, uint velocity, uint8_t spriteNum)
 	: Animal(_pos, _size, velocity, spriteNum)
 {
 	if(!trySetLowestID())
@@ -205,12 +175,14 @@ void Cat::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
 }
 
 Cat::~Cat(void) {
-	if(id < CATLIST_SIZE)
-		catList[id] = nullptr;
+	if(id == CATLIST_SIZE)	//If id > CATLIST_SIZE, that's a bug. Maybe one day ID will allow a bigger numbers.
+		return;
+	catList.at(id) = nullptr;
 }
 
 /**
  * Create a cat that is not listed in catList.
+ * @throw Throw an `std::runtime_error` if failed to set the sprite.
  */
 [[ nodiscard ]] Cat Cat::createUnlisted(Pos _pos/*=Pos::ORIGIN*/, uint _size/*=0*/, uint velocity/*=0*/, uint8_t spriteNum/*=0*/) {
 	Cat res;
@@ -225,12 +197,12 @@ Cat::~Cat(void) {
 }
 
 /**
- * Copies this instance and register the copy into the catList. The pointer is created with `new`.
+ * Copy this instance and register the copy into the catList if there is space left in `catList`.
  */
-[[ nodiscard ]] Cat* Cat::copy(void) const {
-	Cat* copy = new Cat(*this);
+[[ nodiscard ]] Cat Cat::copy(void) const noexcept {
+	Cat copy = Cat(*this);
 	
-	if(!copy->trySetLowestID())
+	if(!copy.trySetLowestID())
 		wout << "There is no more space to create another listed Cat.";
 	return copy;
 }
@@ -239,7 +211,7 @@ Cat::~Cat(void) {
 /**
  * Getter for `id`
  */
-[[ nodiscard ]] ID Cat::getID(void) const {
+[[ nodiscard ]] ID Cat::getID(void) const noexcept {
 	return id;
 }
 
@@ -248,8 +220,9 @@ Cat::~Cat(void) {
  * @param r The renderer to draw onto.
  * @param font The font to use when drawing text/numbers, set to `nullptr` if you want to use the default one.
  * @param canDrawInfos If the method should also draw the speed vector, the destination and the hitbox.
+ * @throw `runtime_error`s can be thrown by `drawSprite()` and `drawSpecifities().`
  */
-void Cat::draw(SDL_Renderer* r, TTF_Font* font /*=nullptr*/, bool canDrawInfos /*=false*/) const noexcept(false) {
+void Cat::draw(SDL_Renderer* r, TTF_Font* font /*=nullptr*/, bool canDrawInfos /*=false*/) const {
 	if(size == 0)
 		return;
 
@@ -263,14 +236,14 @@ void Cat::draw(SDL_Renderer* r, TTF_Font* font /*=nullptr*/, bool canDrawInfos /
 /**
  * Returns a human-readable string representing `this` Cat
  */
-std::string Cat::string(void) const {
+std::string Cat::string(void) const noexcept {
 	return "Cat{ .id="+ std::to_string(id) +"; "+ Animal::string() +" }";
 }
 
 /**
  * Check hits took and handle health.
  */
-void Cat::handleCollisions(void) {
+void Cat::handleCollisions(void) noexcept {
 	if(isDead())
 		return;
 
@@ -287,13 +260,23 @@ void Cat::handleCollisions(void) {
 
 /**
  * Generates `howMany` cats, their IDs are returned by the parameter `ids`.
+ * @throw The Cat constructor may throw an exception.
  */
 void Cat::generateCats(uint8_t howMany, ID (*ids)[] /*= nullptr*/, Pos pos/*=Pos::ORIGIN*/, uint size/*=0*/, uint speed/*=0*/, uint8_t spriteNum/*=0*/) {
 	for (uint8_t i = 0; i < howMany; i++) {
-		const Vector position = (Vector)pos + Vector{.x = (float)size*i, .y=0};	//shift the cats to the don't overlap each other
-		Cat* generated = new Cat(position, size, speed, spriteNum);
+		const Vector position = (Vector)pos + Vector{.x = (float)size*i, .y=0};	//shift the cats to they don't overlap each other
 
+		Cat* generated = new Cat(position, size, speed, spriteNum);
 		if(ids != nullptr)
 			(*ids)[i] = generated->id;
 	}
+}
+
+/**
+ * Free all cats from catList.
+ */
+void Cat::freeCatList(void) noexcept {
+	for(Cat* cat : catList)
+		if(cat != nullptr)
+			delete cat;
 }

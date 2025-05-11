@@ -6,7 +6,7 @@
 #define ANIMAL_SPRITE_SIZE 100
 
 /** Allocates a `TTF_Font` which represents the default font to use when an Animal draws text. */
-#define ANIMAL_DEFAULT_FONT(size) TTF_OpenFont("/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf", size)
+#define ANIMAL_ALLOCATE_DEFAULT_FONT(txtSize) TTF_OpenFont("/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf", txtSize)
 
 /**
  * Parent class of `Cat` and `Dog`.
@@ -23,43 +23,43 @@ protected:
 	std::string spritePathDead;
 	Hitbox hitbox;
 
-	Animal(Pos, uint, uint, std::string);
-	virtual bool setSprite(uint8_t);
-	virtual void setToRandomSprite(void) noexcept(false);
+	Animal(Pos, uint, uint, std::string)	noexcept;
+	virtual bool setSprite(uint8_t)			noexcept;
+	virtual void setToRandomSprite(void);
 
-	void setDestRand(void);
-	void setDestMouse(void);
+	void setDestRand(void)	noexcept;
+	void setDestMouse(void)	noexcept;
+	bool isAtDest(void)		const noexcept;
 	Vector getSpeedVector(void) const;
-	bool isAtDest(void) const;
 
 	virtual void drawSprite(SDL_Renderer*) const;
-	virtual void drawInfos(SDL_Renderer*, bool=false) const;
+	virtual void drawInfos(SDL_Renderer*, bool=false) const noexcept;
 	virtual void drawSpecificities(SDL_Renderer*, TTF_Font* =nullptr) const = 0;
 
-	static fs::path getRandomPathFromMask(mask_t);
+	static fs::path getRandomPathFromMask(mask_t, std::string=Animal::spriteFolder);
 
 public:
-	explicit Animal(Pos)				noexcept(false);
-	Animal(pos_t, pos_t)				noexcept(false);
-	Animal(Pos, uint)					noexcept(false);
-	Animal(Pos, uint, uint)				noexcept(false);
-	Animal(Pos, uint, uint, uint8_t)	noexcept(false);
+	explicit Animal(Pos)				noexcept;
+	Animal(pos_t, pos_t)				noexcept;
+	Animal(Pos, uint)					noexcept;
+	Animal(Pos, uint, uint)				noexcept;
+	Animal(Pos, uint, uint, uint8_t);
 
 	Animal(const Animal&) = default;
 	virtual ~Animal(void) = default;
 
-	void increaseSize(uint);
-	void increaseSpeed(uint);
-	void incrementHealth(void);
+	void increaseSize(uint)		noexcept;
+	void increaseSpeed(uint)	noexcept;
+	void incrementHealth(void)	noexcept;
 
 	void move(bool=false);
 	void moveToDest(void);
 
-	Hitbox getHitbox(void)	const;
-	bool isDead(void)		const;
+	Hitbox getHitbox(void)	const noexcept;
+	bool isDead(void)		const noexcept;
 
 	virtual void draw(SDL_Renderer*, TTF_Font* =nullptr, bool=false) const noexcept(false);
-	virtual std::string string(void) const;
+	virtual std::string string(void) const noexcept;
 
 	/** The folder where the sprites are located. */
 	inline static const std::string spriteFolder = "sprites/";

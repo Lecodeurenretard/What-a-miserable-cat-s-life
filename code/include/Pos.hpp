@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Imports.hpp"
 #include "Vector.hpp"
 
 /** The minimum value of `pos_t` */
@@ -9,17 +8,19 @@
 /** The maximum value of `pos_t` */
 #define POS_MAX FLT_MAX
 
-/** The type for representing a position on 1 dimension */
+/** 
+ * The type for representing a position on 1 dimension.
+ */
 struct pos_t {
 	float val;
-	inline pos_t(float x) {val = std::abs(x);}
+	inline pos_t(float x) noexcept {val = std::abs(x);}
 
-	inline operator float() const { return val; }
+	inline operator float() const noexcept { return val; }
 
-	inline pos_t operator+=(const pos_t& p) { val += p.val; return *this;}
-	inline pos_t operator-=(const pos_t& p) { val -= p.val; return *this;}
-	inline pos_t operator*=(const pos_t& p) { val *= p.val; return *this;}
-	inline pos_t operator/=(const pos_t& p) { val /= p.val; return *this;}
+	inline pos_t operator+=(const pos_t& p) noexcept { val += p.val; return *this;}
+	inline pos_t operator-=(const pos_t& p) noexcept { val -= p.val; return *this;}
+	inline pos_t operator*=(const pos_t& p) noexcept { val *= p.val; return *this;}
+	inline pos_t operator/=(const pos_t& p) noexcept { val /= p.val; return *this;}
 };
 
 
@@ -30,10 +31,10 @@ struct Pos {
 	pos_t x;
 	pos_t y;
 
-	Pos(pos_t, pos_t);
-	Pos(const Vector&);
-	Pos(const SDL_Point&);
-	Pos(const SDL_FPoint&);
+	Pos(pos_t, pos_t) noexcept;
+	Pos(const Vector&) noexcept;
+	Pos(const SDL_Point&) noexcept;
+	Pos(const SDL_FPoint&) noexcept;
 
 	bool isInBounds(void);
 	static bool isInBounds(pos_t, pos_t);

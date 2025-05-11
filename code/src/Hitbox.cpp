@@ -42,7 +42,7 @@
 /**
  * Check if this hitbox istersects with `other`.
  */
-[[ nodiscard ]] bool Hitbox::isOverlapping(Hitbox other) const {
+[[ nodiscard ]] bool Hitbox::isOverlapping(Hitbox other) const noexcept {
 	return 
 	   zone.x			< other.zone.x	+ other.zone.w
 	&& zone.y			< other.zone.y	+ other.zone.h
@@ -86,7 +86,7 @@
 /**
  * Draw the hitbox in the `r` renderer with `col` as color (alpha value ignored and always set to `HITBOX_ALPHA`).
  */
-void Hitbox::draw(SDL_Renderer* r, SDL_Color col/*= HITBOX_COLOR_INACTIVE*/, Vector offset/*= Vector::ZERO*/) const {
+void Hitbox::draw(SDL_Renderer* r, SDL_Color col/*= HITBOX_COLOR_INACTIVE*/, Vector offset/*= Vec_ZERO*/) const {
 	SDL_Color old_color;
 	SDL_GetRenderDrawColor(r, old_color);
 
@@ -101,6 +101,17 @@ void Hitbox::draw(SDL_Renderer* r, SDL_Color col/*= HITBOX_COLOR_INACTIVE*/, Vec
 	SDL_RenderFillRectF(r, &toDraw);
 
 	SDL_SetRenderDrawColor(r, old_color);
+}
+
+/**
+ * Return a human-readable representation of this instance.
+ */
+[[ nodiscard ]] std::string Hitbox::string(void) const noexcept {
+	return "Hitbox{ .x="+ std::to_string(zone.x)
+		+ "; .y="+ std::to_string(zone.y)
+		+ "; .w="+ std::to_string(zone.w)
+		+ "; .h="+ std::to_string(zone.h)
+		+" }";
 }
 
 
@@ -157,7 +168,7 @@ void Hitbox::draw(SDL_Renderer* r, SDL_Color col/*= HITBOX_COLOR_INACTIVE*/, Vec
 /**
  * Return a square with its upper left corner at `pos` and of side length of `size`.
  */
-[[ nodiscard ]] SDL_Rect getSquare(int size, Pos pos/*=Pos::ORIGIN*/) {
+[[ nodiscard ]] SDL_Rect getSquare(int size, Pos pos/*=Pos::ORIGIN*/) noexcept {
 	return SDL_Rect{
 		.x = (int)std::round(pos.x),
 		.y = (int)std::round(pos.y),
@@ -169,22 +180,11 @@ void Hitbox::draw(SDL_Renderer* r, SDL_Color col/*= HITBOX_COLOR_INACTIVE*/, Vec
 /**
  * Return a square with its upper left corner at `pos` and of side length of `size`.
  */
-[[ nodiscard ]] SDL_FRect getSquare(float size, Pos pos/*=Pos::ORIGIN*/) {
+[[ nodiscard ]] SDL_FRect getSquare(float size, Pos pos/*=Pos::ORIGIN*/) noexcept {
 	return SDL_FRect{
 		.x = pos.x,
 		.y = pos.y,
 		.w = size,
 		.h = size,
 	};
-}
-
-/**
- * Return a human-readable representation of this instance.
- */
-[[ nodiscard ]] std::string Hitbox::string(void) const {
-	return "Hitbox{ .x="+ std::to_string(zone.x)
-		+ "; .y="+ std::to_string(zone.y)
-		+ "; .w="+ std::to_string(zone.w)
-		+ "; .h="+ std::to_string(zone.h)
-		+" }";
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "Imports.hpp"
+#include "streamUtil.hpp"
 
 /**
  * A stream handler that prints warnings.
@@ -9,15 +9,16 @@ private:
 	std::ostream* stream;
 	bool printHeading = true;
 
-	const WarningStream& operator=(const WarningStream&);
+	const WarningStream& operator=(const WarningStream&) noexcept;
 public:
 	static const std::string heading;
 
-	explicit WarningStream(const std::ostream& = std::cerr);
+	explicit WarningStream(std::ostream& = std::cerr) noexcept;
 	WarningStream(const WarningStream&) = default;
 
 	template<typename T>
-	WarningStream& operator<<(const T& value) {
+		requires Streamable<T>
+	WarningStream& operator<<(const T& value) noexcept {
 		*stream << STYLE_WARNING << (printHeading? WarningStream::heading : "\0") << value << STYLE_RESET;
 		printHeading = false;
 		return *this;

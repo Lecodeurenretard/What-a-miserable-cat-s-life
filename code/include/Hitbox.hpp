@@ -17,16 +17,16 @@ struct Hitbox {
 	operator SDL_FRect(void) const;
 
 	bool isInside(SDL_FPoint, bool=false)	const;
-	bool isOverlapping(Hitbox)				const;
+	bool isOverlapping(Hitbox)				const noexcept;
 
 	Pos calcCenter(void)		const;
 	Hitbox translate(Vector)	const;
 
 	Hitbox expand(uint) const;
 
-	void draw(SDL_Renderer*, SDL_Color=HITBOX_COLOR_INACTIVE, Vector=Vector::ZERO) const;
+	void draw(SDL_Renderer*, SDL_Color=HITBOX_COLOR_INACTIVE, Vector=Vec_ZERO) const;
 
-	std::string string(void) const;
+	std::string string(void) const noexcept;
 };
 
 SDL_Rect  rectFromVector(Vector, Pos);
@@ -39,5 +39,5 @@ Vector rectToVector(SDL_FRect);
 #define vectorToRect(vec, pos) rectFromVector(vec, pos)
 #define vectorToFRect(vec, pos) frectFromVector(vec, pos)
 
-SDL_Rect getSquare(int, Pos=Pos::ORIGIN);
-SDL_FRect getSquare(float, Pos=Pos::ORIGIN);
+SDL_Rect getSquare(int, Pos=Pos::ORIGIN) noexcept;
+SDL_FRect getSquare(float, Pos=Pos::ORIGIN) noexcept;

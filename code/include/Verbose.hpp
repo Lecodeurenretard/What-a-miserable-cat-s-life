@@ -1,4 +1,4 @@
-#include "Imports.hpp"
+#include "streamUtil.hpp"
 
 /**
  * A class for outputting verbose.
@@ -10,21 +10,23 @@ private:
 	std::ostream* stream;
 	bool printHeading;
 
-	const VerboseStream& operator=(const VerboseStream&);
+	const VerboseStream& operator=(const VerboseStream&) noexcept;
 
 public:
-	explicit VerboseStream(const std::ostream& = std::cout);
+	explicit VerboseStream(std::ostream& = std::cout) noexcept;
 	VerboseStream(const VerboseStream&) = default;
 
-	static void setEnabled(cmd::Parser::parseReturn_t&);
+	static void setEnabled(const cmd::Parser::parseReturn_t&);
 
 	template<typename T>
-	VerboseStream& operator<<(const T& value) {
+		requires Streamable<T>
+	VerboseStream& operator<<(const T& value) noexcept {
 		if (enabled) {
 			if(printHeading) {
 				printHeading = false;
 				*stream << VerboseStream::heading;
 			}
+			//throws a -Waddress warning because GCC wants to.
 			*stream << STYLE_VERBOSE << value << STYLE_RESET;
 		}
 		return *this;
@@ -36,8 +38,8 @@ public:
 	VerboseStream& operator<<(verbose_manipulator);
 
 	static const std::string heading;
-	static VerboseStream& noHeading(VerboseStream&);
-	static VerboseStream& newLine(VerboseStream&);
+	static VerboseStream& noHeading(VerboseStream&)	noexcept;
+	static VerboseStream& newLine(VerboseStream&)	noexcept;
 };
 
 /** The verbose stream */

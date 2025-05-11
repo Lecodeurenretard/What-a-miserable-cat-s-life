@@ -36,14 +36,15 @@ include_directories(BEFORE SYSTEM "/usr/include/nlibs")
 # The path to all source files
 set(
 	LIB_SOURCES
+	"code/src/Warning.cpp"
+	"code/src/Vector.cpp"
 	"code/src/Pos.cpp"
+	"code/src/Hitbox.cpp"
 	"code/src/Animal.cpp"
 	"code/src/Cat.cpp"
 	"code/src/Dog.cpp"
-	"code/src/Hitbox.cpp"
-	"code/src/Warning.cpp"
 	"code/src/Verbose.cpp"
-	"code/src/Vector.cpp"
+	"code/src/mainFunctions.cpp"
 )
 
 set(

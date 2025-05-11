@@ -1,24 +1,9 @@
 #include "../include/Vector.hpp"
 
-/** The null vector */
-const Vector Vector::ZERO	= {.x = 0, .y = 0};
-
-/** The unit vector pointing right, in a (O, i, j) plane it would be $i$ */
-const Vector Vector::RIGHT	= {.x = -1,.y =  0};		//Based on SDL's coordonates system
-
-/** The unit vector pointing right, in a (O, i, j) plane it would be $-i$ */
-const Vector Vector::LEFT	= {.x = 1, .y = 0};		//Based on SDL's coordonates system
-
-/** The unit vector pointing up, in a (O, i, j) plane it would be $j$ */
-const Vector Vector::UP		= {.x = 0, .y = -1};
-
-/** The unit vector pointing up, in a (O, i, j) plane it would be $-j$ */
-const Vector Vector::DOWN	= {.x = 0, .y = 1};
-
 /**
  * Return the vector from point `from` to the point `to`.
  */
-[[ nodiscard ]] Vector Vector::fromPoints(const SDL_Point& from, const SDL_Point& to) {
+[[ nodiscard ]] Vector Vector::fromPoints(SDL_Point from, SDL_Point to) noexcept {
 	return Vector{
 		.x = static_cast<float>(to.x - from.x),		//implicit int to float throws a warning
 		.y = static_cast<float>(to.y - from.y)
@@ -28,29 +13,18 @@ const Vector Vector::DOWN	= {.x = 0, .y = 1};
 /**
  * Return the vector from point `from` to the point `to`.
  */
-[[ nodiscard ]] Vector Vector::fromPoints(const SDL_FPoint& from, const SDL_FPoint& to) {
+[[ nodiscard ]] Vector Vector::fromPoints(SDL_FPoint from, SDL_FPoint to) noexcept {
 	return Vector{
 		.x = to.x - from.x,
 		.y = to.y - from.y
 	};
 }
 
-/**
- * Return the opposite of `this`.
- */
-Vector Vector::opposite(void) const {
-	return this->operator*(-1);
-}
 
-/**
- * Return the length of this vector.
- */
-float Vector::norm(void) const {
-	return std::sqrt(x*x + y*y);
-}
 
 /**
  * Scales the current vector to have a length of `newNorm` (`newNorm` will always be treated as positive).
+ * @throw An `std::logic_error` if the vector has a norm of 0.
  */
 Vector Vector::withNorm(float newNorm) const {
 	return unit() * abs(newNorm);
@@ -58,44 +32,52 @@ Vector Vector::withNorm(float newNorm) const {
 
 /**
  * Get corresponding unit vector.
+ * @throw An `std::logic_error` if the vector has a norm of 0.
  */
 Vector Vector::unit(void) const {
 	const float length(norm());
 	if(length == 0)
-		wout << "Division by zero in " + string() << ".unit()" << std::endl;
-	return operator/(length);
+		throw std::logic_error("Division by zero in " + string() +".unit(): the norm of the current vector is 0");
+	return *this / length;
 }
 
 /**
  * Draw the vector in the renderer, the tail of the vector is located at `start`.
+ * @throw If fail to draw a line, throw a `runtime_error`.
  */
-void Vector::draw(SDL_Renderer* const r, const Vector& start /*= Vector::ZERO*/) const {
-	if(operator==(Vector::ZERO)) {
+void Vector::draw(SDL_Renderer* const r, const Vector& start /*= Vec_ZERO*/) const {
+	if(isNull()) {
 		SDL_RenderDrawPointF(r, start.x, start.y);
 		return;
 	}
 
-	const Vector end = operator+(start);
-	SDL_RenderDrawLineF(r, start.x, start.y, end.x, end.y);
+	const Vector end = *this + start;
+	if(SDL_RenderDrawLineF(r, start.x, start.y, end.x, end.y) < 0)
+		throw std::runtime_error("Failed to draw line from "+ start.string() +" to "+ end.string() +".\nLast SDL error: "+ SDL_GetError());
 
-	const Vector posHead1 = end + rotate(M_PI+M_PI/4).withNorm(norm()/5);	//rotate 135°
-	const Vector posHead2 = end + rotate(M_PI-M_PI/4).withNorm(norm()/5);	//same but anti clockwise
-	SDL_RenderDrawLineF(r, end.x, end.y, posHead1.x, posHead1.y);
-	SDL_RenderDrawLineF(r, end.x, end.y, posHead2.x, posHead2.y);
+	const Vector posHead1 = end + rotate(degToRadian(+135)).withNorm(norm()/5);
+	const Vector posHead2 = end + rotate(degToRadian(-135)).withNorm(norm()/5);
+
+	if(SDL_RenderDrawLineF(r, end.x, end.y, posHead1.x, posHead1.y) < 0)
+		throw std::runtime_error("Failed to draw line from "+ end.string() +" to "+ posHead1.string() +".\nLast SDL error: "+ SDL_GetError());
+	
+	if(SDL_RenderDrawLineF(r, end.x, end.y, posHead2.x, posHead2.y) < 0)
+		throw std::runtime_error("Failed to draw line from "+ end.string() +" to "+ posHead2.string() +".\nLast SDL error: "+ SDL_GetError());
+
 }
 
 
 /**
  * Output a human-readable representation of the vector.
  */
-[[ nodiscard ]] std::string Vector::string(void) const {
+[[ nodiscard ]] std::string Vector::string(void) const noexcept {
 	return "Vector{"+ std::to_string(x) + ", " + std::to_string(y) + "}";
 }
 
 /**
  * Rotate the vector around its tail by `angle` radians.
  */
-[[ nodiscard ]] Vector Vector::rotate(float angle) const {
+[[ nodiscard ]] Vector Vector::rotate(float angle) const noexcept {
 	return Vector{
 		.x = x * std::cos(angle) - y * std::sin(angle),
 		.y = x * std::sin(angle) + y * std::cos(angle)
@@ -103,26 +85,14 @@ void Vector::draw(SDL_Renderer* const r, const Vector& start /*= Vector::ZERO*/)
 }
 
 /**
- * Return the dot product between `v` and `u`.
- */
-float Vector::dotProduct(const Vector& v, const Vector& u) {
-	return v.x*u.x + v.x*u.y;
-}
-
-
-/**
  * Calculates the LERP between `from` and `to`.
  * @param from The point from where we begin.
  * @param to The point to end.
- * @param t How far between two points we have to go, if not in [-1, 1], it gets treated as the closest bound (ie: if `-5`, gets treated as `-1`).
+ * @param t The time value (How far between two points we have to go), if above 1 or below -1 is treated as the closest.
+ * @throw We assume `std::min()` and `std::max()` won't throw.
  */
-[[ nodiscard ]] Vector Vector::lerp(const Vector& from, const Vector& to, float t) {
-	if(t > 1)
-		t = 1;
-	else if(t < -1)
-		t = -1;
-
-	return lerpNoRestrict(from, to, t);
+[[ nodiscard ]] Vector Vector::lerp(Vector from, Vector to, float t) noexcept {
+	return lerpNoRestrict(from, to, std::max(-1.0f, std::min(1.0f, t)));
 }
 
 /**
@@ -131,7 +101,7 @@ float Vector::dotProduct(const Vector& v, const Vector& u) {
  * @param to The point to end.
  * @param t How far between two points we have to go.
  */
-[[ nodiscard ]] Vector Vector::lerpNoRestrict(const Vector& from, const Vector& to, float t) {
+[[ nodiscard ]] Vector Vector::lerpNoRestrict(Vector from, Vector to, float t) noexcept {
 	return from + t*(to - from);
 }
 
@@ -140,69 +110,33 @@ float Vector::dotProduct(const Vector& v, const Vector& u) {
 /**
  * Translate `p` by `this` vector
  */
-SDL_FPoint Vector::translate(SDL_FPoint p) const {
-	p.x += x;
-	p.y += y;
-	return p;
-}
-
-
-[[ nodiscard ]] Vector Vector::operator+(const Vector& v) const {
-	return Vector{
-		.x = x + v.x,
-		.y = y + v.y
+SDL_FPoint Vector::translate(SDL_FPoint p) const noexcept {
+	return SDL_FPoint{
+		.x = x + p.x,
+		.y = y + p.y
 	};
 }
 
-[[ nodiscard ]] Vector Vector::operator-(const Vector& v) const {
-	return Vector{
-		.x = x - v.x,
-		.y = y - v.y
-	};
-}
-
-[[ nodiscard ]] Vector Vector::operator*(float k) const {
-	return Vector{
-		.x = x * k,
-		.y = y * k
-	};
-}
-
-[[ nodiscard ]] Vector Vector::operator/(float k) const {
-	return Vector{
-		.x = x / k,
-		.y = y / k
-	};
-}
-
-[[ nodiscard ]] Vector& Vector::operator+=(const Vector& v) {
+[[ nodiscard ]] Vector& Vector::operator+=(const Vector& v) noexcept {
 	x += v.x;
 	y += v.y;
 	return *this;
 }
 
-[[ nodiscard ]] Vector& Vector::operator-=(const Vector& v) {
+[[ nodiscard ]] Vector& Vector::operator-=(const Vector& v) noexcept {
 	x -= v.x;
 	y -= v.y;
 	return *this;
 }
 
-[[ nodiscard ]] Vector& Vector::operator*=(float k) {
+[[ nodiscard ]] Vector& Vector::operator*=(float k) noexcept {
 	x *= k;
 	y *= k;
 	return *this;
 }
 
-[[ nodiscard ]] Vector& Vector::operator/=(float k) {
+[[ nodiscard ]] Vector& Vector::operator/=(float k) noexcept {
 	x /= k;
 	y /= k;
 	return *this;
-}
-
-[[ nodiscard ]] Vector operator*(float k, const Vector& v) {
-	return v * k;
-}
-
-[[ nodiscard ]] Vector operator/(float k, const Vector& v) {
-	return v / k;
 }

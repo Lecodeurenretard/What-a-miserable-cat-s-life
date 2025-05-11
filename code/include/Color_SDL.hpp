@@ -21,14 +21,16 @@
 
 /**
  * A shorthand for `SDL_SetRenderDrawColor(r, color.r, color.g, color.b, color.a);`.
+ * @throw This function does not throw, but errors can occur in this case the return value is a negative integer.
  */
-inline int SDL_SetRenderDrawColor(SDL_Renderer* r, SDL_Color color) {
+inline int SDL_SetRenderDrawColor(SDL_Renderer* r, SDL_Color color) noexcept {
 	return SDL_SetRenderDrawColor(r, color.r, color.g, color.b, color.a);
 }
 
 /**
  * A shorthand for `SDL_GetRenderDrawColor(r, &color.r, &color.g, &color.b, &color.a);`.
+ * @throw This function does not throw, but errors can occur in this case the return value is a negative integer.
  */
-inline int SDL_GetRenderDrawColor(SDL_Renderer* r, SDL_Color& color) {
+inline int SDL_GetRenderDrawColor(SDL_Renderer* r, SDL_Color& color) noexcept {
 	return SDL_GetRenderDrawColor(r, &color.r, &color.g, &color.b, &color.a);
 }

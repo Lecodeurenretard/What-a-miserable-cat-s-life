@@ -16,9 +16,9 @@ include_directories(${SDL2_INCLUDE_DIRS})
 
 set(
 	HIT_LIBS
-	"../code/src/Pos.cpp"
 	"../code/src/Warning.cpp"
 	"../code/src/Vector.cpp"
+	"../code/src/Pos.cpp"
 	"../code/src/Hitbox.cpp"
 )
 add_library(Hitbox STATIC ${HIT_LIBS})
