@@ -4,3 +4,15 @@
 [submodule "code/include/utility libs/Argument-Parser"]
 	path = code/include/utility libs/Argument-Parser
 	url = https://github.com/Lecodeurenretard/Argument-Parser.git
+[submodule "code/include/utility-libs/Argument-Parser"]
+	path = code/include/utility-libs/Argument-Parser
+	url = https://github.com/lecodeurenretard/Argument-Parser.git
+[submodule "Argument-Parser"]
+	path = Argument-Parser
+	url = https://github.com/Lecodeurenretard/Argument-Parser.git
+[submodule "code/include/submodules/Argument-Parser"]
+	path = code/include/submodules/Argument-Parser
+	url = https://github.com/Lecodeurenretard/Argument-Parser.git
+[submodule "code/include/submodules/misc_modules"]
+	path = code/include/submodules/misc_modules
+	url = https://github.com/Lecodeurenretard/misc_modules.git

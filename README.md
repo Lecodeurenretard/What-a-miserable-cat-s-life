@@ -62,7 +62,7 @@ sudo apt install libfreetype6-dev libsdl2-ttf-dev libsdl2-ttf-2.0-0		# SDL_tff
 git clone "https://github.com/Lecodeurenretard/What-a-miserable-cat-s-life.git"
 
 # Argument-Parser and misc_modules are in the project as git submodules
-cd "What-a-miserable-cat-s-life/code/include/utility libs"
+cd "What-a-miserable-cat-s-life/code/include/utility-libs"
 ./installSubmodules			# Execute the install scripts of submodules
 ```
 

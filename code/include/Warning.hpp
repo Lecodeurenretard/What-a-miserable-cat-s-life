@@ -9,7 +9,7 @@ private:
 	std::ostream* stream;
 	bool printHeading = true;
 
-	const WarningStream& operator=(const WarningStream&) noexcept;
+	WarningStream& operator=(const WarningStream&) = default;
 public:
 	static const std::string heading;
 

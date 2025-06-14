@@ -5,8 +5,8 @@
  */
 [[ nodiscard ]] Vector Vector::fromPoints(SDL_Point from, SDL_Point to) noexcept {
 	return Vector{
-		.x = static_cast<float>(to.x - from.x),		//implicit int to float throws a warning
-		.y = static_cast<float>(to.y - from.y)
+		.x = static_cast<double>(to.x - from.x),		//implicit int to double throws a warning
+		.y = static_cast<double>(to.y - from.y)
 	};
 }
 
@@ -15,8 +15,8 @@
  */
 [[ nodiscard ]] Vector Vector::fromPoints(SDL_FPoint from, SDL_FPoint to) noexcept {
 	return Vector{
-		.x = to.x - from.x,
-		.y = to.y - from.y
+		.x = roundDouble(to.x - from.x),
+		.y = roundDouble(to.y - from.y)
 	};
 }
 
@@ -26,8 +26,11 @@
  * Scales the current vector to have a length of `newNorm` (`newNorm` will always be treated as positive).
  * @throw An `std::logic_error` if the vector has a norm of 0.
  */
-Vector Vector::withNorm(float newNorm) const {
-	return unit() * abs(newNorm);
+Vector Vector::withNorm(double newNorm) const {
+	const double length(norm());
+	if(length == 0)
+		throw std::logic_error("Division by zero in " + string() +".unit(): the norm of the current vector is 0");
+	return *this * abs(newNorm)/length;
 }
 
 /**
@@ -35,35 +38,34 @@ Vector Vector::withNorm(float newNorm) const {
  * @throw An `std::logic_error` if the vector has a norm of 0.
  */
 Vector Vector::unit(void) const {
-	const float length(norm());
+	const double length(norm());
 	if(length == 0)
 		throw std::logic_error("Division by zero in " + string() +".unit(): the norm of the current vector is 0");
 	return *this / length;
 }
 
 /**
- * Draw the vector in the renderer, the tail of the vector is located at `start`.
+ * Draw the vector in the renderer, the tail of the vector is located at `startPos`.
  * @throw If fail to draw a line, throw a `runtime_error`.
  */
-void Vector::draw(SDL_Renderer* const r, const Vector& start /*= Vec_ZERO*/) const {
+void Vector::draw(SDL_Renderer* r, const Vector& startPos /*= Vec_ZERO*/) const {
 	if(isNull()) {
-		SDL_RenderDrawPointF(r, start.x, start.y);
+		SDL_RenderDrawPointF(r, startPos.x, startPos.y);
 		return;
 	}
 
-	const Vector end = *this + start;
-	if(SDL_RenderDrawLineF(r, start.x, start.y, end.x, end.y) < 0)
-		throw std::runtime_error("Failed to draw line from "+ start.string() +" to "+ end.string() +".\nLast SDL error: "+ SDL_GetError());
+	const Vector endPos = *this + startPos;
+	if(SDL_RenderDrawLineF(r, startPos.x, startPos.y, endPos.x, endPos.y) < 0)
+		throw std::runtime_error("Failed to draw line from "+ startPos.string() +" to "+ endPos.string() +".\nLast SDL error: "+ SDL_GetError());
 
-	const Vector posHead1 = end + rotate(degToRadian(+135)).withNorm(norm()/5);
-	const Vector posHead2 = end + rotate(degToRadian(-135)).withNorm(norm()/5);
+	const Vector posHead1 = endPos + rotate(degToRadian(+135.0)).withNorm(norm()/5);
+	const Vector posHead2 = endPos + rotate(degToRadian(-135.0)).withNorm(norm()/5);
 
-	if(SDL_RenderDrawLineF(r, end.x, end.y, posHead1.x, posHead1.y) < 0)
-		throw std::runtime_error("Failed to draw line from "+ end.string() +" to "+ posHead1.string() +".\nLast SDL error: "+ SDL_GetError());
+	if(SDL_RenderDrawLineF(r, endPos.x, endPos.y, posHead1.x, posHead1.y) < 0)
+		throw std::runtime_error("Failed to draw line from "+ endPos.string() +" to "+ posHead1.string() +".\nLast SDL error: "+ SDL_GetError());
 	
-	if(SDL_RenderDrawLineF(r, end.x, end.y, posHead2.x, posHead2.y) < 0)
-		throw std::runtime_error("Failed to draw line from "+ end.string() +" to "+ posHead2.string() +".\nLast SDL error: "+ SDL_GetError());
-
+	if(SDL_RenderDrawLineF(r, endPos.x, endPos.y, posHead2.x, posHead2.y) < 0)
+		throw std::runtime_error("Failed to draw line from "+ endPos.string() +" to "+ posHead2.string() +".\nLast SDL error: "+ SDL_GetError());
 }
 
 
@@ -77,10 +79,10 @@ void Vector::draw(SDL_Renderer* const r, const Vector& start /*= Vec_ZERO*/) con
 /**
  * Rotate the vector around its tail by `angle` radians.
  */
-[[ nodiscard ]] Vector Vector::rotate(float angle) const noexcept {
+[[ nodiscard ]] Vector Vector::rotate(double angle) const noexcept {
 	return Vector{
-		.x = x * std::cos(angle) - y * std::sin(angle),
-		.y = x * std::sin(angle) + y * std::cos(angle)
+		.x = roundDouble(x * std::cos(angle)) - roundDouble(y * std::sin(angle)),
+		.y = roundDouble(x * std::sin(angle)) + roundDouble(y * std::cos(angle))
 	};
 }
 
@@ -91,8 +93,8 @@ void Vector::draw(SDL_Renderer* const r, const Vector& start /*= Vec_ZERO*/) con
  * @param t The time value (How far between two points we have to go), if above 1 or below -1 is treated as the closest.
  * @throw We assume `std::min()` and `std::max()` won't throw.
  */
-[[ nodiscard ]] Vector Vector::lerp(Vector from, Vector to, float t) noexcept {
-	return lerpNoRestrict(from, to, std::max(-1.0f, std::min(1.0f, t)));
+[[ nodiscard ]] Vector Vector::lerp(Vector from, Vector to, double t) noexcept {
+	return lerpNoRestrict(from, to, std::max(-1.0, std::min(1.0, t)));
 }
 
 /**
@@ -101,7 +103,7 @@ void Vector::draw(SDL_Renderer* const r, const Vector& start /*= Vec_ZERO*/) con
  * @param to The point to end.
  * @param t How far between two points we have to go.
  */
-[[ nodiscard ]] Vector Vector::lerpNoRestrict(Vector from, Vector to, float t) noexcept {
+[[ nodiscard ]] Vector Vector::lerpNoRestrict(Vector from, Vector to, double t) noexcept {
 	return from + t*(to - from);
 }
 
@@ -112,31 +114,31 @@ void Vector::draw(SDL_Renderer* const r, const Vector& start /*= Vec_ZERO*/) con
  */
 SDL_FPoint Vector::translate(SDL_FPoint p) const noexcept {
 	return SDL_FPoint{
-		.x = x + p.x,
-		.y = y + p.y
+		.x = roundType<double, float>(x + p.x),
+		.y = roundType<double, float>(y + p.y)
 	};
 }
 
 [[ nodiscard ]] Vector& Vector::operator+=(const Vector& v) noexcept {
-	x += v.x;
-	y += v.y;
+	x = roundType<double, float>(x + v.x);
+	y = roundType<double, float>(y + v.y);
 	return *this;
 }
 
 [[ nodiscard ]] Vector& Vector::operator-=(const Vector& v) noexcept {
-	x -= v.x;
-	y -= v.y;
+	x = roundType<double, float>(x - v.x);
+	y = roundType<double, float>(y - v.y);
 	return *this;
 }
 
-[[ nodiscard ]] Vector& Vector::operator*=(float k) noexcept {
-	x *= k;
-	y *= k;
+[[ nodiscard ]] Vector& Vector::operator*=(double k) noexcept {
+	x = roundType<double, float>(x * k);
+	y = roundType<double, float>(y * k);
 	return *this;
 }
 
-[[ nodiscard ]] Vector& Vector::operator/=(float k) noexcept {
-	x /= k;
-	y /= k;
+[[ nodiscard ]] Vector& Vector::operator/=(double k) noexcept {
+	x = roundType<double, float>(x / k);
+	y = roundType<double, float>(y / k);
 	return *this;
 }

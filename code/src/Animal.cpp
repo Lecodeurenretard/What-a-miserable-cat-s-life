@@ -9,20 +9,6 @@ struct stat sb;
 {}
 
 /**
- * Set `sprite` to a random sprite.
- * @throw `fs::is_regular_file()` errors are assumed to not occur. Else errors come from `getRandomPathFromMask`
- */
-void Animal::setToRandomSprite(void) {
-	const auto mask = [](const fs::path& path) {
-		const std::string pathStr = path.string().replace(0, 8, "");	// Removing the leading "sprites/"
-		return fs::is_regular_file(path) && pathStr.starts_with("other") && pathStr.ends_with(".bmp");
-	};
-	
-	spritePath = Animal::getRandomPathFromMask(mask).string();
-}
-
-
-/**
  * Set the `sprite` field, return `false` on failure.
  */
 [[ nodiscard ]] bool Animal::setSprite(uint8_t spriteNum) noexcept {
@@ -43,6 +29,60 @@ void Animal::setToRandomSprite(void) {
 
 	spritePathDead = spriteDead;
 	return true;
+}
+
+/**
+ * Set `sprite` to a random sprite.
+ * @throw `fs::is_regular_file()` errors are assumed to not occur. Else errors come from `getRandomPathFromMask`
+ */
+void Animal::setToRandomSprite(void) {
+	const auto mask = [](const fs::path& path) {
+		const std::string pathStr = path.string().replace(0, 8, "");	// Removing the leading "sprites/"
+		return fs::is_regular_file(path) && pathStr.starts_with("other") && pathStr.ends_with(".bmp");
+	};
+	
+	spritePath = Animal::getRandomPathFromMask(mask).string();
+}
+
+/**
+ * Set the destination to a random point on the screen
+ */
+void Animal::setDestRand(void) noexcept {
+	dest = Pos(
+		randInt(size/2, WIN_WIDTH),
+		randInt(size/2, WIN_HEIGHT)
+	);
+}
+
+/**
+ * Set the destnation to the mouse's
+ */
+void Animal::setDestMouse(void) noexcept {
+	int m_x, m_y;
+	SDL_GetMouseState(&m_x, &m_y);
+	
+	dest.x = m_x;
+	dest.y = m_y;
+}
+
+/**
+ * Check if the animal is at destination.
+ */
+bool Animal::isAtDest(void) const noexcept {
+	const double threshold = speed + 0.01;	//making sure the animal can't jump behind the destination's bounding box.
+	return 
+		dest.x - threshold < pos.x && pos.x < dest.x + threshold &&		//dest.x - threshold < pos.x < dest.x + threshold
+		dest.y - threshold < pos.y && pos.y < dest.y + threshold;		//dest.y - threshold < pos.y < dest.y + threshold
+}
+
+/**
+ * Get the vector representing how much `this` animal will move this frame.
+ */
+[[ nodiscard ]] Vector Animal::getSpeedVector(void) const noexcept {
+	return Vector::fromPoints(
+		static_cast<SDL_FPoint>(pos),
+		static_cast<SDL_FPoint>(dest)
+	).withNorm(speed);
 }
 
 /**
@@ -146,16 +186,16 @@ void Animal::drawInfos(SDL_Renderer* render, bool isColliding/*=false*/) const n
 {
 	Animal::setToRandomSprite();
 
-	const Pos hitboxPos = (Vector)_pos - Vector{.x = (float)_size, .y = (float)_size}/2;
-	hitbox = getSquare((float)size, hitboxPos);
+	const Pos hitboxPos = static_cast<Vector>(_pos) - Vector{.x = (double)_size, .y = (double)_size} /2;
+	hitbox = getSquare((double)size, hitboxPos);
 }
 
 
 [[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, uint velocity, uint8_t spriteNum)
 	: pos(_pos), dest(_pos), size(_size), speed(velocity)
 {
-	const Pos hitboxPos = (Vector)_pos - Vector{.x = (float)_size, .y = (float)_size	}/2;
-	hitbox = getSquare((float)size, hitboxPos);
+	const Pos hitboxPos = static_cast<Vector>(_pos) - Vector{.x = (double)_size, .y = (double)_size	}/2;
+	hitbox = getSquare((double)size, hitboxPos);
 
 	if(spriteNum != 0 && !setSprite(spriteNum))
 		throw std::invalid_argument("Couldn't set the sprite.\nMaybe `"+ Animal::spriteFolder + std::to_string(spriteNum) + ".bmp` is not a correct path?");
@@ -188,51 +228,17 @@ void Animal::incrementHealth(void) noexcept {
 }
 
 /**
- * Set the destination to a random point on the screen
+ * Randomize the health of the animal.
  */
-void Animal::setDestRand(void) noexcept {
-	dest = Pos(
-		randInt(size/2, WIN_WIDTH),
-		randInt(size/2, WIN_HEIGHT)
-	);
-}
-
-/**
- * Set the destnation to the mouse's
- */
-void Animal::setDestMouse(void) noexcept {
-	int m_x, m_y;
-	SDL_GetMouseState(&m_x, &m_y);
-	
-	dest.x = m_x;
-	dest.y = m_y;
-}
-
-/**
- * Get the vector representing how much `this` animal will move this frame.
- */
-[[ nodiscard ]] Vector Animal::getSpeedVector(void) const {
-	return Vector::fromPoints(
-		(SDL_FPoint)pos,
-		(SDL_FPoint)dest
-	).withNorm(speed);
-}
-
-/**
- * Check if the animal is at destination.
- */
-bool Animal::isAtDest(void) const noexcept {
-	const float threshold = speed + 0.01;	//making sure the animal can't jump behind the destination's bounding box.
-	return 
-		dest.x - threshold < pos.x && pos.x < dest.x + threshold &&		//dest.x - threshold < pos.x < dest.x + threshold
-		dest.y - threshold < pos.y && pos.y < dest.y + threshold;		//dest.y - threshold < pos.y < dest.y + threshold
+void Animal::randomizeHealth(uint8_t min /*= 1*/, uint8_t max /*= UINT8_MAX*/) noexcept {
+	health = randInt(min, max);
 }
 
 /**
  * Move the animal toward its destination, define a new one if the animal is already there.
  * @throw Execeptions are from `moveToDest()`.
  */
-void Animal::move(bool followMouse/*=false*/) {
+void Animal::move(bool followMouse /*= false*/) {
 	if(isDead())
 		return;
 
@@ -293,8 +299,8 @@ void Animal::draw(SDL_Renderer* r, TTF_Font* font /*=nullptr*/, bool canDrawInfo
  */
 [[ nodiscard ]] std::string Animal::string(void) const noexcept {
 	return "Animal{ .pos=" + pos.string() 
-		+ "; dest="+ dest.string()
-		+ "; size="+ std::to_string(size)
+		+ "; dest=" + dest.string()
+		+ "; size=" + std::to_string(size)
 		+ "; speed="+ std::to_string(speed)
 		+ "; health="+ std::to_string(health)
 		+ "; .spritePath=\""+ spritePath

@@ -1,3 +1,5 @@
+#include "Imports.hpp"
+
 /** me-defined constants that need to be included in all files */
 /** The width of the window */
 constexpr uint WIN_WIDTH	= 1000;
@@ -17,8 +19,27 @@ constexpr uint8_t DESIRED_FPS = 60;
 /** The type of a path mask */
 typedef bool (*mask_t)(const fs::path&);
 
+struct pos_t;	//defined in Pos.hpp
 template<typename T>
-concept Number = std::is_arithmetic_v<T>;
+concept Number = (std::is_arithmetic_v<T> || std::is_convertible_v<T, double>);
+
+/**
+ * Safely check if floating-point numbers are equal.
+ */
+template<typename Num>
+	requires std::is_floating_point_v<Num>
+constexpr bool areEqual(Num f1, Num f2) noexcept {
+	return -std::numeric_limits<Num>::epsilon() < f1 - f2 &&  f1 - f2 < std::numeric_limits<Num>::epsilon();	//if -epsilon < f1 - f2 < epsilon, f1 == f2
+}
+
+/**
+ * Safely check if floating-point numbers are approximally equals equal to the `n`th power of ten.
+ */
+template<typename Num>
+	requires std::is_floating_point_v<Num>
+constexpr bool areApproxEqual(Num f1, Num f2, uint n) noexcept {
+	return -std::numeric_limits<Num>::epsilon() * std::pow(10, n) < f1 - f2 &&  f1 - f2 < std::numeric_limits<Num>::epsilon() * std::pow(10, n);
+}
 
 /**
  * Return a double in the [`min`, `max`] range, undefined behaviour if max < min.
@@ -94,11 +115,12 @@ inline constexpr bool checkIntegerUnderflow(T num1, T num2, T* res = nullptr, T(
 	return *res > std::max(num1, num2);
 }
 
+//Integer convertions
 /**
  * Converts degrees to radians.
  */
 template<typename Num>
-	requires Number<Num>
+	requires (Number<Num> && !std::is_floating_point_v<Num>)
 constexpr Num degToRadian(Num angle) noexcept {
 	return angle * M_PI/180;
 }
@@ -107,7 +129,89 @@ constexpr Num degToRadian(Num angle) noexcept {
  * Converts radians to degrees.
  */
 template<typename Num>
-	requires Number<Num>
+	requires (Number<Num> && !std::is_floating_point_v<Num>)
 constexpr Num radToDegree(Num angle) noexcept {
 	return angle * 180/M_PI;
+}
+
+//floating point convertions, (rounding an integer is unnecessary work)
+/**
+ * Converts degrees to radians.
+ */
+template<typename Num>
+	requires std::is_floating_point_v<Num>
+constexpr Num degToRadian(Num angle, bool round = false) noexcept {
+	const Num res(angle * M_PI/180.0);
+
+	if(round)
+		return roundTo<Num>(res, std::numeric_limits<Num>::digits10);
+	return res;
+}
+
+/**
+ * Converts radians to degrees.
+ */
+template<typename Num>
+	requires std::is_floating_point_v<Num>
+constexpr Num radToDegree(Num angle, bool round = false) noexcept {
+	const Num res(angle * 180/M_PI);
+
+	if(round)
+		return roundTo<Num>(res, std::numeric_limits<Num>::digits10);
+	return res;
+}
+
+/**
+ * Round up to the `n`th power of ten.
+ * @param floor Floor (truncate) instead of rounding to the nearest.
+ * @example roundTo(2.3445, 2) == 2.35, roundTo(234.45, 2) == 200.0
+ * @throw The convertion from `Input` to `Output` may throw.
+ */
+template<typename Input, typename Output = Input>
+	requires (
+		std::is_floating_point_v<Input> 
+		&& std::is_floating_point_v<Output>
+		&& std::is_convertible_v<Input, Output>
+	)
+constexpr Output roundTo(Input number, int n, bool floor = false) {
+	Output res = number * std::pow(10, n);
+	res = floor? std::floor(res) : std::round(res);
+	return res * std::pow(10, -n);
+}
+static_assert(roundTo(2.3445, 2) == 2.34);
+static_assert(roundTo(294.45, -2) == 300.0);
+
+/**
+ * Round `number` so it is not more precise than `Num`'s epsilon (`std::numeric_limits<Num>::epsilon()`).
+ * This function reduces imprecisions in floating-point computations.
+ * @throw The convertion from `Input` to `Output` may throw.
+ */
+template<typename Input, typename Output = Input>
+	requires (
+		std::is_floating_point_v<Input> 
+		&& std::is_floating_point_v<Output>
+		&& std::is_convertible_v<Input, Output>
+	)
+constexpr Output roundType(Input number) {
+	return roundTo<Input, Output>(number, std::numeric_limits<Output>::digits10, true);
+}
+
+/** Rounds to 6 digits (float precision), help with floating point imprecisions */
+#define roundFloat(flt) roundType<float>(flt)
+
+/** Rounds to 15 digits (double precision), help with floating point imprecisions */
+#define roundDouble(dbl) roundType<double>(dbl)
+
+
+/**
+ * Get the principal value of `angle` in radians (ie: the equivalent value in the interval `(-π ;π]`))
+ */
+template<typename Num>
+	requires (Number<Num> && std::is_nothrow_convertible_v<double, Num>)
+constexpr Num anglePrincipalValue(Num angle, bool round = false) noexcept {
+	using namespace std::numbers;
+	
+	
+	Num res = fmod(angle, (Num)(2*pi) - pi);	//fmod -> floating point modulo
+	return round? roundType<Num>(res) : res;
 }

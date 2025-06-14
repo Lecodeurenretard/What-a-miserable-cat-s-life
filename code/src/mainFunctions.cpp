@@ -1,24 +1,5 @@
 //functions useful only in the `main()` function.
-#include "../include/Verbose.hpp"
-#include "../include/Cat.hpp"
-
-
-/**
- * Free variables, quit SDL and exits with code `exitCode`
- */
-void quit(int exitCode = EXIT_SUCCESS, SDL_Renderer* renderer = nullptr, SDL_Window* window = nullptr) noexcept {
-	vout << VerboseStream::newLine << VerboseStream::newLine << "Destroying the renderer and the window, then quitting SDL." << std::endl;
-	
-	Cat::freeCatList();
-	Dog::freeDogList();
-
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
-
-	vout << "Program " << ((exitCode == EXIT_SUCCESS)? "completed with success!" : "ended due to an error.")  << std::endl;
-	exit(exitCode);
-}
+#include "../include/mainFunctions.hpp"
 
 /**
  * Saves the `data` dump as an actual file.
@@ -34,7 +15,7 @@ bool saveImageToFile(const char* filename, const unsigned char* data, const unsi
 		file.write(reinterpret_cast<const char*>(data), size);
 	file.close();
 
-	return (bool)file;
+	return static_cast<bool>(file);
 }
 
 /**
@@ -69,13 +50,31 @@ void saveImgs(const char* name, size_t offset, size_t count) {
 	}
 }
 
+/**
+ * Create the `sprite` directtory.
+ */
+void createSpriteDir(void) {
+	vout << "Creating image files." << std::endl;
+	if(!fs::create_directory("sprites")) {
+		std::cerr << "Couldn't create the `sprites` directory." << std::endl;
+		quit(EXIT_FAILURE);
+	}
+
+	//extract all images
+	size_t sum(0);
+	for(size_t i = 0; i < allNamesSize; i++) {
+		saveImgs(allNames[i], sum , countList[i]);
+		sum += countList[i];
+	}
+}
+
 
 /**
  * Wait the appropriate time until next frame and returns delta in second/frame (delta is the maximum time that can be allowed)
  * @param lasted How many seconds took the last frame to run
  */
-double waitNextFrame(float lasted) noexcept {
-	constexpr double delta = 1 / (double)DESIRED_FPS;
+double waitNextFrame(double lasted) noexcept {
+	constexpr double delta = 1.0 / DESIRED_FPS;
 
 	const int timeTaken = (delta - lasted) * 1000;
 
@@ -94,7 +93,7 @@ double waitNextFrame(float lasted) noexcept {
  * @param r The renderer to free if the user quits.
  * @param win The window to free if the user quits
  */
-void waitEvent(SDL_EventType eventType, SDL_Renderer* r = nullptr, SDL_Window* win = nullptr) noexcept {
+void waitEvent(SDL_EventType eventType, SDL_Renderer* r /*= nullptr*/, SDL_Window* win /*= nullptr*/) noexcept {
 	SDL_Event ev;
 	SDL_PollEvent(&ev);
 
@@ -111,7 +110,7 @@ void waitEvent(SDL_EventType eventType, SDL_Renderer* r = nullptr, SDL_Window* w
  * @param r The renderer to free if the user quits.
  * @param win The window to free if the user quits
  */
-void waitKeyPress(SDL_KeyCode key, SDL_Renderer* r = nullptr, SDL_Window* win = nullptr) noexcept {
+void waitKeyPress(SDL_KeyCode key, SDL_Renderer* r /*= nullptr*/, SDL_Window* win /*= nullptr*/) noexcept {
 	SDL_Event ev;
 	SDL_PollEvent(&ev);
 
@@ -120,4 +119,49 @@ void waitKeyPress(SDL_KeyCode key, SDL_Renderer* r = nullptr, SDL_Window* win = 
 			quit(EXIT_SUCCESS, r, win);
 		SDL_PollEvent(&ev);
 	}
+}
+
+/**
+ * Initialize the program.
+ */
+void init(SDL_Window** winPtr, SDL_Renderer** renPtr) {
+	vout << "Initializing RNG, SDL and SDL_ttf." << std::endl;
+	std::srand(std::time(nullptr));
+
+	if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+		std::cerr << "Failed to initialize SDL.\n(SDL last error: " << SDL_GetError() << ')' << std::endl;
+		
+		quit(EXIT_FAILURE);
+	}
+
+	if(TTF_Init() < 0) {
+		std::cerr << "Failed to initialize SDL_ttf.\n(SDL_ttf last error: " << TTF_GetError() << ')' << std::endl;
+		
+		quit(EXIT_FAILURE);
+	}
+
+	vout << "Initializing the window and renderer." << std::endl;
+	if(SDL_CreateWindowAndRenderer(WIN_WIDTH, WIN_HEIGHT, SDL_WINDOW_SHOWN, winPtr, renPtr) < 0) {
+		std::cerr << "Failed to create renderer or the window.\n(SDL last error: " << SDL_GetError() << ')' << std::endl;
+		
+		quit(EXIT_FAILURE, *renPtr, *winPtr);
+	}
+	SDL_SetWindowTitle(*winPtr, "Evolution killed the cat");
+}
+
+/**
+ * Free variables, quit SDL and exits with code `exitCode`
+ */
+void quit(int exitCode /*= EXIT_SUCCESS*/, SDL_Renderer* renderer /*= nullptr*/, SDL_Window* window /*= nullptr*/) noexcept {
+	vout << VerboseStream::newLine;
+	vout << "Destroying the renderer and the window, then quitting SDL." << std::endl;
+
+	//catList and dogList, are implicitly destroyed
+
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
+
+	vout << "Program " << ((exitCode == EXIT_SUCCESS)? "completed with success!" : "ended due to an error.")  << std::endl;
+	exit(exitCode);
 }

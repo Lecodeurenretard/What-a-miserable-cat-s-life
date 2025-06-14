@@ -5,20 +5,6 @@
  */
 bool VerboseStream::enabled(false);
 
-/**
- * For now, it copies:
- * - printHeading
- * - stream
- */
-const VerboseStream& VerboseStream::operator=(const VerboseStream& toCopy) noexcept {
-	if(this == &toCopy)
-		return *this;
-
-	printHeading = toCopy.printHeading;
-	stream = toCopy.stream;
-	return *this;
-}
-
 VerboseStream::VerboseStream(std::ostream& out/* = std::cout*/) noexcept
 	: printHeading(true)
 {
@@ -33,22 +19,23 @@ void VerboseStream::setEnabled(const cmd::Parser::parseReturn_t& args) {
 	enabled = std::get<bool>(args.at("-v")) || std::get<bool>(args.at("--verbose"));
 }
 
+
 /**
  * @throw Throw an exception only if `foo()` throws one.
  */
 VerboseStream& VerboseStream::operator<<(ostream_manipulator foo) {
-	if (enabled && (foo == (ostream_manipulator)std::endl || foo == (ostream_manipulator)std::flush))
+	if(!enabled)
+		return *this;
+	if (foo == static_cast<ostream_manipulator>(std::endl) || foo == static_cast<ostream_manipulator>(std::flush))
 		printHeading = true;
-	if (enabled)
-		*stream << foo;
+	*stream << foo;
 	return *this;
 }
 
-using v_manip=VerboseStream::verbose_manipulator;
 /**
  * @throw Throw an exception only if `foo()` throws one.
  */
-VerboseStream& VerboseStream::operator<<(v_manip foo) {
+VerboseStream& VerboseStream::operator<<(VerboseStream::verbose_manipulator foo) {
 	operator=(foo(*this));
 	return *this;
 }
@@ -70,6 +57,9 @@ VerboseStream& VerboseStream::noHeading(VerboseStream& ver) noexcept {
  * Insert a new line, ignore the heading.
  */
 VerboseStream& VerboseStream::newLine(VerboseStream& ver) noexcept {
-	(*ver.stream) << "\r\n";	//preparing the windows port
+	if(!enabled)
+		return ver;
+	
+	*ver.stream << ("\r\n");	//preparing the windows port
 	return ver;
 }

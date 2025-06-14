@@ -22,6 +22,10 @@ void Dog::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const n
 	//do nothing
 }
 
+bool Dog::canBeListed(void) const noexcept {
+	return index < DOGLIST_SIZE;
+}
+
 /**
  * @throw `setToRandomSprite()` may throw.
  */
@@ -30,55 +34,49 @@ void Dog::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const n
 {
 	setToRandomSprite();
 
-	const uint8_t lowestID = Dog::getLowestID();
-	if(lowestID >= DOGLIST_SIZE) {
+	index = Dog::getLowestIndex();
+	if(!canBeListed()) {
 		wout << "Too many dogs are already present, the one being constructed will still be allocated but will not be in `dogList` (no hit detection, no drawing, etc..)." << std::endl;
 		
 		index = DOGLIST_SIZE;	//error value
-		return;
 	}
-	
-	dogList[lowestID] = this;
-	index = lowestID;
 }
 
 /**
- * @throw `setToRandomSprite()` may throw.
- */
-[[ nodiscard ]] Dog::Dog(const Dog& dog)
-	: Dog(dog.pos)
-{}
-
-Dog::~Dog(void) {
-	if(index == DOGLIST_SIZE)
-		return;
-	dogList.at(index) = nullptr;
-}
-
-/**
- * Generates `howMany` dogs, their IDs are returned by the parameter `indexes`.
+ * Generates `howMany` dogs, their indexes are returned by the parameter `indexes`.
  * @throw The constructor may throw.
  */
-void Dog::generateDogs(uint8_t howMany, ID (*indexes)[] /*= nullptr*/, Pos pos/*=Pos::ORIGIN*/) {
-	for (uint8_t i = 0; i < howMany; i++) {
-		Dog* generated = new Dog(
-			(Vector)pos + Vector{.x = (float)size*i, .y=0}//shift the dogs to they don't overlap each other
-		);
+void Dog::generateDogs(uint8_t howMany, std::vector<ID>* indexes /*= nullptr*/, Pos pos/*=Pos::ORIGIN*/) {
+	if(indexes)
+		indexes->reserve(howMany);
+	for (double i = 0; i < howMany; i++) {
+		const Pos position = static_cast<Vector>(pos) + Vector{.x = Dog::size * i, .y=0};	//shift the cats to they don't overlap
 
-		if(indexes != nullptr)
-			(*indexes)[i] = generated->index;
+		std::unique_ptr<Dog> generated = std::make_unique<Dog>(position);
+		generated->index = generated->getLowestIndex();
+		
+		if(!generated->canBeListed())
+			continue;
+		
+		Dog::dogList[generated->index].reset(generated.get());
+		if(indexes)
+			indexes->push_back(generated->index);
+		
+		generated.release();
 	}
 }
 
 /**
  * Free all dogs in `dogList`.
  */
-void Dog::freeDogList(void) noexcept {
-	for(Dog* dog : dogList)
-		if(dog != nullptr)
-			delete dog;
+void Dog::clearDogList(void) noexcept {
+	for(auto& dogPtr : dogList)
+		dogPtr.reset();
 }
 
+/**
+ * Return a human-readable version of the dog.
+ */
 [[ nodiscard ]] std::string Dog::string(void) const noexcept {
 	return "Dog{ index="+ std::to_string(index) +"; "+ Animal::string() +" }";
 }
@@ -86,9 +84,15 @@ void Dog::freeDogList(void) noexcept {
 /**
  * Get the lowest ID available, return `DOGLIST_SIZE` if there isn't.
  */
-ID Dog::getLowestID(void) noexcept {
-	for(ID i = 0;  i < DOGLIST_SIZE; i++)
-		if(dogList[i] == nullptr)
-			return i;
-	return DOGLIST_SIZE;
+ID Dog::getLowestIndex(void) noexcept {
+	const auto lowestIt = std::find_if(
+		dogList.begin(),
+		dogList.end(),
+		[](const std::unique_ptr<Dog>& ptr) {
+			return ptr.get() == nullptr;	//searching for nullptr
+		});
+
+	if(lowestIt == dogList.end())
+		return DOGLIST_SIZE;
+	return std::distance(std::begin(dogList), lowestIt);	//iterator to index
 }

@@ -29,8 +29,8 @@ protected:
 
 	void setDestRand(void)	noexcept;
 	void setDestMouse(void)	noexcept;
-	bool isAtDest(void)		const noexcept;
-	Vector getSpeedVector(void) const;
+	bool isAtDest(void)			const noexcept;
+	Vector getSpeedVector(void) const noexcept;
 
 	virtual void drawSprite(SDL_Renderer*) const;
 	virtual void drawInfos(SDL_Renderer*, bool=false) const noexcept;
@@ -50,7 +50,9 @@ public:
 
 	void increaseSize(uint)		noexcept;
 	void increaseSpeed(uint)	noexcept;
-	void incrementHealth(void)	noexcept;
+
+	void incrementHealth(void)							noexcept;
+	void randomizeHealth(uint8_t=1, uint8_t=UINT8_MAX)	noexcept;
 
 	void move(bool=false);
 	void moveToDest(void);
@@ -58,7 +60,7 @@ public:
 	Hitbox getHitbox(void)	const noexcept;
 	bool isDead(void)		const noexcept;
 
-	virtual void draw(SDL_Renderer*, TTF_Font* =nullptr, bool=false) const noexcept(false);
+	virtual void draw(SDL_Renderer*, TTF_Font* =nullptr, bool=false) const;
 	virtual std::string string(void) const noexcept;
 
 	/** The folder where the sprites are located. */

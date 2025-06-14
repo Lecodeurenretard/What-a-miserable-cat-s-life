@@ -7,7 +7,6 @@
 
 //String and string manipulation
 #include <iostream>
-typedef std::ostream& (*ostream_manipulator)(std::ostream&);
 
 //Error handling
 #include <stdexcept>
@@ -19,15 +18,21 @@ typedef std::ostream& (*ostream_manipulator)(std::ostream&);
 #include <filesystem>
 namespace fs = std::filesystem;
 
+//C replacements
+#include <memory>	//unique_ptr
+#include <array>
+#include <vector>
+#include <cstdint>
+using uint=unsigned int;
+
 //Misc
 #include <algorithm>	//count_if
 #include <cstdlib>		//random
-#include <array>
 #include <concepts>
+#include <numbers>		//math constants
 
 
 //code I wrote
-#include "Utilities.hpp"
 #include "Color_SDL.hpp"
 
 #if !__has_include(<nlibs/Parser>)

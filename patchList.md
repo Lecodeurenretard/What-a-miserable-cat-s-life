@@ -73,3 +73,55 @@ This file simply list the progression of patches in this minor version.
 	- All functions other that `main()` in [main.cpp](code/src/main.cpp) have been moved to [mainFunctions.cpp](code/src/mainFunctions.cpp).
 	- Fixed argument checking & updated Argument-Parser.
 	- Simplified end of frame logic to one `if` `else` block.
+
+## 0.3.2:
++ Big changes:
+	- Now coding in a more modern C++ (using smart pointers and standard arrays).
+	- A few refactors
++ Changes for `Cat`:
+	- `catList` now contains `unique_ptr` instead of raw pointers.
+	- Split `trySetLowestID()` to `setLowestID()` and `canBeListed()`.
+	- Constructors are private
+	- Constructors are no longer in charge of indexing the cat in `catList`.
+	- Defaulted destructor
+	- Befriended `std::make_unique()` (now friend method).
+	- Changed the type of `generateCats()`'s second argument to a pointer to vector.
+	- Replaced `freeCatList()` by `clearCatList()` which unallocates each cat in it.
+	- Fixed hitbox color when hit.
++ Changes for `Dog`:
+	- `dogList` now contains `unique_ptr` instead of raw pointers.
+	- Added method `canBeListed()`
+	- The explicit constructor is now private
+	- Befriended `std::make_unique()`.
+	- Defaulted the copy constructor and the destructor.
+	- Changed the type of `generateDogs()`'s second argument to a pointer to vector.
+	- Renamed `getLowestID()` to `getLowestIndex()`
+	- Replaced `freeDogList()` by `clearDogList()` which unallocates each dog in it.
++ Changes for `Hitbox`:
+	- Added `noexcept`s where missing.
+	- Replaced the `expand()` method by `scale()`
+	- Added method `resize_world()` which scales and move the hitbox by a factor.
++ Changes for `Pos`:
+	- Added defaulted `operator=()`, copy constructor and destructor.
+	- Added `noexcept`s
+	- Added checks for fails of SDL functions in `draw()`.
++ Changes for `Vector`:
+	- Swapped `Vec_RIGHT` and `Vec_LEFT` so they represent the good vector.
+	- Now ounding results.
++ Changes for streams:
+	- Defaulted `=` operators.
++ other changes:
+	- Replaced C-style casts to non-numeric types to `static_cast`.
+	- Swapped the inclusion hierarchy for [Imports.hpp](code/include/Imports.hpp) and [Utilites.hpp](code/include/Utilities.hpp).
+	- Added a header for [mainFunctions](code/include/mainFunctions.hpp)
+	- Refactored into functions some parts of `main()`:
+		* Added the `init()` function in [mainFunctions](code/src/mainFunctions.cpp) which launch libraries and creates the window and renderer.
+		* Added the `createSpriteDir()` function which initialize the `sprite` directory by extracting images from `libImages.so`.
+	- Better handling of floating-point arithmetic:
+		* Added `areEqual()` function which check if two floating-point numbers are equal (`==` can fail)
+		* Added rounding functions for decreasing the error factor.
+	- Added some other angle calculations functions.
+	- Added new tests.
+	- Enhaced "pretty" mode for hitbox test.
+	- Added verbose and aligned the verbose location.
+	- Renamed the directory _utility libs_ to [submodules](code/include/submodules/)

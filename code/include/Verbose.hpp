@@ -10,7 +10,7 @@ private:
 	std::ostream* stream;
 	bool printHeading;
 
-	const VerboseStream& operator=(const VerboseStream&) noexcept;
+	VerboseStream& operator=(const VerboseStream&) = default;
 
 public:
 	explicit VerboseStream(std::ostream& = std::cout) noexcept;
@@ -18,24 +18,29 @@ public:
 
 	static void setEnabled(const cmd::Parser::parseReturn_t&);
 
+	typedef VerboseStream& (*verbose_manipulator)(VerboseStream&) noexcept;
+
+	/**
+	 * @throw Throw an exception only if the inclusion in `stream` throws.
+	 */
 	template<typename T>
 		requires Streamable<T>
-	VerboseStream& operator<<(const T& value) noexcept {
-		if (enabled) {
-			if(printHeading) {
-				printHeading = false;
-				*stream << VerboseStream::heading;
-			}
-			//throws a -Waddress warning because GCC wants to.
-			*stream << STYLE_VERBOSE << value << STYLE_RESET;
+	VerboseStream& operator<<(const T& value) {
+		if (!enabled)
+			return *this;
+		
+		if(printHeading) {
+			printHeading = false;
+			*stream << VerboseStream::heading;
 		}
+		
+		//throws a -Waddress warning because GCC wants to.
+		*stream << STYLE_VERBOSE << value << STYLE_RESET;
 		return *this;
 	}
-
 	VerboseStream& operator<<(ostream_manipulator);
-
-	typedef VerboseStream& (*verbose_manipulator)(VerboseStream&);
 	VerboseStream& operator<<(verbose_manipulator);
+
 
 	static const std::string heading;
 	static VerboseStream& noHeading(VerboseStream&)	noexcept;

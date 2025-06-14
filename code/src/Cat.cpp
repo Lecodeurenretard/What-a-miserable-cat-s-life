@@ -43,25 +43,25 @@ void Cat::setToRandomSprite(void) noexcept {
 	spritePathDead = getRandomPathFromMask(maskDead, Cat::spriteFolder);
 }
 
+/**
+ * Set the ID of the cat to the lowest possible or `CATLIST_SIZE` if there is no IDs left.
+ */
+void Cat::setLowestID(void) noexcept {
+	id = getLowestID();
+}
 
 /**
- * Set `id` to the smallest available, return if it was a success.
+ * Check if this cat is listed.
  */
-[[ nodiscard ]] bool Cat::trySetLowestID(void) noexcept {
-	id = getLowestID();
-	
-	if(id >= CATLIST_SIZE)
-		return false;
-	
-	catList[id] = this;
-	return true;
+[[ nodiscard ]] bool Cat::canBeListed(void) const noexcept {
+	return id < CATLIST_SIZE;
 }
 
 /**
  * Check if this instance collides with a dog from `dogList`.
  */
 [[ nodiscard ]] bool Cat::isHitByDog(void) const noexcept {
-	for(size_t i = 0; i < Dog::getLowestID(); i++)		//Avoid iterating through all `dogList` and getting bad values
+	for(size_t i = 0; i < Dog::getLowestIndex(); i++)		//Avoid iterating through all `dogList` and getting bad values
 		if(hitbox.isOverlapping(Dog::dogList[i]->getHitbox()))
 			return true;
 	return false;
@@ -72,7 +72,7 @@ void Cat::setToRandomSprite(void) noexcept {
  */
 [[ nodiscard ]] ID Cat::getLowestID(void) noexcept {
 	for(ID i = 0; i < CATLIST_SIZE; i++)
-		if(catList[i] == nullptr)
+		if(catList[i].get() == nullptr)
 			return i;
 	
 	return CATLIST_SIZE;
@@ -136,8 +136,6 @@ void Cat::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
 	: Animal(_pos, _size)
 {
 	setToRandomSprite();
-	if(!trySetLowestID())
-		wout << "Too many cats are already present.";
 }
 
 /**
@@ -163,9 +161,6 @@ void Cat::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
 [[ nodiscard ]] Cat::Cat(Pos _pos, uint _size, uint velocity, uint8_t spriteNum)
 	: Animal(_pos, _size, velocity, spriteNum)
 {
-	if(!trySetLowestID())
-		wout << "Too many cats are already present." << std::endl;
-
 	if(spriteNum == 0) {
 		setToRandomSprite();
 		return;
@@ -174,37 +169,35 @@ void Cat::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
 		throw std::runtime_error("Couldn't set the sprite number "+ std::to_string(spriteNum) +" in constructor of Cat.");
 }
 
-Cat::~Cat(void) {
-	if(id == CATLIST_SIZE)	//If id > CATLIST_SIZE, that's a bug. Maybe one day ID will allow a bigger numbers.
-		return;
-	catList.at(id) = nullptr;
-}
-
 /**
  * Create a cat that is not listed in catList.
  * @throw Throw an `std::runtime_error` if failed to set the sprite.
  */
 [[ nodiscard ]] Cat Cat::createUnlisted(Pos _pos/*=Pos::ORIGIN*/, uint _size/*=0*/, uint velocity/*=0*/, uint8_t spriteNum/*=0*/) {
-	Cat res;
-	res.pos = _pos;
-	res.size = _size;
-	res.speed = velocity;
-	
-	if(!res.setSprite(spriteNum))
-		throw std::runtime_error("Couldn't set the sprite of a new cat instance.");
-
-	return res;
+	return Cat(_pos, _size, velocity, spriteNum);
 }
 
 /**
- * Copy this instance and register the copy into the catList if there is space left in `catList`.
+ * Copy this instance and register the copy into `catList` if there is space left.
  */
 [[ nodiscard ]] Cat Cat::copy(void) const noexcept {
-	Cat copy = Cat(*this);
-	
-	if(!copy.trySetLowestID())
+	Cat copy;
+	copy.setLowestID();
+
+	if(!copy.canBeListed()) {
 		wout << "There is no more space to create another listed Cat.";
-	return copy;
+		
+		copy = *this;
+		copy.id = CATLIST_SIZE;
+		return copy;
+	}
+	
+	std::unique_ptr<Cat>& copyPtr = catList[copy.id];	//alias
+	
+	copyPtr = std::make_unique<Cat>(*this);
+	copyPtr->id = copy.id;
+	
+	return *copyPtr;
 }
 
 
@@ -230,7 +223,7 @@ void Cat::draw(SDL_Renderer* r, TTF_Font* font /*=nullptr*/, bool canDrawInfos /
 	drawSpecificities(r, font);
 
 	if(canDrawInfos && !isDead())
-		drawInfos(r);
+		drawInfos(r, collisionLastFrame);
 }
 
 /**
@@ -259,24 +252,36 @@ void Cat::handleCollisions(void) noexcept {
 }
 
 /**
- * Generates `howMany` cats, their IDs are returned by the parameter `ids`.
+ * Generates `howMany` cats.
+ * @param howMany How many cats to produce, if there is too much cats in `catList` the remaining cats will discarded.
+ * @param IDs A vector that is modified to contain the IDs of generated cats (`CATLIST_SIZE` for unlisted cat).
  * @throw The Cat constructor may throw an exception.
  */
-void Cat::generateCats(uint8_t howMany, ID (*ids)[] /*= nullptr*/, Pos pos/*=Pos::ORIGIN*/, uint size/*=0*/, uint speed/*=0*/, uint8_t spriteNum/*=0*/) {
-	for (uint8_t i = 0; i < howMany; i++) {
-		const Vector position = (Vector)pos + Vector{.x = (float)size*i, .y=0};	//shift the cats to they don't overlap each other
+void Cat::generateCats(uint8_t howMany, std::vector<ID>* IDs /*= nullptr*/, Pos pos/*=Pos::ORIGIN*/, uint size/*=0*/, uint speed/*=0*/, uint8_t spriteNum/*=0*/) {
+	if(IDs)
+		IDs->reserve(howMany);
+	for (double i = 0; i < howMany; i++) {
+		const Pos position = static_cast<Vector>(pos) + Vector{.x = size*i, .y=0};	//shift the cats to they don't overlap
 
-		Cat* generated = new Cat(position, size, speed, spriteNum);
-		if(ids != nullptr)
-			(*ids)[i] = generated->id;
+		std::unique_ptr<Cat> generated = std::make_unique<Cat>(position, size, speed, spriteNum);
+		generated->setLowestID();
+		
+		if(!generated->canBeListed())
+			continue;
+		
+		Cat::catList[generated->id].reset(generated.get());	//Reset the pointer to the generated Cat
+		if(IDs)
+			IDs->push_back(generated->id);
+		
+		generated.release();
 	}
 }
 
 /**
- * Free all cats from catList.
+ * Free all listed cats
  */
-void Cat::freeCatList(void) noexcept {
-	for(Cat* cat : catList)
-		if(cat != nullptr)
-			delete cat;
+void Cat::clearCatList(void) noexcept {
+	//I don't think std::for_each() lets us call methods
+	for(auto& catPtr : catList)
+		catPtr.reset();
 }

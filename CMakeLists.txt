@@ -3,12 +3,11 @@ project("What a miserable cat's life!" VERSION 0.3)
 
 
 # Sets the build mode (default: release)
-if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
+if(NOT (CMAKE_BUILD_TYPE MATCHES "Debug"))
 	set(CMAKE_BUILD_TYPE "Release")
 else()
 	set(
 		DBG_FLAGS
-		"-fsanitize=address"
 		"-fsanitize=leak"
 		"-fsanitize=undefined"
 	)
@@ -17,6 +16,10 @@ else()
 	add_link_options(${DBG_FLAGS})
 endif()
 message("Build type used: ${CMAKE_BUILD_TYPE}")
+
+# Without this argument the program won't link SDL_ttf for some reason
+add_compile_options("-fsanitize=address")
+add_link_options("-fsanitize=address")
 
 # Sets compiler arguments
 add_compile_options(-Wall)

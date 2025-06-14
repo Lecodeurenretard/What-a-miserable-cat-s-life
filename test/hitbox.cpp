@@ -7,21 +7,21 @@ void waitKeyPress(void);
 
 std::string strRepeat(const std::string&, size_t);
 std::string to_string(bool);
-void runTest(const char*, SDL_FRect, SDL_FRect, bool, size_t=1);
+void runOverlapTest(const char*, SDL_FRect, SDL_FRect, bool, size_t=1);
 void runAndDisplay(const char*, SDL_FRect, SDL_FRect, bool, size_t=1, bool=false);
 void drawTest(Hitbox, Hitbox, bool=false);
 
 int main() {
-	runAndDisplay("1. Full overlap"		,		{0 , 0 , 10  , 10	},	{2    , 2    , 5   , 5   },		true,	2);
-	runAndDisplay("2. Partial overlap"	,		{0 , 0 , 10  , 10	},	{8    , 8    , 5   , 5   },		true,	2);
-	runAndDisplay("3. Edge touch (right-left)",	{0 , 0 , 5   , 5	},	{5    , 0    , 5   , 5   },		false,	1);
-	runAndDisplay("4. Corner touch",			{0 , 0 , 5   , 5	},	{5    , 5    , 5   , 5   },		false,	2);
-	runAndDisplay("5. No overlap",				{0 , 0 , 5   , 5	},	{6    , 6    , 5   , 5   },		false,	3);
-	runAndDisplay("6. A contains B",			{0 , 0 , 10  , 10	},	{1    , 1    , 2   , 2   },		true,	2);
-	runAndDisplay("7. Tiny rectangles overlap",	{1 , 1 , 0.1f, 0.1f	},	{1.05f, 1.05f, 0.1f, 0.1f},		true,	1);
-	runAndDisplay("8. Negative coords overlap",	{-5, -5, 10  , 10	},	{-1   , -1   , 2   , 2   },		true,	1);
-	runAndDisplay("9. Same zone",				{2 , 2 , 4   , 4	},	{2    , 2    , 4   , 4   },		true,	3);
-	runAndDisplay("10. Edge match, same size",	{0 , 0 , 5   , 5	},	{5    , 0    , 5   , 5   },		false,	1);
+	runAndDisplay("1. Full overlap"		,		{0 , 0 , 10  , 10	},	{2    , 2    , 5   , 5   },		true,	2, true);
+	runAndDisplay("2. Partial overlap"	,		{0 , 0 , 10  , 10	},	{8    , 8    , 5   , 5   },		true,	2, true);
+	runAndDisplay("3. Edge touch (right-left)",	{0 , 0 , 5   , 5	},	{5    , 0    , 5   , 5   },		false,	1, true);
+	runAndDisplay("4. Corner touch",			{0 , 0 , 5   , 5	},	{5    , 5    , 5   , 5   },		false,	2, true);
+	runAndDisplay("5. No overlap",				{0 , 0 , 5   , 5	},	{6    , 6    , 5   , 5   },		false,	3, true);
+	runAndDisplay("6. A contains B",			{0 , 0 , 10  , 10	},	{1    , 1    , 2   , 2   },		true,	2, true);
+	runAndDisplay("7. Tiny rectangles overlap",	{1 , 1 , 0.1f, 0.1f	},	{1.05f, 1.05f, 0.1f, 0.1f},		true,	1, true);
+	runAndDisplay("8. Negative coords overlap",	{-5, -5, 10  , 10	},	{-1   , -1   , 2   , 2   },		true,	1, true);
+	runAndDisplay("9. Same zone",				{2 , 2 , 4   , 4	},	{2    , 2    , 4   , 4   },		true,	3, true);
+	runAndDisplay("10. Edge match, same size",	{0 , 0 , 5   , 5	},	{5    , 0    , 5   , 5   },		false,	1, true);
 
 	return 0;
 }
@@ -55,10 +55,10 @@ std::string to_string(bool b) {
 	return b? "true" : "false";
 }
 
-void runTest(const char* desc, SDL_FRect a, SDL_FRect b, bool expected, size_t align/*= 1*/) {
+void runOverlapTest(const char* desc, SDL_FRect a, SDL_FRect b, bool expected, size_t align/*= 1*/) {
 	Hitbox ha(a), hb(b);
 	bool result = ha.isOverlapping(hb);
-	const char* tab = align == 0? " " : strRepeat("\t", align).c_str();
+	const std::string tab = align == 0? " " : strRepeat("\t", align);
 
 	std::cout	<< desc << ":" << tab << (
 		result == expected ?
@@ -68,7 +68,7 @@ void runTest(const char* desc, SDL_FRect a, SDL_FRect b, bool expected, size_t a
 }
 
 void runAndDisplay(const char* desc, SDL_FRect a, SDL_FRect b, bool expected, size_t align/*= 1*/, bool pretty/*=false*/) {
-	runTest(desc, a, b, expected, align);
+	runOverlapTest(desc, a, b, expected, align);
 	drawTest(a, b, pretty);
 }
 
@@ -79,8 +79,8 @@ void drawTest(Hitbox h1, Hitbox h2, bool pretty/*=false*/) {
 	
 	if(pretty) {
 		constexpr uint growth = 30;
-		h1.expand(growth).draw(ren, HITBOX_COLOR_INACTIVE	, Vec_ZERO);
-		h2.expand(growth).draw(ren, HITBOX_COLOR_ACTIVE		, {growth, growth});
+		h1.resize_world(growth).draw(ren, COL_BLUE	, Vec_ZERO);
+		h2.resize_world(growth).draw(ren, HITBOX_COLOR_ACTIVE		, Vec_ZERO);
 	} else {
 		h1.draw(ren, HITBOX_COLOR_INACTIVE);
 		h2.draw(ren, HITBOX_COLOR_ACTIVE);
