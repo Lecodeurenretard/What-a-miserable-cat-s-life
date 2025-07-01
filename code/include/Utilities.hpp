@@ -13,8 +13,14 @@ constexpr uint WIN_MIN = std::min(WIN_HEIGHT, WIN_WIDTH);
 /** The largest dimension of the window */
 constexpr uint WIN_MAX = std::min(WIN_HEIGHT, WIN_WIDTH);
 
-/** The framerate */
-constexpr uint8_t DESIRED_FPS = 60;
+/** The desired framerate */
+#ifndef DESIRED_FPS
+	#define DESIRED_FPS 60
+	#warning "You compiled with default framerate of 60fps."
+#endif
+
+/** Time taken by the previous frame (in second/frame) */
+inline double deltaTime = 0.0;
 
 /** The type of a path mask */
 typedef bool (*mask_t)(const fs::path&);

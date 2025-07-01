@@ -16,10 +16,10 @@ private:
 	bool canBeListed(void) const noexcept;
 
 	/** The size of all dogs in pixels*/
-	static constexpr uint8_t size = 100;
+	static constexpr double size = 100;
 
-	/** The speed of all dogs in pixels per frame */
-	static constexpr uint8_t speed = 3;
+	/** The speed of all dogs in pixels per second */
+	static constexpr double speed = 400;
 	
 	explicit Dog(const Pos&);
 
@@ -27,14 +27,15 @@ private:
 	template< class _Tp, class... _Args >
 	friend std::_MakeUniq<_Tp>::__single_object std::make_unique(_Args&& ...);
 public:
-	Dog(const Dog&)		= default;
-	~Dog(void)			= default;
+	Dog(const Dog&)			= default;
+	Dog& operator=(const Dog&)	= default;
+	~Dog(void)				= default;
 
 	//Those constructors give too much liberty
-	Dog(pos_t, pos_t)				= delete;
-	Dog(Pos, uint)					= delete;
-	Dog(Pos, uint, uint)			= delete;
-	Dog(Pos, uint, uint, uint8_t)	= delete;
+	Dog(pos_t, pos_t)					= delete;
+	Dog(Pos, double)					= delete;
+	Dog(Pos, double, double)			= delete;
+	Dog(Pos, double, double, uint8_t)	= delete;
 
 	static void generateDogs(uint8_t, std::vector<ID>* = nullptr, Pos=Pos::ORIGIN);
 	static void clearDogList(void) noexcept;

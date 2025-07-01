@@ -51,13 +51,14 @@ local imgTreated=0
 local dirDone=0
 typeset -A dirImgTreated=()	# associative array
 for dir in $(find img -type d); do
-	if [[ $dir = img ]]; then
+	if [[ $dir = "img" ]]; then
 		continue
 	fi
 
 	echo -e "\t${dir:t}Count,"		>> tmp/count
 	echo -e "\t\"${dir[5, -1]}\"," >> tmp/names
 	for file in $dir/*(.); do
+		echo "Converting \"$file\"."
 		if [[ -v "$dirImgTreated"[$dir] ]]; then	# Checks if `$dirImgTreated[$dir]` exists
 			typeset dirImgTreated[$dir:t]=0
 		fi

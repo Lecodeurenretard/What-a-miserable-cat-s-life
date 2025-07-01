@@ -44,20 +44,19 @@ int main(int argc, const char** argv) {
 	SDL_SetRenderDrawBlendMode(render, SDL_BLENDMODE_BLEND);		//enable transparency
 	
 	vout << "Initializing cats and dogs." << std::endl;
-	Cat::generateCats(catCount, nullptr, Pos::SCREEN_CENTER, 50, 2);
+	Cat::generateCats(catCount, nullptr, Pos::SCREEN_CENTER, 50, 200);
 	Dog::generateDogs(dogCount, nullptr, Pos(100, 100));
 	
 	//randomizing health
-	for(ID i = 0; i < CATLIST_SIZE; i++) {
-		if(Cat::catList[i].get() == nullptr)
-			continue;
-
-		Cat::catList[i]->randomizeHealth(1, 3);
-	}
+	for(ID i = 0; i < CATLIST_SIZE; i++)
+		if(Cat::catList[i].get() != nullptr)
+			Cat::catList[i]->randomizeHealth(1, 3);
 
 	vout << "Entering main loop." << std::endl;
 	while(true) {
 		const Uint64 frameStart = SDL_GetPerformanceCounter();
+		vout << "Clearing the window.\t\t\t\t(main loop)" << std::endl;
+		SDL_RenderClear(render);
 	
 		vout << VerboseStream::newLine << "Checking events.\t\t\t\t(main loop)" << std::endl;
 		SDL_Event ev;
@@ -84,6 +83,7 @@ int main(int argc, const char** argv) {
 
 		vout << "Moving and drawing animals to the renderer.\t(main loop)" << std::endl;
 		for(ID i = 0; i < Dog::getLowestIndex(); i++) {
+			//Dogs are guaranteed to be unallocated from last to first, so noo need for a nullptr check
 			Dog& currentDog = *Dog::dogList[i];
 
 			currentDog.move(followMouse);
@@ -93,16 +93,16 @@ int main(int argc, const char** argv) {
 		vout << "Rendering the window.\t\t\t\t(main loop)" << std::endl;
 		SDL_RenderPresent(render);
 		
+		vout << "Waiting until next frame.\t\t\t(main loop)" << std::endl;
 		if(stepByStep) {
-			vout << "Waiting until next frame.\t\t\t(main loop)" << std::endl;
 			waitKeyPress(SDLK_RIGHT, render, win);
-		} else {
-			vout << "Waiting until next frame.\t\t\t(main loop)" << std::endl;
-			waitNextFrame((SDL_GetPerformanceCounter()-frameStart) / static_cast<double>(SDL_GetPerformanceFrequency()));		//For how long the frame lasted
+			continue;
 		}
 		
-		vout << "Clearing the window.\t\t\t\t(main loop)" << std::endl;
-		SDL_RenderClear(render);
+		waitNextFrame(
+			//passing the time taken in seconds
+			(SDL_GetPerformanceCounter() - frameStart) / (double)SDL_GetPerformanceFrequency()
+		);
 	}
 
 	quit(EXIT_SUCCESS, render, win);

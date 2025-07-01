@@ -23,19 +23,20 @@ private:
 	Cat(void)						noexcept;
 	explicit Cat(Pos)				noexcept;
 	Cat(pos_t, pos_t)				noexcept;
-	Cat(Pos, uint)					noexcept;
-	Cat(Pos, uint, uint8_t);
-	Cat(Pos, uint, uint, uint8_t);
+	Cat(Pos, double)					noexcept;
+	Cat(Pos, double, uint8_t);
+	Cat(Pos, double, double, uint8_t);
 
 	//make_unique accesses constructors
 	template< class _Tp, class... _Args >
 	friend std::_MakeUniq<_Tp>::__single_object std::make_unique(_Args&& ...);
 
 public:
-	Cat(const Cat&)	= default;
-	~Cat(void)		= default;
+	Cat(const Cat&)			= default;
+	Cat& operator=(const Cat&)	= default;
+	~Cat(void)				= default;
 
-	static Cat createUnlisted(Pos=Pos::ORIGIN, uint=0, uint=0, uint8_t=0);
+	static Cat createUnlisted(Pos=Pos::ORIGIN, double=0, double=0, uint8_t=0);
 	Cat copy(void)	const noexcept;
 
 	ID getID(void)	const noexcept;
@@ -45,7 +46,7 @@ public:
 
 	void handleCollisions(void) noexcept;
 
-	static void generateCats(uint8_t, std::vector<ID>* = nullptr, Pos=Pos::ORIGIN, uint=0, uint=0, uint8_t=0);
+	static void generateCats(uint8_t, std::vector<ID>* = nullptr, Pos=Pos::ORIGIN, double=0, double=0, uint8_t=0);
 	static void clearCatList(void) noexcept;
 
 	/** The base to make spritePath. */

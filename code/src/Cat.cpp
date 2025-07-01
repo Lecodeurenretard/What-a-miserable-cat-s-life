@@ -132,7 +132,7 @@ void Cat::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
 /**
  * Construct a new Cat obj with a random sprite and registers it in catList
  */
-[[ nodiscard ]] Cat::Cat(Pos _pos, uint _size) noexcept
+[[ nodiscard ]] Cat::Cat(Pos _pos, double _size) noexcept
 	: Animal(_pos, _size)
 {
 	setToRandomSprite();
@@ -150,7 +150,7 @@ void Cat::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
  * @throw Throw an `std::runtime_error` if failed to set the sprite.
  */
 
-[[ nodiscard ]] Cat::Cat(Pos _pos, uint _size, uint8_t spriteNum)
+[[ nodiscard ]] Cat::Cat(Pos _pos, double _size, uint8_t spriteNum)
 	: Cat(_pos, _size, 0, spriteNum)
 {}
 
@@ -158,7 +158,7 @@ void Cat::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
  * Construct a new Cat obj and register it in `catList`.
  * @throw Throw an `std::runtime_error` if failed to set the sprite.
  */
-[[ nodiscard ]] Cat::Cat(Pos _pos, uint _size, uint velocity, uint8_t spriteNum)
+[[ nodiscard ]] Cat::Cat(Pos _pos, double _size, double velocity, uint8_t spriteNum)
 	: Animal(_pos, _size, velocity, spriteNum)
 {
 	if(spriteNum == 0) {
@@ -173,7 +173,7 @@ void Cat::drawSpecificities(SDL_Renderer* r, TTF_Font* font/*=nullptr*/) const {
  * Create a cat that is not listed in catList.
  * @throw Throw an `std::runtime_error` if failed to set the sprite.
  */
-[[ nodiscard ]] Cat Cat::createUnlisted(Pos _pos/*=Pos::ORIGIN*/, uint _size/*=0*/, uint velocity/*=0*/, uint8_t spriteNum/*=0*/) {
+[[ nodiscard ]] Cat Cat::createUnlisted(Pos _pos/*=Pos::ORIGIN*/, double _size/*=0*/, double velocity/*=0*/, uint8_t spriteNum/*=0*/) {
 	return Cat(_pos, _size, velocity, spriteNum);
 }
 
@@ -257,7 +257,7 @@ void Cat::handleCollisions(void) noexcept {
  * @param IDs A vector that is modified to contain the IDs of generated cats (`CATLIST_SIZE` for unlisted cat).
  * @throw The Cat constructor may throw an exception.
  */
-void Cat::generateCats(uint8_t howMany, std::vector<ID>* IDs /*= nullptr*/, Pos pos/*=Pos::ORIGIN*/, uint size/*=0*/, uint speed/*=0*/, uint8_t spriteNum/*=0*/) {
+void Cat::generateCats(uint8_t howMany, std::vector<ID>* IDs /*= nullptr*/, Pos pos/*=Pos::ORIGIN*/, double size/*=0*/, double speed/*=0*/, uint8_t spriteNum/*=0*/) {
 	if(IDs)
 		IDs->reserve(howMany);
 	for (double i = 0; i < howMany; i++) {

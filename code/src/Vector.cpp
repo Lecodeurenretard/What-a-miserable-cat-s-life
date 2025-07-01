@@ -27,10 +27,7 @@
  * @throw An `std::logic_error` if the vector has a norm of 0.
  */
 Vector Vector::withNorm(double newNorm) const {
-	const double length(norm());
-	if(length == 0)
-		throw std::logic_error("Division by zero in " + string() +".unit(): the norm of the current vector is 0");
-	return *this * abs(newNorm)/length;
+	return unit() * abs(newNorm);
 }
 
 /**
@@ -58,8 +55,8 @@ void Vector::draw(SDL_Renderer* r, const Vector& startPos /*= Vec_ZERO*/) const 
 	if(SDL_RenderDrawLineF(r, startPos.x, startPos.y, endPos.x, endPos.y) < 0)
 		throw std::runtime_error("Failed to draw line from "+ startPos.string() +" to "+ endPos.string() +".\nLast SDL error: "+ SDL_GetError());
 
-	const Vector posHead1 = endPos + rotate(degToRadian(+135.0)).withNorm(norm()/5);
-	const Vector posHead2 = endPos + rotate(degToRadian(-135.0)).withNorm(norm()/5);
+	const Vector posHead1 = endPos + rotate(degToRadian(+135.0)).withNorm(norm()/5.0);
+	const Vector posHead2 = endPos + rotate(degToRadian(-135.0)).withNorm(norm()/5.0);
 
 	if(SDL_RenderDrawLineF(r, endPos.x, endPos.y, posHead1.x, posHead1.y) < 0)
 		throw std::runtime_error("Failed to draw line from "+ endPos.string() +" to "+ posHead1.string() +".\nLast SDL error: "+ SDL_GetError());

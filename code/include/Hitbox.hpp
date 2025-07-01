@@ -25,7 +25,10 @@ struct Hitbox {
 	Hitbox(void)			noexcept;
 	Hitbox(SDL_Rect)		noexcept;
 	Hitbox(SDL_FRect)		noexcept;
-	Hitbox(const Hitbox&) = default;
+	
+	Hitbox(const Hitbox&)	= default;
+	Hitbox& operator=(const Hitbox&) = default;
+	~Hitbox(void)			= default;
 
 	operator SDL_Rect(void)  const noexcept;
 	operator SDL_FRect(void) const noexcept;

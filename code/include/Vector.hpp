@@ -29,8 +29,6 @@ struct Vector {
 	static Vector fromPoints(SDL_Point, SDL_Point)	 noexcept;
 	static Vector fromPoints(SDL_FPoint, SDL_FPoint) noexcept;
 	
-	~Vector(void) = default;
-
 	/** Return the length of this vector.*/
 	constexpr double norm(void) const noexcept {
 		return roundDouble(std::sqrt(x*x + y*y));

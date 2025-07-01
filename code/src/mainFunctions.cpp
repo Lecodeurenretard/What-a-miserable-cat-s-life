@@ -51,7 +51,7 @@ void saveImgs(const char* name, size_t offset, size_t count) {
 }
 
 /**
- * Create the `sprite` directtory.
+ * Create the `sprite` directory.
  */
 void createSpriteDir(void) {
 	vout << "Creating image files." << std::endl;
@@ -70,21 +70,26 @@ void createSpriteDir(void) {
 
 
 /**
- * Wait the appropriate time until next frame and returns delta in second/frame (delta is the maximum time that can be allowed)
+ * Wait the appropriate time until next frame.
  * @param lasted How many seconds took the last frame to run
  */
-double waitNextFrame(double lasted) noexcept {
-	constexpr double delta = 1.0 / DESIRED_FPS;
+void waitNextFrame(double lasted) {
+	if(lasted < 0)
+		throw std::invalid_argument("The time took for the last frame must be positive, got " + std::to_string(lasted) + "s");
 
-	const int timeTaken = (delta - lasted) * 1000;
+	constexpr double DESIRED_TIME = 1.0/DESIRED_FPS;	//The time took if the framerate was DESIRED_FPS
+	deltaTime = lasted;
 
-	if (timeTaken >= 0) {
-		SDL_Delay(timeTaken);
-		vout << "Frame completed in " << timeTaken << "ms.\t\t\t(main loop/waitNextFrame())\n" << std::endl;
-	} else {
-		wout << "The frame ended " << -timeTaken << "ms late (took " << lasted * 1000 << "ms to run)." << std::endl;
+	const int timeLeft = std::round(DESIRED_TIME - deltaTime);
+
+	if(timeLeft < 0) {
+		wout << "The frame ended " << -timeLeft * 1000 << "ms late (took " << lasted * 1000 << "ms to run)." << std::endl;
+		return;
 	}
-	return delta;
+
+	vout << "Frame completed in " << lasted * 1000 << "ms (finished " << timeLeft * 1000 << "ms early).\t(main loop/waitNextFrame())" << std::endl;
+	SDL_Delay(timeLeft);
+	deltaTime += timeLeft;	//could do deltaTime = DESIRED_TIME but I find this  more intuitive
 }
 
 /**

@@ -14,8 +14,10 @@
 struct pos_t {
 	double val;
 	inline pos_t(double x) noexcept {val = std::abs(x);}
-
 	inline operator double() const noexcept { return val; }
+
+	inline bool operator==(const pos_t& p) const noexcept { return std::abs(val - p.val) < .0001; }
+	inline bool operator!=(const pos_t& p) const noexcept { return !operator==(p); }
 
 	inline pos_t operator+=(const pos_t& p) noexcept { val += p.val; return *this;}
 	inline pos_t operator-=(const pos_t& p) noexcept { val -= p.val; return *this;}
@@ -36,9 +38,9 @@ struct Pos {
 	Pos(const SDL_Point&)	noexcept;
 	Pos(const SDL_FPoint&)	noexcept;
 
+	Pos(const Pos&)				= default;
 	Pos& operator=(const Pos&)	= default;
-	Pos(const Pos&)			= default;
-	~Pos(void)				= default;
+	~Pos(void)					= default;
 
 	bool isInBounds(void) const noexcept;
 	static bool isInBounds(pos_t, pos_t) noexcept;
@@ -54,6 +56,7 @@ struct Pos {
 
 	bool operator==(const Pos&) const = default;
 	bool operator!=(const Pos&) const = default;
+
 	operator Vector()		const noexcept;
 	operator SDL_Point()	const noexcept;
 	operator SDL_FPoint()	const noexcept;

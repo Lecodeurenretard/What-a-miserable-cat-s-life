@@ -4,7 +4,7 @@ struct stat sb;
 /**
  * This constructor is only for path we are sure the sprite exists. Directly set `spritePath` to `path` without any test.
  */
-[[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, uint _speed, std::string path) noexcept
+[[ nodiscard ]] Animal::Animal(Pos _pos, double _size, double _speed, std::string path) noexcept
 	: pos(_pos), dest(_pos), size(_size), speed(_speed), spritePath(path)
 {}
 
@@ -69,10 +69,13 @@ void Animal::setDestMouse(void) noexcept {
  * Check if the animal is at destination.
  */
 bool Animal::isAtDest(void) const noexcept {
-	const double threshold = speed + 0.01;	//making sure the animal can't jump behind the destination's bounding box.
+	if(pos == dest)
+		return true;
+	
+	const double threshold = getSpeedVector().norm()/2;	//making sure the animal can't jump behind the destination's bounding box.
 	return 
-		dest.x - threshold < pos.x && pos.x < dest.x + threshold &&		//dest.x - threshold < pos.x < dest.x + threshold
-		dest.y - threshold < pos.y && pos.y < dest.y + threshold;		//dest.y - threshold < pos.y < dest.y + threshold
+		dest.x - threshold <= pos.x && pos.x <= dest.x + threshold &&		//dest.x - threshold < pos.x < dest.x + threshold
+		dest.y - threshold <= pos.y && pos.y <= dest.y + threshold;		//dest.y - threshold < pos.y < dest.y + threshold
 }
 
 /**
@@ -82,7 +85,7 @@ bool Animal::isAtDest(void) const noexcept {
 	return Vector::fromPoints(
 		static_cast<SDL_FPoint>(pos),
 		static_cast<SDL_FPoint>(dest)
-	).withNorm(speed);
+	).withNorm(speed * deltaTime);
 }
 
 /**
@@ -126,7 +129,7 @@ void Animal::drawInfos(SDL_Renderer* render, bool isColliding/*=false*/) const n
 	SDL_GetRenderDrawColor(render, oldColor);
 	SDL_SetRenderDrawColor(render, COL_WHITE);
 
-	(getSpeedVector() * DESIRED_FPS/4).draw(render, pos);	//This speed vector is for the next half-second
+	(getSpeedVector() * DESIRED_FPS/2).draw(render, pos);	//This speed vector is for the next half-second
 	dest.draw(render);
 	hitbox.draw(render, isColliding? HITBOX_COLOR_ACTIVE : HITBOX_COLOR_INACTIVE);
 
@@ -177,25 +180,25 @@ void Animal::drawInfos(SDL_Renderer* render, bool isColliding/*=false*/) const n
 	: Animal(Pos(x, y))
 {}
 
-[[ nodiscard ]] Animal::Animal(Pos _pos, uint _size) noexcept
+[[ nodiscard ]] Animal::Animal(Pos _pos, double _size) noexcept
 	: Animal(_pos, _size, 0)
 {}
 
-[[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, uint velocity) noexcept
+[[ nodiscard ]] Animal::Animal(Pos _pos, double _size, double velocity) noexcept
 	: pos(_pos), dest(_pos), size(_size), speed(velocity)
 {
 	Animal::setToRandomSprite();
 
-	const Pos hitboxPos = static_cast<Vector>(_pos) - Vector{.x = (double)_size, .y = (double)_size} /2;
-	hitbox = getSquare((double)size, hitboxPos);
+	const Pos hitboxPos = static_cast<Vector>(_pos) - Vector{.x = _size, .y = _size} /2;
+	hitbox = getSquare(size, hitboxPos);
 }
 
 
-[[ nodiscard ]] Animal::Animal(Pos _pos, uint _size, uint velocity, uint8_t spriteNum)
+[[ nodiscard ]] Animal::Animal(Pos _pos, double _size, double velocity, uint8_t spriteNum)
 	: pos(_pos), dest(_pos), size(_size), speed(velocity)
 {
-	const Pos hitboxPos = static_cast<Vector>(_pos) - Vector{.x = (double)_size, .y = (double)_size	}/2;
-	hitbox = getSquare((double)size, hitboxPos);
+	const Pos hitboxPos = static_cast<Vector>(_pos) - Vector{.x = _size, .y = _size	}/2;
+	hitbox = getSquare(size, hitboxPos);
 
 	if(spriteNum != 0 && !setSprite(spriteNum))
 		throw std::invalid_argument("Couldn't set the sprite.\nMaybe `"+ Animal::spriteFolder + std::to_string(spriteNum) + ".bmp` is not a correct path?");
@@ -206,32 +209,38 @@ void Animal::drawInfos(SDL_Renderer* render, bool isColliding/*=false*/) const n
 /**
  * Increase the size of by `by` pixels.
  */
-void Animal::increaseSize(uint by) noexcept {
-	if(checkIntegerOverflow(size, by, &size))		//if not overflowing, the result of the addition is strored in size
-		size = UINT32_MAX;
+void Animal::increaseSize(double by) noexcept {
+	if(size + by >= Animal::maxSize) {
+		size = Animal::maxSize;
+		return;
+	}
+	size += by;
 }
 
 /**
  * Increase the speed of by `by` pixels per frame.
  */
-void Animal::increaseSpeed(uint by) noexcept {
-	if(checkIntegerOverflow(speed, by, &speed))
-		speed = UINT32_MAX;
+void Animal::increaseSpeed(double by) noexcept {
+	if(speed + by >= Animal::maxSpeed) {
+		speed = Animal::maxSpeed;
+		return;
+	}
+	speed += by;
 }
 
 /**
  * Increment the health of the animal.
  */
 void Animal::incrementHealth(void) noexcept {
-	if(checkIntegerOverflow(speed, 1u, &speed)) 
-		health = UINT8_MAX;
+	if(++health >= Animal::maxHealth)
+		health = Animal::maxHealth;
 }
 
 /**
  * Randomize the health of the animal.
  */
-void Animal::randomizeHealth(uint8_t min /*= 1*/, uint8_t max /*= UINT8_MAX*/) noexcept {
-	health = randInt(min, max);
+void Animal::randomizeHealth(double min /*= 1*/, double max /*= UINT8_MAX*/) noexcept {
+	health = randDouble(min, max);
 }
 
 /**

@@ -2,7 +2,7 @@
 This file simply list the progression of patches in this minor version.
 
 ## 0.3.0:
-+ **big changes**:
++ **Big changes**:
 	1. The number of cats and dogs is no more predetermined.
 		- Added new arguments `--catCount` and `--dogCount`.
 	2. Cats take damages and die.
@@ -40,7 +40,7 @@ This file simply list the progression of patches in this minor version.
 	- Added a space before `{` which begin a scope to make the code a little bit prettier.
 
 ## 0.3.1:
-+ big changes:
++ **Big changes**:
 	- Better error propagation:
 		* Removed all `noexcept(false)`, by default a function is considered potentionally throwing.
 		* Added a `@throw` section in the documentation of potentially throwing functions which explain when the function throws.
@@ -75,7 +75,7 @@ This file simply list the progression of patches in this minor version.
 	- Simplified end of frame logic to one `if` `else` block.
 
 ## 0.3.2:
-+ Big changes:
++ **Big changes**:
 	- Now coding in a more modern C++ (using smart pointers and standard arrays).
 	- A few refactors
 + Changes for `Cat`:
@@ -125,3 +125,17 @@ This file simply list the progression of patches in this minor version.
 	- Enhaced "pretty" mode for hitbox test.
 	- Added verbose and aligned the verbose location.
 	- Renamed the directory _utility libs_ to [submodules](code/include/submodules/)
+
+## 3.2 bis
++ **Big changes**:
+	- Reimplemented delta time (lost in merging).
++ Changes for `Animal`:
+	- Changed the type of `size` and `speed` attributes to `double`.
+	- Added maximum and minimum values for `health`, `size` and `speed`.
+	- Improved the logic for `isAtDest()`.
+	- Increased speeds for dogs and cats.
++ Other changes:
+	- Respected [rule of zero](https://en.cppreference.com/w/cpp/language/rule_of_three.html#Rule_of_zero) and [rule of three](https://en.cppreference.com/w/cpp/language/rule_of_three.html#Rule_of_three).
+	- `waitNextFrame()` now returns nothing and modify the `deltaTime` global variable.
+	- Added `==` and `!=` operators to `pos_t`.
+	- Changed `DESIRED_FPS` to be a macro.

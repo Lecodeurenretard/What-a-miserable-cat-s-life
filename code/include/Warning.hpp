@@ -9,12 +9,15 @@ private:
 	std::ostream* stream;
 	bool printHeading = true;
 
+	WarningStream(const WarningStream&) = default;
 	WarningStream& operator=(const WarningStream&) = default;
+
 public:
 	static const std::string heading;
+	
 
 	explicit WarningStream(std::ostream& = std::cerr) noexcept;
-	WarningStream(const WarningStream&) = default;
+	~WarningStream(void)				= default;
 
 	template<typename T>
 		requires Streamable<T>

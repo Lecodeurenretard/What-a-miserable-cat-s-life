@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.6) 
 project("What a miserable cat's life!" VERSION 0.3)
 
+# Define options
+OPTION(FRAMERATE "The targeted framerate of the build." 60)
+
+# Handle options
+add_compile_definitions(DESIRED_FPS=${FRAMERATE})
 
 # Sets the build mode (default: release)
 if(NOT (CMAKE_BUILD_TYPE MATCHES "Debug"))
@@ -15,7 +20,8 @@ else()
 	add_compile_options(-ggdb -Wextra ${DBG_FLAGS})
 	add_link_options(${DBG_FLAGS})
 endif()
-message("Build type used: ${CMAKE_BUILD_TYPE}")
+message("CMake build type used: ${CMAKE_BUILD_TYPE}")
+message("Framerate max: ${FRAMERATE} fps")
 
 # Without this argument the program won't link SDL_ttf for some reason
 add_compile_options("-fsanitize=address")

@@ -10,11 +10,13 @@ private:
 	std::ostream* stream;
 	bool printHeading;
 
-	VerboseStream& operator=(const VerboseStream&) = default;
+	VerboseStream(const VerboseStream&) 			= default;
+	VerboseStream& operator=(const VerboseStream&)	= default;
 
 public:
 	explicit VerboseStream(std::ostream& = std::cout) noexcept;
-	VerboseStream(const VerboseStream&) = default;
+	
+	~VerboseStream(void)							= default;
 
 	static void setEnabled(const cmd::Parser::parseReturn_t&);
 

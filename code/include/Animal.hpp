@@ -15,15 +15,23 @@ class Animal {
 protected:
 	Pos pos					= Pos::SCREEN_CENTER;
 	Pos dest				= Pos::SCREEN_CENTER;
-	uint size				= 0;
-	uint speed				= 0;
+	double size				= 0;
+	double speed			= 0;
 	uint8_t health			= 1;
+
+	constexpr static double minSpeed   = .0001;
+	constexpr static double minSize    = .5;
+	constexpr static uint8_t minHealth = 0;
+
+	constexpr static double maxSpeed   = 1.0;
+	constexpr static double maxSize    = 100.0;
+	constexpr static uint8_t maxHealth = UINT8_MAX;
 
 	std::string spritePath;
 	std::string spritePathDead;
 	Hitbox hitbox;
 
-	Animal(Pos, uint, uint, std::string)	noexcept;
+	Animal(Pos, double, double, std::string)	noexcept;
 	virtual bool setSprite(uint8_t)			noexcept;
 	virtual void setToRandomSprite(void);
 
@@ -41,18 +49,19 @@ protected:
 public:
 	explicit Animal(Pos)				noexcept;
 	Animal(pos_t, pos_t)				noexcept;
-	Animal(Pos, uint)					noexcept;
-	Animal(Pos, uint, uint)				noexcept;
-	Animal(Pos, uint, uint, uint8_t);
+	Animal(Pos, double)					noexcept;
+	Animal(Pos, double, double)				noexcept;
+	Animal(Pos, double, double, uint8_t);
 
-	Animal(const Animal&) = default;
-	virtual ~Animal(void) = default;
+	Animal(const Animal&)			 = default;
+	Animal& operator=(const Animal&) = default;
+	virtual ~Animal(void)			 = default;
 
-	void increaseSize(uint)		noexcept;
-	void increaseSpeed(uint)	noexcept;
+	void increaseSize(double)	noexcept;
+	void increaseSpeed(double)	noexcept;
 
 	void incrementHealth(void)							noexcept;
-	void randomizeHealth(uint8_t=1, uint8_t=UINT8_MAX)	noexcept;
+	void randomizeHealth(double=1, double=UINT8_MAX)	noexcept;
 
 	void move(bool=false);
 	void moveToDest(void);
